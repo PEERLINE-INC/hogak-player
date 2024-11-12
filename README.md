@@ -1,9 +1,19 @@
-# react-vite-component-template
+# Hogak Player
+호각 OTT 영상 재생을 위한 플레이어입니다.
 
-Template for building a **React component library**, with **Vite**, **TypeScript** and **Storybook**.
+## Usage
+```bash
+npm install @peerline/hogak-player
+```
 
-Check my post about this repository [here](https://victorlillo.dev/blog/react-typescript-vite-component-library).
+```jsx
+import React from 'react'
+import { HogakPlayer } from '@peerline/hogak-player';
 
+<HogakPlayer isPlay={true} url='https://www.youtube.com/watch?v=LXb3EKWsInQ' />
+```
+
+---
 ## Features
 
 - ⚛️ **React** component library with **TypeScript**.
