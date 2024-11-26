@@ -7,6 +7,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import { libInjectCss } from 'vite-plugin-lib-inject-css'
+import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +16,9 @@ export default defineConfig({
     // https://github.com/vitejs/vite/issues/1579#issuecomment-1483756199
     libInjectCss(),
     dts({ exclude: ['**/*.stories.ts', 'src/test', '**/*.test.tsx'] }),
+    svgr({
+      include: "**/*.svg?react",
+    }),
   ],
   build: {
     lib: {

@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import { OnProgressProps } from 'react-player/base';
-import { PlayTime } from '../PlayTime';
+import usePlayerStore from '../../store/playerStore';
+import { Controls } from '../Controls';
 
 interface HogakPlayerProps {
   isPlay: boolean;
@@ -14,41 +15,31 @@ interface HogakPlayerProps {
 
 export function HogakPlayer(props: HogakPlayerProps) {
   const {
-    isPlay,
-    setIsPlay,
-    url,
     width,
     height,
   } = props;
-  const playerRef = useRef(null);
+
+  const url = usePlayerStore((state) => state.url);
+  const setUrl = usePlayerStore((state) => state.setUrl);
+  const pip = usePlayerStore((state) => state.pip);
+  const isPlay = usePlayerStore((state) => state.isPlay);
+  const isSeek = usePlayerStore((state) => state.isSeek);
+  const setIsPlay = usePlayerStore((state) => state.setIsPlay);
+  const setDuration = usePlayerStore((state) => state.setDuration);
+  const setPlayed = usePlayerStore((state) => state.setPlayed);
+  const volume = usePlayerStore((state) => state.volume);
+
+  useEffect(() => {
+    setIsPlay(props.isPlay);
+    setUrl(props.url);
+  }, [props.isPlay, props.url]);
+
+  const playerRef = useRef<ReactPlayer | null>(null);
   const [_, setReady] = useState(false);
-  const [pip, setPip] = useState(false);
-  const [played, setPlayed] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1.0);
-  const [isSeek, setIsSeek] = useState(false);
 
   const onEnded = () => {
     setIsPlay(false);
   };
-
-  const handleTogglePIP = () => {
-    setPip(!pip);
-  }
-
-  const handleSeekMouseDown = () => {
-    setIsSeek(true);
-  };
-  const handleSeekChange = (e: any) => {
-    setPlayed(parseFloat(e.target.value));
-  }
-  const handleSeekMouseUp = (e: any) => {
-    setIsSeek(false);
-    if (playerRef.current) {
-      // @ts-ignore
-      playerRef.current.seekTo(parseFloat(e.target.value));
-    }
-  }
 
   const handleDuration = (duration: number) => {
     console.log('onDuration', duration);
@@ -63,51 +54,53 @@ export function HogakPlayer(props: HogakPlayerProps) {
   };
 
   return (
-    <FlexContainer>
-      <HogakPlayerWrap>
-        <ReactPlayer
-          width={width}
-          height={height}
-          ref={playerRef}
-          url={url}
-          className='hogak-player'
-          playing={isPlay}
-          controls={false}
-          onEnded={onEnded}
-          onReady={() => setReady(true)}
-          onDuration={handleDuration}
-          onProgress={handleProgress}
-          volume={volume}
-          pip={pip}
-        />
-        <PlayTime seconds={duration * played} />
-        {' / '}
-        <PlayTime seconds={duration} />
-        <input
-          style={{ width: '100%' }}
-          type='range' min={0} max={0.999999} step='any'
-          value={played}
-          onMouseDown={handleSeekMouseDown}
-          onChange={handleSeekChange}
-          onMouseUp={handleSeekMouseUp}
-        />
-        <input type='range' min={0} max={1} step='any' value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} />
-        {ReactPlayer.canEnablePIP(url) &&
-          <button onClick={handleTogglePIP}>{pip ? 'PIP 비활성화' : 'PIP 활성화'}</button>
-        }
-      </HogakPlayerWrap>
-    </FlexContainer>
+    <PlayerContainer width={width} height={height}>
+      <Container>
+        <PlayerWrapper>
+          <ReactPlayer
+            width="100%"
+            height="100%"
+            ref={playerRef}
+            url={url}
+            className='hogak-player'
+            playing={isPlay}
+            controls={false}
+            onEnded={onEnded}
+            onReady={() => setReady(true)}
+            onDuration={handleDuration}
+            onProgress={handleProgress}
+            volume={volume}
+            pip={pip}
+          />
+          <Controls playerRef={playerRef} />
+        </PlayerWrapper>
+      </Container>
+    </PlayerContainer>
   );
 }
 
-const FlexContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+const Container = styled.div`
+  width: 100%;
+  margin-left: auto;
+  box-sizing: border-box;
+  margin-right: auto;
 `;
 
-const HogakPlayerWrap = styled.div`
-  padding: 20px;
-  z-index: 2;
+const PlayerContainer = styled.div<{ width?: number; height?: number }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  ${(props) => props.width ? `width: ${props.width}px;` : 'width: 100%;'}
+  ${(props) => props.height && `height: ${props.height}px;`}
+  
+  .hogak-player {
+    object-fit: cover;
+    padding: 0;
+    margin: 0;
+  }
+`;
+
+const PlayerWrapper = styled.div`
+  position: relative;
 `;
