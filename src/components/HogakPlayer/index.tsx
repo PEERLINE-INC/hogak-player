@@ -4,23 +4,14 @@ import styled from 'styled-components';
 import { OnProgressProps } from 'react-player/base';
 import usePlayerStore from '../../store/playerStore';
 import { Controls } from '../Controls';
-
-interface HogakPlayerProps {
-  isPlay: boolean;
-  setIsPlay: (isPlay: boolean) => void;
-  url: string;
-  width: number;
-  height: number;
-}
+import { MultiViewPopover } from '../MultiViewPopover';
+import useMultiViewStore from '../../store/multiViewStore';
+import { HogakPlayerProps } from './interfaces';
 
 export function HogakPlayer(props: HogakPlayerProps) {
-  const {
-    width,
-    height,
-  } = props;
-
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
+  const setTitle = usePlayerStore((state) => state.setTitle);
   const pip = usePlayerStore((state) => state.pip);
   const isPlay = usePlayerStore((state) => state.isPlay);
   const isSeek = usePlayerStore((state) => state.isSeek);
@@ -28,11 +19,21 @@ export function HogakPlayer(props: HogakPlayerProps) {
   const setDuration = usePlayerStore((state) => state.setDuration);
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
+  const isShowMultiView = usePlayerStore((state) => state.isShowMultiView);
+  const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
 
   useEffect(() => {
-    setIsPlay(props.isPlay);
+    setIsPlay(props.isPlay ?? false);
     setUrl(props.url);
   }, [props.isPlay, props.url]);
+
+  useEffect(() => {
+    setTitle(props.title ?? '');
+  }, [props.title]);
+
+  useEffect(() => {
+    setMultiViewSources(props.multiViewSources ?? []);
+  }, [props.multiViewSources]);
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const [_, setReady] = useState(false);
@@ -42,19 +43,22 @@ export function HogakPlayer(props: HogakPlayerProps) {
   };
 
   const handleDuration = (duration: number) => {
-    console.log('onDuration', duration);
+    // console.log('onDuration', duration);
     setDuration(duration);
   }
 
   const handleProgress = (state: OnProgressProps) => {
-    console.log('onProgress', state);
+    // console.log('onProgress', state);
     if (!isSeek) {
       setPlayed(state.played);
     }
   };
 
   return (
-    <PlayerContainer width={width} height={height}>
+    <PlayerContainer
+      width={props.width ?? 640}
+      height={props.height ?? 480}
+    >
       <Container>
         <PlayerWrapper>
           <ReactPlayer
@@ -72,6 +76,7 @@ export function HogakPlayer(props: HogakPlayerProps) {
             volume={volume}
             pip={pip}
           />
+          <MultiViewPopover isShow={isShowMultiView} />
           <Controls playerRef={playerRef} />
         </PlayerWrapper>
       </Container>

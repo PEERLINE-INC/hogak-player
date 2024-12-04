@@ -4,6 +4,8 @@ import { persist } from 'zustand/middleware'
 interface PlayerState {
   url: string;
   setUrl: (url: string) => void;
+  title: string;
+  setTitle: (title: string) => void;
   pip: boolean;
   setPip: (pip: boolean) => void;
   isPlay: boolean;
@@ -16,6 +18,8 @@ interface PlayerState {
   setPlayed: (played: number) => void;
   volume: number;
   setVolume: (volume: number) => void;
+  isShowMultiView: boolean;
+  setIsShowMultiView: (isShowMultiView: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -23,6 +27,8 @@ const usePlayerStore = create<PlayerState>()(
     (set) => ({
       url: '',
       setUrl: (url: string) => set({ url }),
+      title: '',
+      setTitle: (title: string) => set({ title }),
       pip: false,
       setPip: (pip: boolean) => set({ pip }),
       isPlay: false,
@@ -35,6 +41,8 @@ const usePlayerStore = create<PlayerState>()(
       setPlayed: (played: number) => set({ played }),
       volume: 1.0,
       setVolume: (volume: number) => set({ volume }),
+      isShowMultiView: false,
+      setIsShowMultiView: (isShowMultiView: boolean) => set({ isShowMultiView }),
     }),
     {
       name: 'player-storage',

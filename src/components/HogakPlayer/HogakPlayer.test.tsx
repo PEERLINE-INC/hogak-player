@@ -1,16 +1,16 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, it } from 'vitest'
-import { MyTitle } from '.'
+import { HogakPlayer } from '.'
 
-describe('MyTitle test:', () => {
+describe('HogakPlayer test:', () => {
   afterEach(cleanup)
 
   it('should render component', () => {
-    render(<MyTitle title='Testing' />)
+    render(<HogakPlayer url='' />)
   })
 
   it('should render title', () => {
-    render(<MyTitle title='Testing' />)
-    screen.getByText('Testing')
+    render(<HogakPlayer url='' title='Title Test' />)
+    screen.getByText('Title Test')
   })
 })
