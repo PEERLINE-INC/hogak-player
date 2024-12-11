@@ -54,6 +54,21 @@ const meta = {
         },
       }
     },
+    tags: {
+      defaultValue: '',
+      description: '재생바에 표시할 태그 목록입니다.',
+      type: {
+        name: 'array',
+        value: {
+          name: 'object',
+          value: {
+            seconds: { name: 'number' },
+            title: { name: 'string' },
+            iconType: { name: 'string' },
+          },
+        },
+      }
+    },
   },
   args: {
     
@@ -82,6 +97,23 @@ export const Primary: Story = {
         thumbnailUrl: 'https://picsum.photos/seed/picsum2/300/200',
         title: '[멀티VIEW] 2번 카메라',
         url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+      },
+    ],
+    tags: [
+      {
+        seconds: 179,
+        title: '02:59 홈런',
+        iconType: 'red',
+      },
+      {
+        seconds: 306,
+        title: '05:06 홈런',
+        iconType: 'red',
+      },
+      {
+        seconds: 560,
+        title: '09:20 홈런',
+        iconType: 'red',
       },
     ],
   },

@@ -7,6 +7,8 @@ import { Controls } from '../Controls';
 import { MultiViewPopover } from '../MultiViewPopover';
 import useMultiViewStore from '../../store/multiViewStore';
 import { HogakPlayerProps } from './interfaces';
+import { TagViewPopover } from '../TagViewPopover';
+import useTagStore from '../../store/tagViewStore';
 
 export function HogakPlayer(props: HogakPlayerProps) {
   const url = usePlayerStore((state) => state.url);
@@ -21,6 +23,8 @@ export function HogakPlayer(props: HogakPlayerProps) {
   const volume = usePlayerStore((state) => state.volume);
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView);
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
+  const isShowTagView = usePlayerStore((state) => state.isShowTagView);
+  const setTags = useTagStore((state) => state.setTags);
 
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
@@ -34,6 +38,10 @@ export function HogakPlayer(props: HogakPlayerProps) {
   useEffect(() => {
     setMultiViewSources(props.multiViewSources ?? []);
   }, [props.multiViewSources]);
+
+  useEffect(() => {
+    setTags(props.tags ?? []);
+  }, [props.tags]);
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const [_, setReady] = useState(false);
@@ -77,6 +85,7 @@ export function HogakPlayer(props: HogakPlayerProps) {
             pip={pip}
           />
           <MultiViewPopover isShow={isShowMultiView} />
+          <TagViewPopover isShow={isShowTagView} />
           <Controls playerRef={playerRef} />
         </PlayerWrapper>
       </Container>
