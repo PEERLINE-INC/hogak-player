@@ -20,6 +20,8 @@ interface PlayerState {
   setVolume: (volume: number) => void;
   isShowMultiView: boolean;
   setIsShowMultiView: (isShowMultiView: boolean) => void;
+  isShowTagView: boolean;
+  setIsShowTagView: (isShowTagView: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -43,6 +45,8 @@ const usePlayerStore = create<PlayerState>()(
       setVolume: (volume: number) => set({ volume }),
       isShowMultiView: false,
       setIsShowMultiView: (isShowMultiView: boolean) => set({ isShowMultiView }),
+      isShowTagView: false,
+      setIsShowTagView: (isShowTagView: boolean) => set({ isShowTagView }),
     }),
     {
       name: 'player-storage',

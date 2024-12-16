@@ -8,10 +8,13 @@ import PauseIcon from "../../assets/icons/vod_pause.svg?react";
 import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
+import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
+import RedTagIcon from "../../assets/icons/mark_red.svg?react";
 import usePlayerStore from '../../store/playerStore';
 import { PlayTime } from '../PlayTime';
 import './styles.css';
 import useMultiViewStore from '../../store/multiViewStore';
+import useTagStore from '../../store/tagViewStore';
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
@@ -36,6 +39,8 @@ export function Controls(props: ControlsProps) {
   const setVolume = usePlayerStore((state) => state.setVolume);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
+  const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
+  const tags = useTagStore((state) => state.tags);
 
   const [mute] = useState(false);
 
@@ -53,6 +58,13 @@ export function Controls(props: ControlsProps) {
       console.warn('playerRef is null, cannot seek');
     }
   };
+  const handleTagClick = (seconds: number) => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(seconds);
+    } else {
+      console.warn('playerRef is null, cannot seek');
+    }
+  }
 
   return (
     <ControlsWrapper>
@@ -69,19 +81,29 @@ export function Controls(props: ControlsProps) {
           </IconButton>}
         </TopContainer>
         <MiddleContainer>
-          {/* <IconButton onDoubleClick={onRewind}>
-            <FastRewind fontSize="medium" />
-          </IconButton> */}
-          <IconButton onClick={(_) => setIsPlay(!isPlay)}>
-            {isPlay ? (
-              <PauseIcon />
-            ) : (
-              <PlayIcon />
-            )}{" "}
-          </IconButton>
-          {/* <IconButton>
-            <FastForward fontSize="medium" onDoubleClick={onForward} />
-          </IconButton> */}
+          <FlexCol>
+
+          </FlexCol>
+          <FlexCol>
+            {/* <IconButton onDoubleClick={onRewind}>
+                <FastRewind fontSize="medium" />
+              </IconButton> */}
+              <IconButton onClick={(_) => setIsPlay(!isPlay)}>
+                {isPlay ? (
+                  <PauseIcon />
+                ) : (
+                  <PlayIcon />
+                )}{" "}
+              </IconButton>
+              {/* <IconButton>
+                <FastForward fontSize="medium" onDoubleClick={onForward} />
+              </IconButton> */}
+          </FlexCol>
+          <FlexCol style={{paddingRight: 16}}>
+            <IconButton onClick={(_) => setIsShowTagView(true)}>
+              <TagViewIcon width={24} />
+            </IconButton>
+          </FlexCol>
         </MiddleContainer>
         <BottomContainer>
           <ControlBox>
@@ -133,7 +155,20 @@ export function Controls(props: ControlsProps) {
               <Slider.Track className="SliderTrack">
                 <Slider.Range className="SliderRange" />
               </Slider.Track>
-              <Slider.Thumb className="SliderThumb" aria-label="Volume" />
+              <Slider.Thumb className="SliderThumb" aria-label="Time" />
+              {tags.map((tag, index) => {
+                // 태그의 위치를 계산합니다.
+                const left = `${(tag.seconds / duration) * 100}%`;
+                return (
+                  <TagMarker
+                    key={index}
+                    style={{ left }}
+                    onClick={() => handleTagClick(tag.seconds)}
+                  >
+                    <RedTagIcon width={24} />
+                  </TagMarker>
+                );
+              })}
             </Slider.Root>
           </SliderContainer>
         </BottomContainer>
@@ -182,8 +217,9 @@ const TopContainer = styled.div`
 
 const MiddleContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  height: 100%;
 `;
 
 const BottomContainer = styled.div`
@@ -215,4 +251,17 @@ const FlexRow = styled.div<{ gap?: number }>`
   display: flex;
   align-items: center;
   gap: ${(props) => props.gap || 0}px;
+`;
+
+const FlexCol = styled.div<{ gap?: number }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.gap || 0}px;
+`;
+
+const TagMarker = styled.div`
+  position: absolute;
+  top: -16px;
+  transform: translateX(-50%);
+  cursor: pointer;
 `;

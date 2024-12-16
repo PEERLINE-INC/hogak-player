@@ -6,6 +6,14 @@ export class MultiViewSource {
   ) {}
 }
 
+export class TagProps {
+  constructor(
+    public seconds: number,
+    public title: string,
+    public iconType: string,
+  ) {}
+}
+
 export type HogakPlayerProps = {
   title?: string;
   isPlay?: boolean;
@@ -14,4 +22,5 @@ export type HogakPlayerProps = {
   width?: number;
   height?: number;
   multiViewSources?: MultiViewSource[];
+  tags?: TagProps[];
 }
