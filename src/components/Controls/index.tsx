@@ -31,7 +31,6 @@ export function Controls(props: ControlsProps) {
   const setPip = usePlayerStore((state) => state.setPip);
   const isPlay = usePlayerStore((state) => state.isPlay);
   const setIsPlay = usePlayerStore((state) => state.setIsPlay);
-  const isSeek = usePlayerStore((state) => state.isSeek);
   const setIsSeek = usePlayerStore((state) => state.setIsSeek);
   const duration = usePlayerStore((state) => state.duration);
   const played = usePlayerStore((state) => state.played);

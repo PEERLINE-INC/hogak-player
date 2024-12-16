@@ -83,6 +83,7 @@ export function HogakPlayer(props: HogakPlayerProps) {
             onProgress={handleProgress}
             volume={volume}
             pip={pip}
+            playsinline={true}
           />
           <MultiViewPopover isShow={isShowMultiView} />
           <TagViewPopover isShow={isShowTagView} />
