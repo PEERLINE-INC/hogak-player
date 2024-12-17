@@ -19,7 +19,8 @@ export const TagViewPopover = ({ isShow }: TagViewPopoverProps) => {
           </IconButton>
           <div style={{ fontSize: 14 }}>태그 추가</div>
         </FlexRow>
-        <FlexRow style={{ cursor: 'pointer' }}>
+        {/* TODO: 태그 클릭 이벤트 필요 */}
+        <FlexRow style={{ cursor: 'pointer' }} onClick={(e) => {}}>
           <TagIcon>
             <RedTagIcon width={36} height={24} />
           </TagIcon>
