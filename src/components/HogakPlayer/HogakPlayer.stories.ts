@@ -87,6 +87,9 @@ export const Primary: Story = {
     height: 360,
     isPlay: false,
     setIsPlay: () => {},
+    onBack: () => {
+      alert('onBack');
+    },
     multiViewSources: [
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum/300/200',
