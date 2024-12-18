@@ -14,6 +14,11 @@ export class TagProps {
   ) {}
 }
 
+export type OnClickAddTagEventObject = {
+  name: string;
+  seconds: number;
+}
+
 export type HogakPlayerProps = {
   title?: string;
   isPlay?: boolean;
@@ -24,4 +29,5 @@ export type HogakPlayerProps = {
   height?: number | undefined;
   multiViewSources?: MultiViewSource[];
   tags?: TagProps[];
+  onClickAddTag?: (data: OnClickAddTagEventObject) => void;
 }

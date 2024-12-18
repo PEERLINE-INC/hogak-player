@@ -1,0 +1,45 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import * as Stories from './HogakPlayer.stories';
+import { HogakPlayer } from '.';
+
+<Meta of={Stories} />
+
+# HogakPlayer
+---
+<Story of={Stories.Basic} />
+
+<br />
+<br />
+## Methods
+
+### `getCurrentSeconds()`
+
+현재 재생 중인 시간을 초 단위로 반환합니다.
+
+#### 예시 코드
+```tsx
+import React, { useRef } from 'react';
+import { HogakPlayer } from './HogakPlayer';
+
+const playerRef = useRef<{ getCurrentSeconds: () => number } | null>(null);
+
+  const handleGetCurrentTime = () => {
+    if (playerRef.current) {
+      const currentTime = playerRef.current.getCurrentSeconds();
+      console.log('Current Time:', currentTime);
+    }
+  };
+
+  return (
+    <div>
+      <HogakPlayer
+        url="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+        ref={playerRef}
+      />
+      <button onClick={handleGetCurrentTime}>Get Current Seconds</button>
+    </div>
+  );
+```
+
+## Props 
+<Controls />

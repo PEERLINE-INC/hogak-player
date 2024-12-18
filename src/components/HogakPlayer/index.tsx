@@ -72,8 +72,8 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 
   return (
     <PlayerContainer
-      width={props.width ?? 640}
-      height={props.height ?? 480}
+      width={props.width}
+      height={props.height}
     >
       <Container>
         <PlayerWrapper>
@@ -96,7 +96,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
             playsinline={true}
           />
           <MultiViewPopover isShow={isShowMultiView} />
-          <TagViewPopover isShow={isShowTagView} />
+          <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} />
         </PlayerWrapper>
       </Container>
@@ -111,13 +111,13 @@ const Container = styled.div`
   margin-right: auto;
 `;
 
-const PlayerContainer = styled.div<{ width?: number; height?: number }>`
+const PlayerContainer = styled.div<{ width: number | undefined; height: number | undefined }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   ${(props) => props.width ? `width: ${props.width}px;` : 'width: 100%;'}
-  ${(props) => props.height && `height: ${props.height}px;`}
+  ${(props) => props.height ? `height: ${props.height}px;` : 'height: 100%;'}
   
   .hogak-player {
     object-fit: cover;
