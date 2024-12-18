@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { HogakPlayer } from '.'
+import { OnClickAddTagEventObject } from './interfaces'
+import { useRef } from 'react';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -11,7 +13,7 @@ const meta = {
     layout: 'centered',
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-  tags: ['autodocs'],
+  // tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
     title: {
@@ -25,14 +27,14 @@ const meta = {
       type: 'string',
     },
     width: {
-      defaultValue: '',
-      description: '플레이어의 너비입니다.',
-      type: 'number',
+      defaultValue: 640,
+      description: '플레이어의 너비입니다. 입력하지 않으면 100%로 취급합니다.',
+      control: { type: 'number' },
     },
     height: {
-      defaultValue: '',
-      description: '플레이어의 높이입니다.',
-      type: 'number',
+      defaultValue: 360,
+      description: '플레이어의 높이입니다. 입력하지 않으면 100%로 취급합니다.',
+      control: { type: 'number' },
     },
     isPlay: {
       defaultValue: '',
@@ -69,24 +71,29 @@ const meta = {
         },
       }
     },
+    onBack: {
+      description: '뒤로가기 버튼을 클릭했을 때 호출되는 콜백입니다.',
+      action: 'onBack',
+    },
+    onClickAddTag: {
+      description: `태그 추가 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickAddTag',
+    },
   },
-  args: {
-    
-  },
-} satisfies Meta<typeof HogakPlayer>
-
-export default meta
-type Story = StoryObj<typeof meta>
-
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Primary: Story = {
   args: {
     title: '',
     url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-    width: 640,
-    height: 360,
+    width: undefined,
+    height: undefined,
     isPlay: false,
     setIsPlay: () => {},
+    onBack: () => {
+      alert('onBack');
+    },
+    onClickAddTag: (data: OnClickAddTagEventObject) => {
+      console.log('onClickAddTag:', data);
+      alert(`onClickAddTag`);
+    },
     multiViewSources: [
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum/300/200',
@@ -117,4 +124,20 @@ export const Primary: Story = {
       },
     ],
   },
-}
+} satisfies Meta<typeof HogakPlayer>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const Basic: Story = {
+  render: (args) => {
+    const playerRef = useRef<{ getCurrentSeconds: () => number } | null>(null);
+
+    return (
+      <div>
+        <HogakPlayer {...args} ref={playerRef} />
+      </div>
+    );
+  },
+};

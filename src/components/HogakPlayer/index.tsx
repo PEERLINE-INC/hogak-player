@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import { OnProgressProps } from 'react-player/base';
@@ -10,7 +10,7 @@ import { HogakPlayerProps } from './interfaces';
 import { TagViewPopover } from '../TagViewPopover';
 import useTagStore from '../../store/tagViewStore';
 
-export function HogakPlayer(props: HogakPlayerProps) {
+export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setTitle = usePlayerStore((state) => state.setTitle);
@@ -25,6 +25,7 @@ export function HogakPlayer(props: HogakPlayerProps) {
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
   const setTags = useTagStore((state) => state.setTags);
+  const onBack = props.onBack;
 
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
@@ -56,16 +57,23 @@ export function HogakPlayer(props: HogakPlayerProps) {
   }
 
   const handleProgress = (state: OnProgressProps) => {
-    // console.log('onProgress', state);
+    console.log('onProgress', state);
     if (!isSeek) {
       setPlayed(state.played);
     }
   };
 
+  // 메소드 노출
+  useImperativeHandle(ref, () => ({
+    getCurrentSeconds: () => {
+      return playerRef.current?.getCurrentTime() ?? 0;
+    },
+  }));
+
   return (
     <PlayerContainer
-      width={props.width ?? 640}
-      height={props.height ?? 480}
+      width={props.width}
+      height={props.height}
     >
       <Container>
         <PlayerWrapper>
@@ -79,6 +87,8 @@ export function HogakPlayer(props: HogakPlayerProps) {
             controls={false}
             onEnded={onEnded}
             onReady={() => setReady(true)}
+            onError={(e) => console.error('onError', e)}
+            onSeek={(seconds: number) => console.log('onSeek', seconds)}
             onDuration={handleDuration}
             onProgress={handleProgress}
             volume={volume}
@@ -86,13 +96,13 @@ export function HogakPlayer(props: HogakPlayerProps) {
             playsinline={true}
           />
           <MultiViewPopover isShow={isShowMultiView} />
-          <TagViewPopover isShow={isShowTagView} />
-          <Controls playerRef={playerRef} />
+          <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
+          <Controls playerRef={playerRef} onBack={onBack} />
         </PlayerWrapper>
       </Container>
     </PlayerContainer>
   );
-}
+});
 
 const Container = styled.div`
   width: 100%;
@@ -101,13 +111,13 @@ const Container = styled.div`
   margin-right: auto;
 `;
 
-const PlayerContainer = styled.div<{ width?: number; height?: number }>`
+const PlayerContainer = styled.div<{ width: number | undefined; height: number | undefined }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   ${(props) => props.width ? `width: ${props.width}px;` : 'width: 100%;'}
-  ${(props) => props.height && `height: ${props.height}px;`}
+  ${(props) => props.height ? `height: ${props.height}px;` : 'height: 100%;'}
   
   .hogak-player {
     object-fit: cover;

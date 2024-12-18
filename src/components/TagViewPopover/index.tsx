@@ -2,13 +2,23 @@ import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
 import usePlayerStore from "../../store/playerStore";
 import RedTagIcon from "../../assets/icons/mark_red.svg?react";
 import styled from 'styled-components';
+import { OnClickAddTagEventObject } from "../HogakPlayer/interfaces";
 
 interface TagViewPopoverProps {
   isShow: boolean;
+  onAddTagClick?: (data: OnClickAddTagEventObject) => void;
 }
 
-export const TagViewPopover = ({ isShow }: TagViewPopoverProps) => {
+export const TagViewPopover = ({ isShow, onAddTagClick }: TagViewPopoverProps) => {
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
+  const handleClickTag = (name: string) => {
+    if (onAddTagClick) {
+      onAddTagClick({
+        seconds: 0,
+        name: name,
+      });
+    }
+  }
 
   return (
     <PopoverContainer isShow={isShow}>
@@ -19,14 +29,20 @@ export const TagViewPopover = ({ isShow }: TagViewPopoverProps) => {
           </IconButton>
           <div style={{ fontSize: 14 }}>태그 추가</div>
         </FlexRow>
-        <FlexRow style={{ cursor: 'pointer' }}>
-          <TagIcon>
-            <RedTagIcon width={36} height={24} />
-          </TagIcon>
-          <div style={{ fontSize: 14 }}>
-            홈런
-          </div>
-        </FlexRow>
+        {['홈런'].map((tag, index) => {
+          return (
+            <FlexRow key={index} style={{ cursor: 'pointer' }} onClick={() => {
+              handleClickTag(tag);
+            }}>
+              <TagIcon>
+                <RedTagIcon width={36} height={24} />
+              </TagIcon>
+              <div style={{ fontSize: 14 }}>
+                {tag}
+              </div>
+            </FlexRow>
+          )
+        })}
       </FlexCol>
     </PopoverContainer>
   );

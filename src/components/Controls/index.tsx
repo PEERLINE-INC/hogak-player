@@ -18,11 +18,13 @@ import useTagStore from '../../store/tagViewStore';
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
+  onBack?: () => void;
 }
 
 export function Controls(props: ControlsProps) {
   const {
     playerRef,
+    onBack,
   } = props;
 
   const url = usePlayerStore((state) => state.url);
@@ -45,12 +47,15 @@ export function Controls(props: ControlsProps) {
   const [mute] = useState(false);
 
   const handleSeekMouseDown = () => {
+    console.log('handleSeekMouseDown');
     setIsSeek(true);
   };
   const handleSeekChange = ([value]: number[]) => {
+    console.log('handleSeekChange', value);
     setPlayed(value / 100);
   }
   const handleSeekMouseUp = () => {
+    console.log('handleSeekMouseUp');
     setIsSeek(false);
     if (playerRef.current) {
       playerRef.current.seekTo(played);
@@ -71,7 +76,11 @@ export function Controls(props: ControlsProps) {
       <ControlsContainer>
         <TopContainer>
           <FlexRow>
-            <IconButton>
+            <IconButton onClick={() => {
+              if (onBack) {
+                onBack();
+              }
+            }}>
               <ArrowLeftIcon width={24} />
             </IconButton>
             <div style={{ color: 'white', marginLeft: 16 }}>{title}</div>
