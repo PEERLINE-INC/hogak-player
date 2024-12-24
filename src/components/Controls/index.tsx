@@ -9,7 +9,6 @@ import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
-import RedTagIcon from "../../assets/icons/mark_red.svg?react";
 import usePlayerStore from '../../store/playerStore';
 import { PlayTime } from '../PlayTime';
 import './styles.css';
