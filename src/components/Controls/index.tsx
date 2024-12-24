@@ -217,7 +217,7 @@ export function Controls(props: ControlsProps) {
                     style={{ left }}
                     onClick={() => handleTagClick(tag.seconds)}
                   >
-                    <RedTagIcon width={'2.4em'} height={'1.8em'}/> {/* 241224 태그 크기 단위 수정 */}
+                    <img src={tag.iconUrl} width={'2.4em'} height={'1.8em'}/> {/* 241224 태그 크기 단위 수정 */}
                   </TagMarker>
                 );
               })}

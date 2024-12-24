@@ -1,10 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { TagProps } from '../components/HogakPlayer/interfaces';
+import { TagMenuProps, TagProps } from '../components/HogakPlayer/interfaces';
 
 interface TagState {
   tags: TagProps[];
   setTags: (tags: TagProps[]) => void;
+  tagMenus: TagMenuProps[];
+  setTagMenus: (tagMenus: TagMenuProps[]) => void;
 }
 
 const useTagStore = create<TagState>()(
@@ -12,6 +14,8 @@ const useTagStore = create<TagState>()(
     (set) => ({
       tags: [],
       setTags: (tags: TagProps[]) => set({ tags }),
+      tagMenus: [],
+      setTagMenus: (tagMenus: TagMenuProps[]) => set({ tagMenus }),
     }),
     {
       name: 'tag-store',

@@ -64,9 +64,25 @@ const meta = {
         value: {
           name: 'object',
           value: {
+            id: { name: 'string' },
             seconds: { name: 'number' },
             title: { name: 'string' },
-            iconType: { name: 'string' },
+            iconUrl: { name: 'string' },
+          },
+        },
+      }
+    },
+    tagMenus: {
+      defaultValue: '',
+      description: '태그 추가 메뉴에 표시할 데이터입니다.',
+      type: {
+        name: 'array',
+        value: {
+          name: 'object',
+          value: {
+            id: { name: 'string' },
+            title: { name: 'string' },
+            iconUrl: { name: 'string' },
           },
         },
       }
@@ -108,20 +124,30 @@ const meta = {
     ],
     tags: [
       {
+        id: '1',
         seconds: 179,
         title: '02:59 홈런',
-        iconType: 'red',
+        iconUrl: 'red',
       },
       {
+        id: '2',
         seconds: 306,
         title: '05:06 홈런',
-        iconType: 'red',
+        iconUrl: 'red',
       },
       {
+        id: '3',
         seconds: 560,
         title: '09:20 홈런',
-        iconType: 'red',
+        iconUrl: 'red',
       },
+    ],
+    tagMenus: [
+      {
+        id: '1',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      }
     ],
   },
 } satisfies Meta<typeof HogakPlayer>

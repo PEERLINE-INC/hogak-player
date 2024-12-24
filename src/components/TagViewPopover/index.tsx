@@ -1,9 +1,9 @@
 // import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
 import usePlayerStore from "../../store/playerStore";
-import RedTagIcon from "../../assets/icons/mark_red.svg?react";
 import styled from 'styled-components';
-import { OnClickAddTagEventObject } from "../HogakPlayer/interfaces";
+import { OnClickAddTagEventObject, TagMenuProps } from "../HogakPlayer/interfaces";
 import CloseIcon from "../../assets/icons/icon_close.svg?react";
+import useTagStore from "../../store/tagViewStore";
 
 interface TagViewPopoverProps {
   isShow: boolean;
@@ -12,11 +12,14 @@ interface TagViewPopoverProps {
 
 export const TagViewPopover = ({ isShow, onAddTagClick }: TagViewPopoverProps) => {
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
-  const handleClickTag = (name: string) => {
+  const tagMenus = useTagStore((state) => state.tagMenus);
+
+  const handleClickTag = (tag: TagMenuProps) => {
     if (onAddTagClick) {
       onAddTagClick({
+        id: tag.id,
+        title: tag.title,
         seconds: 0,
-        name: name,
       });
     }
   }
@@ -36,16 +39,16 @@ export const TagViewPopover = ({ isShow, onAddTagClick }: TagViewPopoverProps) =
         </FlexRow>
         
         <FlexCol gap={12} className="popover_list">
-          {['홈런'].map((tag, index) => {
+          {(Array.isArray(tagMenus) ? tagMenus : []).map((tagMenu, index) => {
             return (
               <FlexRow key={index} style={{ cursor: 'pointer' }} onClick={() => {
-                handleClickTag(tag);
+                handleClickTag(tagMenu);
               }}>
                 <TagIcon>
-                  <RedTagIcon width={36} height={24} />
+                  <img src={tagMenu.iconUrl} alt={tagMenu.title} style={{width: '100%'}} />
                 </TagIcon>
                 <div style={{ fontSize: '1em' }}>
-                  {tag}
+                  {tagMenu.title}
                 </div>
               </FlexRow>
             )

@@ -26,6 +26,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
   const setTags = useTagStore((state) => state.setTags);
+  const setTagMenus = useTagStore((state) => state.setTagMenus);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
 
   const onBack = props.onBack;
@@ -46,6 +47,10 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   useEffect(() => {
     setTags(props.tags ?? []);
   }, [props.tags]);
+
+  useEffect(() => {
+    setTagMenus(props.tagMenus ?? []);
+  }, [props.tagMenus]);
 
   useEffect(() => {
     if (screenfull.isEnabled && playerContainerRef.current) {
