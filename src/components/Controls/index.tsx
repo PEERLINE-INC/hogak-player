@@ -19,7 +19,6 @@ import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
 import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
-
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
   onBack?: () => void;
@@ -237,7 +236,7 @@ const ControlsContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   z-index: 1;
-  opacity: 0; /* 기본적으로 숨김 */
+  /* opacity: 0; */ /* 기본적으로 숨김 */
   transition: opacity 0.3s ease; /* 부드럽게 나타나고 사라지도록 애니메이션 추가 */
   pointer-events: none; /* 숨겨진 동안 클릭 방지 */
 `;
