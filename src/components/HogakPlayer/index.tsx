@@ -76,7 +76,10 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       height={props.height}
     >
       <Container>
-        <PlayerWrapper>
+        {/* 241224 클래스 (video_ratio_wrapper) 추가
+        : 비디오 비율 16:9 고정, 
+        비율 고정 원하지 않으시면 (video_ratio_wrapper) 클래스 제거하시면 됩니다. */}
+        <PlayerWrapper className='video_ratio_wrapper'>
           <ReactPlayer
             width="100%"
             height="100%"
@@ -119,13 +122,44 @@ const PlayerContainer = styled.div<{ width: number | undefined; height: number |
   ${(props) => props.width ? `width: ${props.width}px;` : 'width: 100%;'}
   ${(props) => props.height ? `height: ${props.height}px;` : 'height: 100%;'}
   
+  /* 241224 반응형 font-size 추가 */
+  font-size: 5px;
+  /* EM rules */
+  @media screen and (min-width: 216px){font-size:6px;}
+  @media screen and (min-width: 229px){font-size:6.3611px;}
+  @media screen and (min-width: 250px){font-size:6.9444px;}
+  @media screen and (min-width: 252px){font-size:7px;}
+  @media screen and (min-width: 288px){font-size:8px;}
+  @media screen and (min-width: 292px){font-size:8.1111px;}
+  /* iphone 5 */
+  @media screen and (min-width: 320px){font-size:8.8888px;}
+  @media screen and (min-width: 324px){font-size:9px;}
+  @media screen and (min-width: 360px){font-size:10px;}
+
   .hogak-player {
     object-fit: cover;
     padding: 0;
     margin: 0;
+
+    /* 241224 추가 */
+    font-size: 0;
   }
 `;
 
 const PlayerWrapper = styled.div`
   position: relative;
+
+  /* 241224 추가 */
+  &.video_ratio_wrapper {
+    padding-top: calc((9 / 16) * 100%);
+    background: black;
+
+    .hogak-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
 `;
