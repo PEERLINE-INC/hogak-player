@@ -212,12 +212,13 @@ export function Controls(props: ControlsProps) {
                 // 태그의 위치를 계산합니다.
                 const left = `${(tag.seconds / duration) * 100}%`;
                 return (
+                  // width={'2.4em'} height={'1.8em'}
                   <TagMarker
                     key={index}
                     style={{ left }}
                     onClick={() => handleTagClick(tag.seconds)}
                   >
-                    <img src={tag.iconUrl} width={'2.4em'} height={'1.8em'}/> {/* 241224 태그 크기 단위 수정 */}
+                    <img src={tag.iconUrl} style={{ width: '100%' }} /> {/* 241224 태그 크기 단위 수정 */}
                   </TagMarker>
                 );
               })}
@@ -392,6 +393,8 @@ const FlexCol = styled.div<{ gap?: number }>`
 `;
 
 const TagMarker = styled.div`
+  width: 2.4em;
+  height: 1.8em;
   position: absolute;
   top: -1.6em;
   transform: translateX(-50%);

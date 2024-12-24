@@ -127,19 +127,19 @@ const meta = {
         id: '1',
         seconds: 179,
         title: '02:59 홈런',
-        iconUrl: 'red',
+        iconUrl: 'https://cdn4.iconfinder.com/data/icons/small-n-flat/24/map-marker-512.png',
       },
       {
         id: '2',
         seconds: 306,
         title: '05:06 홈런',
-        iconUrl: 'red',
+        iconUrl: 'https://cdn4.iconfinder.com/data/icons/small-n-flat/24/map-marker-512.png',
       },
       {
         id: '3',
         seconds: 560,
         title: '09:20 홈런',
-        iconUrl: 'red',
+        iconUrl: 'https://cdn4.iconfinder.com/data/icons/small-n-flat/24/map-marker-512.png',
       },
     ],
     tagMenus: [
