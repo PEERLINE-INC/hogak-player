@@ -43,6 +43,8 @@ export function Controls(props: ControlsProps) {
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
   const setVolume = usePlayerStore((state) => state.setVolume);
+  const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+  const setFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
@@ -73,7 +75,7 @@ export function Controls(props: ControlsProps) {
     } else {
       console.warn('playerRef is null, cannot seek');
     }
-  }
+  };
 
   return (
     <ControlsWrapper>
@@ -187,8 +189,8 @@ export function Controls(props: ControlsProps) {
               {ReactPlayer.canEnablePIP(url) &&
                 <button onClick={() => setPip(!pip)}>{pip ? 'PIP OFF' : 'PIP ON'}</button>
               } */}
-              <IconButton className='full_screen_btn'>
-                <FullScreenIcon/>
+              <IconButton className='full_screen_btn' onClick={() => setFullScreen(!isFullScreen)}>
+                <FullScreenIcon />
               </IconButton>
             </FlexRow>
           </ControlBox>

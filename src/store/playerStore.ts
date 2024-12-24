@@ -18,6 +18,8 @@ interface PlayerState {
   setPlayed: (played: number) => void;
   volume: number;
   setVolume: (volume: number) => void;
+  isFullScreen: boolean;
+  setIsFullScreen: (isFullScreen: boolean) => void;
   isShowMultiView: boolean;
   setIsShowMultiView: (isShowMultiView: boolean) => void;
   isShowTagView: boolean;
@@ -43,6 +45,8 @@ const usePlayerStore = create<PlayerState>()(
       setPlayed: (played: number) => set({ played }),
       volume: 1.0,
       setVolume: (volume: number) => set({ volume }),
+      isFullScreen: false,
+      setIsFullScreen: (isFullScreen: boolean) => set({ isFullScreen }),
       isShowMultiView: false,
       setIsShowMultiView: (isShowMultiView: boolean) => set({ isShowMultiView }),
       isShowTagView: false,
