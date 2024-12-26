@@ -1,26 +1,46 @@
 import styled from "styled-components";
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react';
 import SaveIcon from '../../assets/icons/icon_save.svg?react';
-import { ToastPopup } from "../ToastPopup";
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
 import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
+import usePlayerStore from "../../store/playerStore";
+import ReactSlider from "react-slider";
+import useClipStore from "../../store/clipViewStore";
+import './styles.css';
 
+interface ClipViewPopoverProps {
+    isShow: boolean;
+}
 
-export const ClipViewPopover = () => {
+function format(seconds: number) {
+    const date = new Date(seconds * 1000)
+    const hh = date.getUTCHours()
+    const mm = date.getUTCMinutes()
+    const ss = pad(date.getUTCSeconds())
+    if (hh) {
+        return `${hh}:${pad(mm)}:${ss}`
+    }
+    return `${mm}:${ss}`
+}
+
+function pad(string: string | number) {
+    return ('0' + string).slice(-2)
+}
+
+export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
+    const currentSeconds = useClipStore((state) => state.currentSeconds);
+    const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
+
     return (
-        <PopoverContainer>
+        <PopoverContainer isShow={isShow}>
             <TopContainer>
-                <FlexRow style={{width: 'calc(100% - 10em'}}>
-                    <IconButton /* onClick={() => {
-                    if (onBack) {
-                        onBack();
-                    }
-                    }} */
-                    className='back_btn'
+                <FlexRow style={{ width: 'calc(100% - 10em' }}>
+                    <IconButton onClick={() => setIsShowClipView(false)}
+                        className='back_btn'
                     >
-                    <ArrowLeftIcon width={'100%'} height={'100%'} />
+                        <ArrowLeftIcon width={'100%'} height={'100%'} />
                     </IconButton>
                     {/* 241224 스타일 삭제 및 video_title 클래스 추가 */}
                     <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{/* {title} */}</div>
@@ -29,53 +49,70 @@ export const ClipViewPopover = () => {
 
                 <FlexRow gap={12}>
                     <IconButton className='tag_btn'>
-                    <TagViewIcon/>
+                        <TagViewIcon />
                     </IconButton>
                     <IconButton className='screencast_btn'>
-                    <ScreenCastIcon/>
+                        <ScreenCastIcon />
                     </IconButton>
-                    { /* multiViewSources.length && */ <IconButton /* onClick={() => setIsShowMultiView(true)}  */className='multiview_btn'>
-                    <MultiViewIcon/>
+                    { /* multiViewSources.length && */ <IconButton /* onClick={() => setIsShowMultiView(true)}  */ className='multiview_btn'>
+                        <MultiViewIcon />
                     </IconButton>}
                 </FlexRow>
             </TopContainer>
 
             <MiddleContainer>
-                
-                <ToastPopup message="클립 구간바 재생"/>
-                <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
+                <FlexCol style={{ paddingRight: '1.6em', gap: '2em' }}>
                     <FlexCol>
                         <IconButton className='side_icon side_save'>
-                            <SaveIcon/>
+                            <SaveIcon />
                             <p className='side_icon_name'>저장</p>
                         </IconButton>
                     </FlexCol>
-                <FlexCol>
-                    <IconButton className='side_icon side_cancel'>
-                    <CancelIcon/>
-                    <p className='side_icon_name'>취소</p>
-                    </IconButton>
-                </FlexCol>
+                    <FlexCol>
+                        <IconButton className='side_icon side_cancel' onClick={() => setIsShowClipView(false)}>
+                            <CancelIcon />
+                            <p className='side_icon_name'>취소</p>
+                        </IconButton>
+                    </FlexCol>
                 </FlexCol>
             </MiddleContainer>
 
             <ClipRangeWrap>
-
+                <ThumbnailTrack>
+                    {[...Array(8)].map((_, index) => (
+                        <Thumbnail key={index} url="https://picsum.photos/seed/picsum/200/300" />
+                    ))}
+                </ThumbnailTrack>
+                <ReactSlider
+                    className="hogak-clip-slider"
+                    thumbClassName="clip-thumb"
+                    trackClassName="clip-track"
+                    snapDragDisabled={false}
+                    min={currentSeconds - 90 > 0 ? currentSeconds - 90 : 0}
+                    max={currentSeconds + 90}
+                    step={0.1}
+                    defaultValue={[(currentSeconds - 30 > 0 ? currentSeconds : 0), currentSeconds + 30]}
+                    ariaLabel={['클립 시작', '클립 종료']}
+                    ariaValuetext={state => `${format(state.valueNow)}`}
+                    renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
+                    pearling
+                    minDistance={10}
+                />
             </ClipRangeWrap>
-            
+
         </PopoverContainer>
 
 
     )
 }
 
-const PopoverContainer = styled.div`
+const PopoverContainer = styled.div<{ isShow: boolean }>`
+    display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
     position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
     left: 0;
-    display: flex;
     flex-direction: column;
     justify-content: space-between;
     z-index: 2;
@@ -163,13 +200,13 @@ const IconButton = styled.div`
 const FlexRow = styled.div<{ gap?: number }>`
     display: flex;
     align-items: center;
-  gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
+    gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
 `;
 
 const FlexCol = styled.div<{ gap?: number }>`
-display: flex;
-flex-direction: column;
-gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; 
+    display: flex;
+    flex-direction: column;
+    gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; 
 `;
 
 const ClipRangeWrap = styled.div`
@@ -177,4 +214,30 @@ const ClipRangeWrap = styled.div`
     width: 100%;
     height: 26%;
     min-height: 5.9em;
-`
+`;
+
+// 클립 슬라이더 선택 바
+const ClipThumb = styled.div`
+    background-color: green;
+    width: 10px;
+    height: 100%;
+    color: white;
+`;
+
+// 썸네일 트랙
+const ThumbnailTrack = styled.div`
+    postion: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    gap: 1em;
+`;
+
+// 썸네일 이미지
+const Thumbnail = styled.div<{ url: string }>`
+    flex: 1;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-image: url(${(props) => props.url});
+`;

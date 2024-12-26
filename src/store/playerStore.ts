@@ -24,6 +24,8 @@ interface PlayerState {
   setIsShowMultiView: (isShowMultiView: boolean) => void;
   isShowTagView: boolean;
   setIsShowTagView: (isShowTagView: boolean) => void;
+  isShowClipView: boolean;
+  setIsShowClipView: (isShowClipView: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -51,6 +53,8 @@ const usePlayerStore = create<PlayerState>()(
       setIsShowMultiView: (isShowMultiView: boolean) => set({ isShowMultiView }),
       isShowTagView: false,
       setIsShowTagView: (isShowTagView: boolean) => set({ isShowTagView }),
+      isShowClipView: false,
+      setIsShowClipView: (isShowClipView: boolean) => set({ isShowClipView }),
     }),
     {
       name: 'player-storage',

@@ -18,6 +18,7 @@ import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
 import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
+import useClipStore from '../../store/clipViewStore';
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
@@ -48,6 +49,8 @@ export function Controls(props: ControlsProps) {
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const tags = useTagStore((state) => state.tags);
+  const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
+  const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
   const [mute] = useState(false);
 
@@ -133,7 +136,11 @@ export function Controls(props: ControlsProps) {
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가 */}
           <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
             <FlexCol>
-              <IconButton className='side_icon side_clip'>
+              <IconButton className='side_icon side_clip' onClick={() => {
+                setIsPlay(false);
+                setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+                setIsShowClipView(true);
+              }}>
                 <ClipIcon/>
                 <p className='side_icon_name'>클립</p>
               </IconButton>

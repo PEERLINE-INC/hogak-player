@@ -29,6 +29,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setTags = useTagStore((state) => state.setTags);
   const setTagMenus = useTagStore((state) => state.setTagMenus);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+  const isShowClipView = usePlayerStore((state) => state.isShowClipView);
 
   const onBack = props.onBack;
 
@@ -122,7 +123,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           <MultiViewPopover isShow={isShowMultiView} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} />
-          <ClipViewPopover/> {/* 241224 클립 */}
+          <ClipViewPopover isShow={isShowClipView} /> {/* 241224 클립 */}
         </PlayerWrapper>
       </Container>
     </PlayerContainer>
