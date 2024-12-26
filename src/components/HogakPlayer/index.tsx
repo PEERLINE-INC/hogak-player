@@ -9,6 +9,7 @@ import useMultiViewStore from '../../store/multiViewStore';
 import { HogakPlayerProps } from './interfaces';
 import { TagViewPopover } from '../TagViewPopover';
 import useTagStore from '../../store/tagViewStore';
+import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가 */
 import screenfull from 'screenfull';
 
 export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
@@ -121,6 +122,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           <MultiViewPopover isShow={isShowMultiView} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} />
+          <ClipViewPopover/> {/* 241224 클립 */}
         </PlayerWrapper>
       </Container>
     </PlayerContainer>

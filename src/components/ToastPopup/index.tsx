@@ -28,6 +28,7 @@ const Toast = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    box-sizing: border-box; //241224 클립 추가
 `
 const Message = styled.div`
     font-size: 1.3em;
