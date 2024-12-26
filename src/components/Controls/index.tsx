@@ -9,7 +9,6 @@ import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
-import RedTagIcon from "../../assets/icons/mark_red.svg?react";
 import usePlayerStore from '../../store/playerStore';
 import { PlayTime } from '../PlayTime';
 import './styles.css';
@@ -19,6 +18,7 @@ import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
 import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
+
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
   onBack?: () => void;
@@ -42,6 +42,8 @@ export function Controls(props: ControlsProps) {
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
   const setVolume = usePlayerStore((state) => state.setVolume);
+  const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+  const setFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
@@ -72,7 +74,7 @@ export function Controls(props: ControlsProps) {
     } else {
       console.warn('playerRef is null, cannot seek');
     }
-  }
+  };
 
   return (
     <ControlsWrapper>
@@ -186,8 +188,8 @@ export function Controls(props: ControlsProps) {
               {ReactPlayer.canEnablePIP(url) &&
                 <button onClick={() => setPip(!pip)}>{pip ? 'PIP OFF' : 'PIP ON'}</button>
               } */}
-              <IconButton className='full_screen_btn'>
-                <FullScreenIcon/>
+              <IconButton className='full_screen_btn' onClick={() => setFullScreen(!isFullScreen)}>
+                <FullScreenIcon />
               </IconButton>
             </FlexRow>
           </ControlBox>
@@ -209,12 +211,13 @@ export function Controls(props: ControlsProps) {
                 // 태그의 위치를 계산합니다.
                 const left = `${(tag.seconds / duration) * 100}%`;
                 return (
+                  // width={'2.4em'} height={'1.8em'}
                   <TagMarker
                     key={index}
                     style={{ left }}
                     onClick={() => handleTagClick(tag.seconds)}
                   >
-                    <RedTagIcon width={'2.4em'} height={'1.8em'}/> {/* 241224 태그 크기 단위 수정 */}
+                    <img src={tag.iconUrl} style={{ width: '100%' }} /> {/* 241224 태그 크기 단위 수정 */}
                   </TagMarker>
                 );
               })}
@@ -389,6 +392,8 @@ const FlexCol = styled.div<{ gap?: number }>`
 `;
 
 const TagMarker = styled.div`
+  width: 2.4em;
+  height: 1.8em;
   position: absolute;
   top: -1.6em;
   transform: translateX(-50%);

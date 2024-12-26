@@ -10,6 +10,7 @@ import { HogakPlayerProps } from './interfaces';
 import { TagViewPopover } from '../TagViewPopover';
 import useTagStore from '../../store/tagViewStore';
 import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가 */
+import screenfull from 'screenfull';
 
 export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const url = usePlayerStore((state) => state.url);
@@ -26,6 +27,9 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
   const setTags = useTagStore((state) => state.setTags);
+  const setTagMenus = useTagStore((state) => state.setTagMenus);
+  const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+
   const onBack = props.onBack;
 
   useEffect(() => {
@@ -45,7 +49,22 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     setTags(props.tags ?? []);
   }, [props.tags]);
 
+  useEffect(() => {
+    setTagMenus(props.tagMenus ?? []);
+  }, [props.tagMenus]);
+
+  useEffect(() => {
+    if (screenfull.isEnabled && playerContainerRef.current) {
+      if (isFullScreen) {
+        screenfull.request(playerContainerRef.current);
+      } else {
+        screenfull.exit();
+      }
+    }
+  }, [isFullScreen]);
+
   const playerRef = useRef<ReactPlayer | null>(null);
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const [_, setReady] = useState(false);
 
   const onEnded = () => {
@@ -73,6 +92,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 
   return (
     <PlayerContainer
+      ref={playerContainerRef}
       width={props.width}
       height={props.height}
     >

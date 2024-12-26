@@ -1,6 +1,6 @@
 {
   "name": "@peerline/hogak-player",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "hogak player",
   "type": "module",
   "keywords": [
@@ -75,6 +75,7 @@
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-slider": "^1.2.1",
     "react-player": "^2.16.0",
+    "screenfull": "^6.0.2",
     "styled-components": "^6.1.13",
     "zustand": "^5.0.1"
   }

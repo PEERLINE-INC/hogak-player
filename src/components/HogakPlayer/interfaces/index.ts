@@ -8,14 +8,24 @@ export class MultiViewSource {
 
 export class TagProps {
   constructor(
+    public id: string | number,
     public seconds: number,
     public title: string,
-    public iconType: string,
+    public iconUrl: string,
+  ) {}
+}
+
+export class TagMenuProps {
+  constructor(
+    public id: string | number,
+    public title: string,
+    public iconUrl: string,
   ) {}
 }
 
 export type OnClickAddTagEventObject = {
-  name: string;
+  id: string | number;
+  title: string;
   seconds: number;
 }
 
@@ -29,5 +39,6 @@ export type HogakPlayerProps = {
   height?: number | undefined;
   multiViewSources?: MultiViewSource[];
   tags?: TagProps[];
+  tagMenus?: TagMenuProps[];
   onClickAddTag?: (data: OnClickAddTagEventObject) => void;
 }
