@@ -78,26 +78,32 @@ export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
             </MiddleContainer>
 
             <ClipRangeWrap>
-                <ThumbnailTrack>
-                    {[...Array(8)].map((_, index) => (
-                        <Thumbnail key={index} url="https://picsum.photos/seed/picsum/200/300" />
-                    ))}
-                </ThumbnailTrack>
-                <ReactSlider
-                    className="hogak-clip-slider"
-                    thumbClassName="clip-thumb"
-                    trackClassName="clip-track"
-                    snapDragDisabled={false}
-                    min={currentSeconds - 90 > 0 ? currentSeconds - 90 : 0}
-                    max={currentSeconds + 90}
-                    step={0.1}
-                    defaultValue={[(currentSeconds - 30 > 0 ? currentSeconds : 0), currentSeconds + 30]}
-                    ariaLabel={['클립 시작', '클립 종료']}
-                    ariaValuetext={state => `${format(state.valueNow)}`}
-                    renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
-                    pearling
-                    minDistance={10}
-                />
+                <ClipRangeWrapper>{/* 241227 추가 */}
+                    <ThumbnailTrack>
+                        {[...Array(8)].map((_, index) => (
+                            <Thumbnail key={index} url="https://picsum.photos/seed/picsum/200/300" />
+                        ))}
+
+                        {/* 241227 구조변경 */}
+                        <SliderWrap>
+                            <ReactSlider
+                                className="hogak-clip-slider"
+                                thumbClassName="clip-thumb"
+                                trackClassName="clip-track"
+                                snapDragDisabled={false}
+                                min={currentSeconds - 90 > 0 ? currentSeconds - 90 : 0}
+                                max={currentSeconds + 90}
+                                step={0.1}
+                                defaultValue={[(currentSeconds - 30 > 0 ? currentSeconds : 0), currentSeconds + 30]}
+                                ariaLabel={['클립 시작', '클립 종료']}
+                                ariaValuetext={state => `${format(state.valueNow)}`}
+                                renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
+                                pearling
+                                minDistance={10}
+                            />
+                        </SliderWrap>
+                    </ThumbnailTrack>
+                </ClipRangeWrapper>
             </ClipRangeWrap>
 
         </PopoverContainer>
@@ -214,19 +220,31 @@ const ClipRangeWrap = styled.div`
     width: 100%;
     height: 26%;
     min-height: 5.9em;
+    /* 241227 추가 */
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
 `;
-
+// 241227 추가
+const ClipRangeWrapper = styled.div`
+    height: 55%;
+    position: relative;
+    top: 20%;
+`
 // 클립 슬라이더 선택 바
 const ClipThumb = styled.div`
-    background-color: green;
-    width: 10px;
+    /* 241227 수정 */
+    background-color: #81EB47;
+    width: 1.2em;
     height: 100%;
     color: white;
+    cursor: ew-resize;
+    text-indent: -9999px;
 `;
 
 // 썸네일 트랙
 const ThumbnailTrack = styled.div`
-    postion: relative;
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -241,3 +259,12 @@ const Thumbnail = styled.div<{ url: string }>`
     background-position: center;
     background-image: url(${(props) => props.url});
 `;
+
+// 241227 추가
+const SliderWrap = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+`
