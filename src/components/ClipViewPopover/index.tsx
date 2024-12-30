@@ -252,6 +252,15 @@ const ClipRangeWrapper = styled.div`
     height: 55%;
     position: relative;
     top: 20%;
+    .hogak-clip-slider {
+        //241230 추가
+        /* 전체화면일 때 */
+        height: calc(100% + 0.6em);
+        top: -0.3em;
+        /* 전체화면 아닐 때 */
+        height: calc(100% + 1.4em);
+        top: -0.7em;
+    }
 `
 // 클립 슬라이더 선택 바
 const ClipThumb = styled.div`

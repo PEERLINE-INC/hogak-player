@@ -1,5 +1,7 @@
 .hogak-clip-slider {
-    height: 100%;
+    /* 241230 수정 */
+    height: calc(100% + 1.4em);
+    top: -0.7em;
     width: 100%;
 }
 
@@ -14,7 +16,7 @@
     border: .3em solid #81EB47;
     border-radius: 0.4em;
     box-sizing: border-box;
-    z-index: 2;
+    /* z-index: 2; 241230 삭제 */
 }
 .clip-thumb:focus-visible {
     outline: none;
