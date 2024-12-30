@@ -9,6 +9,7 @@ import usePlayerStore from "../../store/playerStore";
 import ReactSlider from "react-slider";
 import useClipStore from "../../store/clipViewStore";
 import './styles.css';
+import { useEffect, useState } from "react";
 
 interface ClipViewPopoverProps {
     isShow: boolean;
@@ -30,14 +31,34 @@ function pad(string: string | number) {
 }
 
 export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
+    const isPlay = usePlayerStore((state) => state.isPlay);
+    const setIsPlay = usePlayerStore((state) => state.setIsPlay);
     const currentSeconds = useClipStore((state) => state.currentSeconds);
     const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
+    const [values, setValues] = useState<number[]>([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
+    console.log('currentSeconds', currentSeconds);
+    console.log('values', values);
+
+    useEffect(() => {
+        setValues([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
+    }, [currentSeconds]);
+
+    const handleAfterChange = (value: number[]) => {
+        console.log('handleAfterChange', value);
+        setValues([...value]);
+    };
+    const handleCancel = () => {
+        setIsShowClipView(false);
+        if (!isPlay) {
+            setIsPlay(true);
+        }
+    };
 
     return (
         <PopoverContainer isShow={isShow}>
             <TopContainer>
                 <FlexRow style={{ width: 'calc(100% - 10em' }}>
-                    <IconButton onClick={() => setIsShowClipView(false)}
+                    <IconButton onClick={handleCancel}
                         className='back_btn'
                     >
                         <ArrowLeftIcon width={'100%'} height={'100%'} />
@@ -69,7 +90,7 @@ export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
                         </IconButton>
                     </FlexCol>
                     <FlexCol>
-                        <IconButton className='side_icon side_cancel' onClick={() => setIsShowClipView(false)}>
+                        <IconButton className='side_icon side_cancel' onClick={handleCancel}>
                             <CancelIcon />
                             <p className='side_icon_name'>취소</p>
                         </IconButton>
@@ -90,16 +111,17 @@ export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
                                 className="hogak-clip-slider"
                                 thumbClassName="clip-thumb"
                                 trackClassName="clip-track"
-                                snapDragDisabled={false}
+                                snapDragDisabled={true}
                                 min={currentSeconds - 90 > 0 ? currentSeconds - 90 : 0}
                                 max={currentSeconds + 90}
                                 step={0.1}
-                                defaultValue={[(currentSeconds - 30 > 0 ? currentSeconds : 0), currentSeconds + 30]}
+                                value={values}
                                 ariaLabel={['클립 시작', '클립 종료']}
                                 ariaValuetext={state => `${format(state.valueNow)}`}
                                 renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
                                 pearling
                                 minDistance={10}
+                                onAfterChange={handleAfterChange}
                             />
                         </SliderWrap>
                     </ThumbnailTrack>
