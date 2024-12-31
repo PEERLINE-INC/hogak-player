@@ -44,7 +44,7 @@ export function Controls(props: ControlsProps) {
   const volume = usePlayerStore((state) => state.volume);
   const setVolume = usePlayerStore((state) => state.setVolume);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
-  const setFullScreen = usePlayerStore((state) => state.setIsFullScreen);
+  const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
@@ -135,22 +135,26 @@ export function Controls(props: ControlsProps) {
         <MiddleContainer>
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가 */}
           <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
-            <FlexCol>
-              <IconButton className='side_icon side_clip' onClick={() => {
-                setIsPlay(false);
-                setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
-                setIsShowClipView(true);
-              }}>
-                <ClipIcon/>
-                <p className='side_icon_name'>클립</p>
-              </IconButton>
-            </FlexCol>
-            <FlexCol>
-              <IconButton onClick={(_) => setIsShowTagView(true)} className='side_icon side_tag'>
-                <TagViewIcon/>
-                <p className='side_icon_name'>태그</p>
-              </IconButton>
-            </FlexCol>
+            { isFullScreen && (
+              <>
+                <FlexCol>
+                  <IconButton className='side_icon side_clip' onClick={() => {
+                    setIsPlay(false);
+                    setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+                    setIsShowClipView(true);
+                  }}>
+                    <ClipIcon/>
+                    <p className='side_icon_name'>클립</p>
+                  </IconButton>
+                </FlexCol>
+                <FlexCol>
+                  <IconButton onClick={(_) => setIsShowTagView(true)} className='side_icon side_tag'>
+                    <TagViewIcon/>
+                    <p className='side_icon_name'>태그</p>
+                  </IconButton>
+                </FlexCol>
+              </>
+            )}
           </FlexCol>
         </MiddleContainer>
 
@@ -195,7 +199,7 @@ export function Controls(props: ControlsProps) {
               {ReactPlayer.canEnablePIP(url) &&
                 <button onClick={() => setPip(!pip)}>{pip ? 'PIP OFF' : 'PIP ON'}</button>
               } */}
-              <IconButton className='full_screen_btn' onClick={() => setFullScreen(!isFullScreen)}>
+              <IconButton className='full_screen_btn' onClick={() => setIsFullScreen(!isFullScreen)}>
                 <FullScreenIcon />
               </IconButton>
             </FlexRow>

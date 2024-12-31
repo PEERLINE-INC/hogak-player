@@ -12,6 +12,8 @@ import './styles.css';
 import { useEffect, useState } from "react";
 
 interface ClipViewPopoverProps {
+    seekTo: (seconds: number) => void;
+    onChangeClipDuration: (data: number[]) => void;
     isShow: boolean;
 }
 
@@ -30,28 +32,56 @@ function pad(string: string | number) {
     return ('0' + string).slice(-2)
 }
 
-export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
+export const ClipViewPopover = (props: ClipViewPopoverProps) => {
+    const {
+        seekTo,
+        isShow,
+        onChangeClipDuration,
+    } = props;
+
+    const played = usePlayerStore((state) => state.played);
+    const duration = usePlayerStore((state) => state.duration);
     const isPlay = usePlayerStore((state) => state.isPlay);
     const setIsPlay = usePlayerStore((state) => state.setIsPlay);
-    const currentSeconds = useClipStore((state) => state.currentSeconds);
     const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
+    const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+    const currentSeconds = useClipStore((state) => state.currentSeconds);
+
     const [values, setValues] = useState<number[]>([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
-    console.log('currentSeconds', currentSeconds);
-    console.log('values', values);
 
     useEffect(() => {
         setValues([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
     }, [currentSeconds]);
+    useEffect(() => {
+        if (isShow) {
+            const clipEndPlayed = values[1] / duration;
+            console.log('played', { played, clipEndPlayed });
+            if (played >= clipEndPlayed) {
+                setIsPlay(false);
+            }
+        }
+    }, [played]);
 
+    const handleBeforeChange = () => {
+        console.log('handleBeforeChange');
+        setIsPlay(false);
+    };
     const handleAfterChange = (value: number[]) => {
         console.log('handleAfterChange', value);
+        onChangeClipDuration([Math.floor(value[0]), Math.floor(value[1])]);
         setValues([...value]);
+        seekTo(value[0] / duration);
+        setIsPlay(true);
     };
     const handleCancel = () => {
         setIsShowClipView(false);
         if (!isPlay) {
             setIsPlay(true);
         }
+    };
+    const handleSave = () => {
+        handleCancel();
+        onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
     };
 
     return (
@@ -83,18 +113,22 @@ export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
 
             <MiddleContainer>
                 <FlexCol style={{ paddingRight: '1.6em', gap: '2em' }}>
-                    <FlexCol>
-                        <IconButton className='side_icon side_save'>
-                            <SaveIcon />
-                            <p className='side_icon_name'>저장</p>
-                        </IconButton>
-                    </FlexCol>
-                    <FlexCol>
-                        <IconButton className='side_icon side_cancel' onClick={handleCancel}>
-                            <CancelIcon />
-                            <p className='side_icon_name'>취소</p>
-                        </IconButton>
-                    </FlexCol>
+                    {isFullScreen && (
+                        <>
+                            <FlexCol>
+                                <IconButton className='side_icon side_save' onClick={handleSave}>
+                                    <SaveIcon />
+                                    <p className='side_icon_name'>저장</p>
+                                </IconButton>
+                            </FlexCol>
+                            <FlexCol>
+                                <IconButton className='side_icon side_cancel' onClick={handleCancel}>
+                                    <CancelIcon />
+                                    <p className='side_icon_name'>취소</p>
+                                </IconButton>
+                            </FlexCol>
+                        </>
+                    )}
                 </FlexCol>
             </MiddleContainer>
 
@@ -122,6 +156,7 @@ export const ClipViewPopover = ({ isShow }: ClipViewPopoverProps) => {
                                 pearling
                                 minDistance={10}
                                 onAfterChange={handleAfterChange}
+                                onBeforeChange={handleBeforeChange}
                             />
                         </SliderWrap>
                     </ThumbnailTrack>

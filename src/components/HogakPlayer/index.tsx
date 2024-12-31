@@ -29,9 +29,11 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setTags = useTagStore((state) => state.setTags);
   const setTagMenus = useTagStore((state) => state.setTagMenus);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+  const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
 
-  const onBack = props.onBack;
+  const onBack = props.onBack ?? (() => {});
+  const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
 
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
@@ -53,6 +55,22 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   useEffect(() => {
     setTagMenus(props.tagMenus ?? []);
   }, [props.tagMenus]);
+
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(screenfull.isFullscreen);
+    };
+    if (screenfull.isEnabled) {
+      screenfull.on('change', handleFullScreenChange);
+    }
+
+    // cleanup
+    return () => {
+      if (screenfull.isEnabled) {
+        screenfull.off('change', handleFullScreenChange);
+      }
+    }
+  });
 
   useEffect(() => {
     if (screenfull.isEnabled && playerContainerRef.current) {
@@ -84,13 +102,17 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     }
   };
 
+  const seekTo = (played: number) => {
+    playerRef.current?.seekTo(played);
+  }
+
   // 메소드 노출
   useImperativeHandle(ref, () => ({
     getCurrentSeconds: () => {
       return playerRef.current?.getCurrentTime() ?? 0;
     },
   }));
-
+  
   return (
     <PlayerContainer
       ref={playerContainerRef}
@@ -123,7 +145,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           <MultiViewPopover isShow={isShowMultiView} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} />
-          <ClipViewPopover isShow={isShowClipView} /> {/* 241224 클립 */}
+          <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} /> {/* 241224 클립 */}
         </PlayerWrapper>
       </Container>
     </PlayerContainer>

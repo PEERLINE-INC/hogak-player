@@ -95,6 +95,10 @@ const meta = {
       description: `태그 추가 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickAddTag',
     },
+    onChangeClipDuration: {
+      description: `클립의 시작(초)), 종료(초) 값이 변경될 때 호출되는 콜백입니다. (ex: [0, 10])`,
+      action: 'onChangeClipDuration',
+    },
   },
   args: {
     title: '',
@@ -109,6 +113,9 @@ const meta = {
     onClickAddTag: (data: OnClickAddTagEventObject) => {
       console.log('onClickAddTag:', data);
       alert(`onClickAddTag`);
+    },
+    onChangeClipDuration: (data: number[]) => {
+      console.log('onChangeClipDuration:', data);
     },
     multiViewSources: [
       {
