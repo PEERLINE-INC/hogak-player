@@ -30,11 +30,12 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setTagMenus = useTagStore((state) => state.setTagMenus);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
   const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
+  const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
 
   const onBack = props.onBack ?? (() => {});
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
-
+  
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
     setUrl(props.url);
@@ -111,6 +112,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     getCurrentSeconds: () => {
       return playerRef.current?.getCurrentTime() ?? 0;
     },
+    setClipView: (value: boolean) => setIsShowClipView(value),
   }));
   
   return (

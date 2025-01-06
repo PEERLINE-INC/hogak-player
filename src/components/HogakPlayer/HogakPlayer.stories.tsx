@@ -165,11 +165,22 @@ type Story = StoryObj<typeof meta>
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Basic: Story = {
   render: (args) => {
-    const playerRef = useRef<{ getCurrentSeconds: () => number } | null>(null);
+    const playerRef = useRef<{ 
+      getCurrentSeconds: () => number, 
+      setClipView: (value: boolean) => void
+     } | null>(null);
+
+    // const handleOnClipView = () => {
+    //   if (playerRef.current) {
+    //     // 클립 뷰 켜기
+    //     playerRef.current.setClipView(true);
+    //   }
+    // };
 
     return (
       <div>
         <HogakPlayer {...args} ref={playerRef} />
+        {/* <button onClick={handleOnClipView}>setClipView(true)</button> */}
       </div>
     );
   },
