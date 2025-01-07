@@ -81,6 +81,10 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
         screenfull.exit();
       }
     }
+    
+    if (props.onChangeFullScreen) {
+      props.onChangeFullScreen(isFullScreen);
+    }
   }, [isFullScreen]);
 
   const playerRef = useRef<ReactPlayer | null>(null);

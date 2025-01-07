@@ -49,6 +49,7 @@ export function Controls(props: ControlsProps) {
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const tags = useTagStore((state) => state.tags);
+  const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
@@ -140,7 +141,7 @@ export function Controls(props: ControlsProps) {
         <MiddleContainer>
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가 */}
           <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
-            { isFullScreen && (
+            { isFullScreen && !isShowClipView && (
               <>
                 <FlexCol>
                   <IconButton className='side_icon side_clip' onClick={() => {

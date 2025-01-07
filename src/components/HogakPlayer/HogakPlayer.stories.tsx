@@ -99,6 +99,10 @@ const meta = {
       description: `클립의 시작(초)), 종료(초) 값이 변경될 때 호출되는 콜백입니다. (ex: [0, 10])`,
       action: 'onChangeClipDuration',
     },
+    onChangeFullScreen: {
+      description: `전체화면 모드가 변경될 때 호출되는 콜백입니다.`,
+      action: 'onChangeFullScreen',
+    }
   },
   args: {
     title: '',
