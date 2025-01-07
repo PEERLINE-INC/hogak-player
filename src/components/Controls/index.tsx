@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import * as Slider from "@radix-ui/react-slider";
@@ -19,6 +19,7 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
 import useClipStore from '../../store/clipViewStore';
+import useEventTimeout from '../../hooks/useTimeouts';
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
@@ -54,7 +55,45 @@ export function Controls(props: ControlsProps) {
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
   const [mute] = useState(false);
+  const [isOverlayVisible, setOverlayVisible] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
+  useEffect(() => {
+    const checkPointerType = () => {
+      if (window.matchMedia("(pointer: coarse)").matches) {
+        setIsTouchDevice(true);
+      } else {
+        setIsTouchDevice(false);
+      }
+    };
+
+    checkPointerType();
+    window.addEventListener("resize", checkPointerType);
+    return () => {
+      window.removeEventListener("resize", checkPointerType);
+    };
+  }, []);
+
+  useEventTimeout(
+    () => {
+      console.log('hide overlay');
+      setOverlayVisible(false)
+    }, // 타이머 만료 시 오버레이 숨김
+    ["mousemove", "touchstart"], // 사용자 상호작용 이벤트
+    3000 // 3초 후 오버레이 숨김
+  );
+
+  const handleInteractionStart = () => {
+    setOverlayVisible(true); // 상호작용 시작 시 오버레이 표시
+  };
+
+  const handleMouseEnter = () => {
+    if (!isTouchDevice) setOverlayVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isTouchDevice) setOverlayVisible(false);
+  };
   const handleSeekChange = ([value]: number[]) => {
     // console.log('handleSeekChange', value);
     setIsSeek(true);
@@ -86,8 +125,14 @@ export function Controls(props: ControlsProps) {
   };
 
   return (
-    <ControlsWrapper>
-      <ControlsContainer>
+    <ControlsWrapper
+      className="controls-wrapper"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleInteractionStart}
+      isOverlayVisible={isOverlayVisible}
+    >
+      <ControlsContainer isOverlayVisible={isOverlayVisible}>
         <TopContainer>
           <FlexRow style={{width: 'calc(100% - 10em'}}>
             <IconButton onClick={() => {
@@ -247,35 +292,35 @@ export function Controls(props: ControlsProps) {
   );
 }
 
-const ControlsContainer = styled.div`
+const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 0;
   left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  z-index: 1;
-  opacity: 0; /* 기본적으로 숨김 */
-  transition: opacity 0.3s ease; /* 부드럽게 나타나고 사라지도록 애니메이션 추가 */
-  pointer-events: none; /* 숨겨진 동안 클릭 방지 */
+  background-color: ${({ isOverlayVisible }) =>
+    isOverlayVisible ? "rgba(0, 0, 0, 0.6)" : "transparent"};
+  transition: background-color 0.3s ease;
 `;
 
-const ControlsWrapper = styled.div`
-  z-index: 1;
+const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  &:hover ${ControlsContainer} {
-    opacity: 1; /* 마우스가 올라왔을 때 Controls 보이기 */
-    background-color: rgba(0, 0, 0, 0.6);
-    pointer-events: auto !important;
-  }
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
+  transition: opacity 0.3s ease;
+  pointer-events: ${({ isOverlayVisible }) => (isOverlayVisible ? "auto" : "none")};
 `;
 
 const TopContainer = styled.div`
