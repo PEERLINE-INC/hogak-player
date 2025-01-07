@@ -54,22 +54,27 @@ export function Controls(props: ControlsProps) {
 
   const [mute] = useState(false);
 
-  const handleSeekMouseDown = () => {
-    console.log('handleSeekMouseDown');
-    setIsSeek(true);
-  };
   const handleSeekChange = ([value]: number[]) => {
-    console.log('handleSeekChange', value);
+    // console.log('handleSeekChange', value);
+    setIsSeek(true);
     setPlayed(value / 100);
-  }
-  const handleSeekMouseUp = () => {
-    console.log('handleSeekMouseUp');
+  };
+  const handleSeekCommit = ([value]: number[]) => {
+    console.log('handleSeekCommit', value);
     setIsSeek(false);
     if (playerRef.current) {
       playerRef.current.seekTo(played);
     } else {
       console.warn('playerRef is null, cannot seek');
     }
+  };
+  const handleSeekMouseUp = () => {
+    console.log('handleSeekMouseUp');
+    setIsSeek(false);
+  };
+  const handleSeekMouseDown = () => {
+    console.log('handleSeekMouseDown');
+    setIsSeek(true);
   };
   const handleTagClick = (seconds: number) => {
     if (playerRef.current) {
@@ -213,6 +218,7 @@ export function Controls(props: ControlsProps) {
               onMouseDown={handleSeekMouseDown}
               onMouseUp={handleSeekMouseUp}
               onValueChange={handleSeekChange}
+              onValueCommit={handleSeekCommit}
             >
               <Slider.Track className="SliderTrack">
                 <Slider.Range className="SliderRange" />

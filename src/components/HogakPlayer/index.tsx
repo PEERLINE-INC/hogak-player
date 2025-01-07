@@ -97,7 +97,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   }
 
   const handleProgress = (state: OnProgressProps) => {
-    console.log('onProgress', state);
+    // console.log('onProgress', state);
     if (!isSeek) {
       setPlayed(state.played);
     }
