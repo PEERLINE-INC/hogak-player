@@ -107,7 +107,11 @@ const meta = {
       defaultValue: true,
       description: `전체화면 기본 기능을 사용할지 여부입니다.`,
       type: 'boolean',
-    }
+    },
+    onClickTagButton: {
+      description: `태그 버튼 클릭 시 호출되는 콜백입니다. (전체 화면의 태그 버튼 클릭 시에는 호출되지 않습니다)`,
+      action: 'onClickTagButton',
+    },
   },
   args: {
     title: '',
@@ -128,6 +132,9 @@ const meta = {
     },
     onChangeFullScreen: (isFullScreen: boolean) => {
       console.log('onChangeFullScreen:', isFullScreen);
+    },
+    onClickTagButton: () => {
+      console.log('onClickTagButton');
     },
     multiViewSources: [
       {

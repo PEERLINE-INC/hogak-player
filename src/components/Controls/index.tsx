@@ -24,12 +24,14 @@ import useEventTimeout from '../../hooks/useTimeouts';
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
   onBack?: () => void;
+  onClickTagButton?: () => void;
 }
 
 export function Controls(props: ControlsProps) {
   const {
     playerRef,
     onBack,
+    onClickTagButton,
   } = props;
 
   //const url = usePlayerStore((state) => state.url); 241224 PIP 버튼 주석
@@ -150,7 +152,11 @@ export function Controls(props: ControlsProps) {
 
           {/* 241224 아이콘 추가 및 클래스네임 설정 */}
           <FlexRow gap={12}>
-            <IconButton className='tag_btn'>
+            <IconButton className='tag_btn' onClick={() => {
+              if (onClickTagButton) {
+                onClickTagButton();
+              }
+            }}>
               <TagViewIcon/>
             </IconButton>
             <IconButton className='screencast_btn'>

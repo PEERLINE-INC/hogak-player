@@ -35,6 +35,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
 
   const onBack = props.onBack ?? (() => {});
+  const onClickTagButton = props.onClickTagButton ?? (() => {});
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
   
   useEffect(() => {
@@ -80,7 +81,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     if (props.onChangeFullScreen) {
       props.onChangeFullScreen(isFullScreen);
     }
-    
+
     if (!enableDefaultFullScreen) return;
     if (screenfull.isEnabled && playerContainerRef.current) {
       if (isFullScreen) {
@@ -154,7 +155,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           />
           <MultiViewPopover isShow={isShowMultiView} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
-          <Controls playerRef={playerRef} onBack={onBack} />
+          <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} /> {/* 241224 클립 */}
         </PlayerWrapper>
       </Container>
