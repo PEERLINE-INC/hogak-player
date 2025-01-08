@@ -28,6 +28,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
   const setTags = useTagStore((state) => state.setTags);
   const setTagMenus = useTagStore((state) => state.setTagMenus);
+  const enableDefaultFullScreen = props.enableDefaultFullscreen ?? true;
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
   const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
@@ -58,6 +59,8 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   }, [props.tagMenus]);
 
   useEffect(() => {
+    if (!enableDefaultFullScreen) return;
+
     const handleFullScreenChange = () => {
       setIsFullScreen(screenfull.isFullscreen);
     };
@@ -74,6 +77,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   });
 
   useEffect(() => {
+    if (!enableDefaultFullScreen) return;
     if (screenfull.isEnabled && playerContainerRef.current) {
       if (isFullScreen) {
         screenfull.request(playerContainerRef.current);
@@ -129,7 +133,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
         {/* 241224 클래스 (video_ratio_wrapper) 추가
         : 비디오 비율 16:9 고정, 
         비율 고정 원하지 않으시면 (video_ratio_wrapper) 클래스 제거하시면 됩니다. */}
-        <PlayerWrapper className='video_ratio_wrapper'>
+        <PlayerWrapper className={isFullScreen ? '' : 'video_ratio_wrapper'}>
           <ReactPlayer
             width="100%"
             height="100%"

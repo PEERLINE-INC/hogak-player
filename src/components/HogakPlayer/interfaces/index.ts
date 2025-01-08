@@ -42,5 +42,6 @@ export type HogakPlayerProps = {
   tagMenus?: TagMenuProps[];
   onClickAddTag?: (data: OnClickAddTagEventObject) => void;
   onChangeClipDuration?: (data: number[]) => void;
+  enableDefaultFullscreen?: boolean;
   onChangeFullScreen?: (isFullScreen: boolean) => void;
 }

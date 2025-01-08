@@ -102,6 +102,11 @@ const meta = {
     onChangeFullScreen: {
       description: `전체화면 모드가 변경될 때 호출되는 콜백입니다.`,
       action: 'onChangeFullScreen',
+    },
+    enableDefaultFullscreen: {
+      defaultValue: true,
+      description: `전체화면 기본 기능을 사용할지 여부입니다.`,
+      type: 'boolean',
     }
   },
   args: {
@@ -120,6 +125,9 @@ const meta = {
     },
     onChangeClipDuration: (data: number[]) => {
       console.log('onChangeClipDuration:', data);
+    },
+    onChangeFullScreen: (isFullScreen: boolean) => {
+      console.log('onChangeFullScreen:', isFullScreen);
     },
     multiViewSources: [
       {
