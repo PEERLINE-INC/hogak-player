@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { MultiViewSource } from '../components/HogakPlayer/interfaces';
 
 interface MultiViewState {
@@ -8,15 +7,10 @@ interface MultiViewState {
 }
 
 const useMultiViewStore = create<MultiViewState>()(
-  persist(
-    (set) => ({
-      multiViewSources: [],
-      setMultiViewSources: (multiViewSources: MultiViewSource[]) => set({ multiViewSources }),
-    }),
-    {
-      name: 'multi-view-storage',
-    },
-  ),
+  (set) => ({
+    multiViewSources: [],
+    setMultiViewSources: (multiViewSources: MultiViewSource[]) => set({ multiViewSources }),
+  })
 )
 
 export default useMultiViewStore;

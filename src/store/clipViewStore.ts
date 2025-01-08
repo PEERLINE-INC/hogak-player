@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface ClipState {
   currentSeconds: number;
@@ -7,15 +6,10 @@ interface ClipState {
 }
 
 const useClipStore = create<ClipState>()(
-  persist(
-    (set) => ({
-      currentSeconds: 0,
-      setCurrentSeconds: (currentSeconds: number) => set({ currentSeconds }),
-    }),
-    {
-      name: 'clip-store',
-    },
-  ),
+  (set) => ({
+    currentSeconds: 0,
+    setCurrentSeconds: (currentSeconds: number) => set({ currentSeconds }),
+  }),
 )
 
 export default useClipStore;

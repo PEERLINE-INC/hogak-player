@@ -117,7 +117,7 @@ const meta = {
     isPlay: false,
     setIsPlay: () => {},
     onBack: () => {
-      alert('onBack');
+      console.log('onBack');
     },
     onClickAddTag: (data: OnClickAddTagEventObject) => {
       console.log('onClickAddTag:', data);
