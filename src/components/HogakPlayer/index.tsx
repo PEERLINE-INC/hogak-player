@@ -167,6 +167,7 @@ const Container = styled.div`
   margin-left: auto;
   box-sizing: border-box;
   margin-right: auto;
+  height: 100%;/* 240108 추가 */
 `;
 
 const PlayerContainer = styled.div<{ width: number | undefined; height: number | undefined }>`
@@ -203,6 +204,7 @@ const PlayerContainer = styled.div<{ width: number | undefined; height: number |
 
 const PlayerWrapper = styled.div`
   position: relative;
+  height: 100%; /* 240108 추가 */
 
   /* 241224 추가 */
   &.video_ratio_wrapper {
