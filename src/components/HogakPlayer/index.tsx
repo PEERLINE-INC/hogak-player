@@ -77,6 +77,10 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   });
 
   useEffect(() => {
+    if (props.onChangeFullScreen) {
+      props.onChangeFullScreen(isFullScreen);
+    }
+    
     if (!enableDefaultFullScreen) return;
     if (screenfull.isEnabled && playerContainerRef.current) {
       if (isFullScreen) {
@@ -84,10 +88,6 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       } else {
         screenfull.exit();
       }
-    }
-    
-    if (props.onChangeFullScreen) {
-      props.onChangeFullScreen(isFullScreen);
     }
   }, [isFullScreen]);
 
