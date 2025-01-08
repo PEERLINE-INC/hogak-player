@@ -209,7 +209,7 @@ export function Controls(props: ControlsProps) {
           </FlexCol>
         </MiddleContainer>
 
-        <BottomContainer>
+        <BottomContainer isFullScreen={isFullScreen}>
           <ControlBox>
             <FlexRow>
               <PlayTime seconds={duration * played} />
@@ -348,10 +348,21 @@ const MiddleContainer = styled.div`
   height: 100%;
 `;
 
-const BottomContainer = styled.div`
+const BottomContainer = styled.div<{ isFullScreen: boolean }>`
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
+  
+  margin-bottom: 0;
+
+  /* iOS Safari 전용 스타일 */
+  @supports (-webkit-touch-callout: none) {
+    ${({ isFullScreen }) =>
+      isFullScreen &&
+      `
+      margin-bottom: 42px;
+    `}
+  }
 `;
 
 const IconButton = styled.div`
