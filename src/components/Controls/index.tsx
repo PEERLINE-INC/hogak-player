@@ -138,6 +138,11 @@ export function Controls(props: ControlsProps) {
         <TopContainer>
           <FlexRow style={{width: 'calc(100% - 10em'}}>
             <IconButton onClick={() => {
+              if (isFullScreen) {
+                setIsFullScreen(false);
+              }
+
+              // onBack 콜백 함수가 존재하면 실행
               if (onBack) {
                 onBack();
               }
