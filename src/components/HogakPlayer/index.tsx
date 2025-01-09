@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import { OnProgressProps } from 'react-player/base';
