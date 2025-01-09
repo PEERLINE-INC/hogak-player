@@ -9,6 +9,8 @@ interface PlayerState {
   setPip: (pip: boolean) => void;
   isPlay: boolean;
   setIsPlay: (isPlay: boolean) => void;
+  isReady: boolean;
+  setIsReady: (isReady: boolean) => void;
   isSeek: boolean;
   setIsSeek: (isSeek: boolean) => void;
   duration: number;
@@ -37,6 +39,8 @@ const usePlayerStore = create<PlayerState>()(
     setPip: (pip: boolean) => set({ pip }),
     isPlay: false,
     setIsPlay: (isPlay: boolean) => set({ isPlay }),
+    isReady: false,
+    setIsReady: (isReady: boolean) => set({ isReady }),
     isSeek: false,
     setIsSeek: (isSeek: boolean) => set({ isSeek }),
     duration: 0,

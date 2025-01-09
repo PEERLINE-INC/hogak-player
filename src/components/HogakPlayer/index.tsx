@@ -33,6 +33,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
+  const setIsReady = usePlayerStore((state) => state.setIsReady);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -94,7 +95,6 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
-  const [_, setReady] = useState(false);
 
   const onEnded = () => {
     setIsPlay(false);
@@ -111,9 +111,23 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       setPlayed(state.played);
     }
   };
+  const handleOnReady = () => {
+    console.log('onReady');
+    setIsReady(true);
+  };
+  const handleOnStart = () => {
+    console.log('onStart');
+  };
+  const handleOnPlay = () => {
+    console.log('onPlay');
+  };
 
   const seekTo = (played: number) => {
     playerRef.current?.seekTo(played);
+  }
+
+  const getCurrentSeconds = () => {
+    return playerRef.current?.getCurrentTime() ?? 0;
   }
 
   // 메소드 노출
@@ -144,7 +158,9 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
             playing={isPlay}
             controls={false}
             onEnded={onEnded}
-            onReady={() => setReady(true)}
+            onReady={handleOnReady}
+            onStart={handleOnStart}
+            onPlay={handleOnPlay}
             onError={(e) => console.error('onError', e)}
             onSeek={(seconds: number) => console.log('onSeek', seconds)}
             onDuration={handleDuration}
@@ -153,7 +169,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
             pip={pip}
             playsinline={true}
           />
-          <MultiViewPopover isShow={isShowMultiView} />
+          <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} /> {/* 241224 클립 */}

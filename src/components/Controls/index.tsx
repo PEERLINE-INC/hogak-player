@@ -156,7 +156,7 @@ export function Controls(props: ControlsProps) {
           </FlexRow>
 
           {/* 241224 아이콘 추가 및 클래스네임 설정 */}
-          <FlexRow gap={12}>
+          <FlexRow gap={24}>
             <IconButton className='tag_btn' onClick={() => {
               if (onClickTagButton) {
                 onClickTagButton();
@@ -221,6 +221,37 @@ export function Controls(props: ControlsProps) {
         </MiddleContainer>
 
         <BottomContainer isFullScreen={isFullScreen}>
+          <SliderContainer>
+            <Slider.Root className="SliderRoot"
+              style={{ width: '100%' }}
+              value={[played * 100]}
+              max={100}
+              step={0.1}
+              onMouseDown={handleSeekMouseDown}
+              onMouseUp={handleSeekMouseUp}
+              onValueChange={handleSeekChange}
+              onValueCommit={handleSeekCommit}
+            >
+              <Slider.Track className="SliderTrack">
+                <Slider.Range className="SliderRange" />
+              </Slider.Track>
+              <Slider.Thumb className="SliderThumb" aria-label="Time" />
+              {tags.map((tag, index) => {
+                // 태그의 위치를 계산합니다.
+                const left = `${(tag.seconds / duration) * 100}%`;
+                return (
+                  // width={'2.4em'} height={'1.8em'}
+                  <TagMarker
+                    key={index}
+                    style={{ left }}
+                    onClick={() => handleTagClick(tag.seconds)}
+                  >
+                    <img src={tag.iconUrl} style={{ width: '100%' }} /> {/* 241224 태그 크기 단위 수정 */}
+                  </TagMarker>
+                );
+              })}
+            </Slider.Root>
+          </SliderContainer>
           <ControlBox>
             <FlexRow>
               <PlayTime seconds={duration * played} />
@@ -228,7 +259,7 @@ export function Controls(props: ControlsProps) {
               <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
               <PlayTime seconds={duration} />
             </FlexRow>
-            <FlexRow gap={8}>
+            <FlexRow gap={24}>
               <IconButton className='play_control_btn'>
                 <PlayControlIcon/>
               </IconButton>
@@ -266,37 +297,6 @@ export function Controls(props: ControlsProps) {
               </IconButton>
             </FlexRow>
           </ControlBox>
-          <SliderContainer>
-            <Slider.Root className="SliderRoot"
-              style={{ width: '100%' }}
-              value={[played * 100]}
-              max={100}
-              step={0.1}
-              onMouseDown={handleSeekMouseDown}
-              onMouseUp={handleSeekMouseUp}
-              onValueChange={handleSeekChange}
-              onValueCommit={handleSeekCommit}
-            >
-              <Slider.Track className="SliderTrack">
-                <Slider.Range className="SliderRange" />
-              </Slider.Track>
-              <Slider.Thumb className="SliderThumb" aria-label="Time" />
-              {tags.map((tag, index) => {
-                // 태그의 위치를 계산합니다.
-                const left = `${(tag.seconds / duration) * 100}%`;
-                return (
-                  // width={'2.4em'} height={'1.8em'}
-                  <TagMarker
-                    key={index}
-                    style={{ left }}
-                    onClick={() => handleTagClick(tag.seconds)}
-                  >
-                    <img src={tag.iconUrl} style={{ width: '100%' }} /> {/* 241224 태그 크기 단위 수정 */}
-                  </TagMarker>
-                );
-              })}
-            </Slider.Root>
-          </SliderContainer>
         </BottomContainer>
       </ControlsContainer>
     </ControlsWrapper>
@@ -459,7 +459,7 @@ const SliderContainer = styled.div`
 
 const ControlBox = styled.div`
   display: flex;
-  padding: 0 1.6em; /* 241224 padding em 단위로 수정 */
+  padding: 0 1.6em 1.2em; /* 241224 padding em 단위로 수정 */
   align-items: center;
   justify-content: space-between;
 `;

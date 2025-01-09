@@ -3,16 +3,44 @@ import usePlayerStore from "../../store/playerStore";
 
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
+import { MultiViewSource } from "../HogakPlayer/interfaces";
+import { useEffect, useState } from "react";
 
 interface MultiViewPopoverProps {
   isShow: boolean;
+  seekTo: (seconds: number) => void;
+  getCurrentSeconds: () => number;
 }
 
-export const MultiViewPopover = ({ isShow }: MultiViewPopoverProps) => {
+export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiViewPopoverProps) => {
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
+  const isReady = usePlayerStore((state) => state.isReady);
+  const setIsReady = usePlayerStore((state) => state.setIsReady);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
+  const [pendingSeek, setPendingSeek] = useState<number | null>(null);
+
+  const handleChangeMultiView = (source: MultiViewSource) => {
+    const seconds = getCurrentSeconds();
+    setPendingSeek(seconds);
+    setIsReady(false);
+    console.log('handleChangeMultiView', source, seconds);
+    setUrl(source.url);
+  };
+
+  const handlePlayerReady = () => {
+    if (pendingSeek !== null) {
+      seekTo(pendingSeek);
+      setPendingSeek(null);
+    }
+  };
+  
+  useEffect(() => {
+    if (isReady) {
+      handlePlayerReady();
+    }
+  }, [isReady]);
 
   return (
     <PopoverContainer isShow={isShow}>
@@ -23,7 +51,7 @@ export const MultiViewPopover = ({ isShow }: MultiViewPopoverProps) => {
       {/* 241224 클래스 추가 */}
       <FlexCol gap={12} className='popover_list'>
         {multiViewSources.map((source, index) => (
-            <FlexRow gap={8} key={index} onClick={() => setUrl(source.url)} style={{ cursor: 'pointer' }}>
+            <FlexRow gap={8} key={index} onClick={() => handleChangeMultiView(source)} style={{ cursor: 'pointer' }}>
               {/* 241224 스타일 수정 */}
               <div style={{ position: 'relative', width: '6.6em', height: '4.8em' }}>
               <img
