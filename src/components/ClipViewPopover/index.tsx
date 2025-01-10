@@ -61,6 +61,11 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             }
         }
     }, [played]);
+    useEffect(() => {
+        if (isShow) {
+            onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
+        }
+    }, [isShow]);
 
     const handleBeforeChange = () => {
         console.log('handleBeforeChange');

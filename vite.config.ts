@@ -65,4 +65,5 @@ export default defineConfig({
       exclude: ['**/*.stories.ts'],
     },
   },
+  assetsInclude: ['**/*.woff', '**/*.woff2'],
 })

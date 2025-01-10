@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { OnProgressProps } from 'react-player/base';
 import usePlayerStore from '../../store/playerStore';
 import { Controls } from '../Controls';
@@ -10,7 +10,16 @@ import { HogakPlayerProps } from './interfaces';
 import { TagViewPopover } from '../TagViewPopover';
 import useTagStore from '../../store/tagViewStore';
 import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가 */
-import screenfull from 'screenfull';
+// import screenfull from 'screenfull';
+import "pretendard/dist/web/static/pretendard.css";
+
+const GlobalStyles = createGlobalStyle`
+  html, body, #root {
+    font-family: 'Pretendard';
+    font-weight: 400;
+    letter-spacing: -0.02px;
+  }
+`;
 
 export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const url = usePlayerStore((state) => state.url);
@@ -30,7 +39,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setTagMenus = useTagStore((state) => state.setTagMenus);
   const enableDefaultFullScreen = props.enableDefaultFullscreen ?? true;
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
-  const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
+  // const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsReady = usePlayerStore((state) => state.setIsReady);
@@ -60,23 +69,23 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     setTagMenus(props.tagMenus ?? []);
   }, [props.tagMenus]);
 
-  useEffect(() => {
-    if (!enableDefaultFullScreen) return;
+  // useEffect(() => {
+  //   if (!enableDefaultFullScreen) return;
 
-    const handleFullScreenChange = () => {
-      setIsFullScreen(screenfull.isFullscreen);
-    };
-    if (screenfull.isEnabled) {
-      screenfull.on('change', handleFullScreenChange);
-    }
+  //   const handleFullScreenChange = () => {
+  //     setIsFullScreen(screenfull.isFullscreen);
+  //   };
+  //   if (screenfull.isEnabled) {
+  //     screenfull.on('change', handleFullScreenChange);
+  //   }
 
-    // cleanup
-    return () => {
-      if (screenfull.isEnabled) {
-        screenfull.off('change', handleFullScreenChange);
-      }
-    }
-  });
+  //   // cleanup
+  //   return () => {
+  //     if (screenfull.isEnabled) {
+  //       screenfull.off('change', handleFullScreenChange);
+  //     }
+  //   }
+  // });
 
   useEffect(() => {
     if (props.onChangeFullScreen) {
@@ -84,13 +93,13 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     }
 
     if (!enableDefaultFullScreen) return;
-    if (screenfull.isEnabled && playerContainerRef.current) {
-      if (isFullScreen) {
-        screenfull.request(playerContainerRef.current);
-      } else {
-        screenfull.exit();
-      }
-    }
+    // if (screenfull.isEnabled && playerContainerRef.current) {
+    //   if (isFullScreen) {
+    //     screenfull.request(playerContainerRef.current);
+    //   } else {
+    //     screenfull.exit();
+    //   }
+    // }
   }, [isFullScreen]);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -144,6 +153,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       width={props.width}
       height={props.height}
     >
+      <GlobalStyles />
       <Container>
         {/* 241224 클래스 (video_ratio_wrapper) 추가
         : 비디오 비율 16:9 고정, 

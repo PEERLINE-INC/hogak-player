@@ -8,7 +8,7 @@ export function PlayTime(props: HogakPlayerPlayTimeProps) {
   } = props;
 
   return (
-    <time dateTime={`P${Math.round(seconds)}S`} style={{ color: 'white', fontSize: '1.4em' }}>{/*  241224 fontSize 수정 */}
+    <time dateTime={`P${Math.round(seconds)}S`} style={{ color: 'white', fontSize: '1.4em', fontVariantNumeric: 'tabular-nums' }}>{/*  241224 fontSize 수정 */}
       {format(seconds)}
     </time>
   )
