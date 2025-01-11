@@ -12,6 +12,7 @@ import useTagStore from '../../store/tagViewStore';
 import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가 */
 // import screenfull from 'screenfull';
 import "pretendard/dist/web/static/pretendard.css";
+import useClipStore from '../../store/clipViewStore';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -47,6 +48,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setBackIconType = usePlayerStore((state) => state.setBackIconType);
   const skipDirection = usePlayerStore((state) => state.skipDirection);
   const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker);
+  const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -122,7 +124,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                                                                
     `)
-    console.log("%c Version : 0.4.2-beta.12","color:red;font-weight:bold;");
+    console.log("%c Version : 0.4.2-beta.14","color:red;font-weight:bold;");
   }, []);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -168,7 +170,18 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     getCurrentSeconds: () => {
       return playerRef.current?.getCurrentTime() ?? 0;
     },
-    setClipView: (value: boolean) => setIsShowClipView(value),
+    setClipView: (value: boolean) => {
+      if (value) {
+        setIsPlay(false);
+        setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+        setIsShowClipView(true);
+      } else {
+        setIsShowClipView(false);
+        if (!isPlay) {
+            setIsPlay(true);
+        }
+      }
+    },
     setClipValues: (values: number[]) => {
       // 유효하지 않은 값이 들어오면 오류
       if (values.length !== 2 || values[0] >= values[1]) {

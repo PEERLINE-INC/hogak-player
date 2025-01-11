@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 
 import { HogakPlayer } from '.'
 import { OnClickAddTagEventObject } from './interfaces'
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -207,13 +207,17 @@ export const Basic: Story = {
       setIsViewThumbMarker: (value: boolean) => void,
       setTagView: (value: boolean) => void,
       getIsFullScreen: () => boolean,
-     } | null>(null);
+    } | null>(null);
+    const [isShowClipView, setIsShowClipView] = useState(false);
 
     return (
       <div>
         <HogakPlayer {...args} ref={playerRef} />
         <button onClick={() => console.log('getCurrentSeconds', playerRef.current?.getCurrentSeconds())}>getCurrentSeconds()</button>
-        <button onClick={() => playerRef.current?.setClipView(true)}>setClipView(true)</button>
+        <button onClick={() => {
+          setIsShowClipView(!isShowClipView);
+          playerRef.current?.setClipView(isShowClipView);
+        }}>setClipView({isShowClipView.toString()})</button>
         <button onClick={() => playerRef.current?.setClipValues([15, 50])}>setClipValues([15, 50])</button>
         <button onClick={() => playerRef.current?.seekTo(10, "seconds")}>seekTo(10, "seconds")</button>
         <button onClick={() => playerRef.current?.setIsViewThumbMarker(true)}>setIsViewThumbMarker(true)</button>
