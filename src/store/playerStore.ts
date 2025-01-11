@@ -31,6 +31,8 @@ interface PlayerState {
   setBackIconType: (backIconType: 'close' | 'arrowLeft') => void;
   skipDirection: 'left' | 'right' | null;
   setSkipDirection: (skipDirection: 'left' | 'right' | null) => void;
+  isViewThumbMarker: boolean;
+  setIsViewThumbMarker: (isViewThumbMarker: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -65,6 +67,8 @@ const usePlayerStore = create<PlayerState>()(
     setBackIconType: (backIconType: 'close' | 'arrowLeft') => set({ backIconType }),
     skipDirection: null,
     setSkipDirection: (skipDirection: 'left' | 'right' | null) => set({ skipDirection }),
+    isViewThumbMarker: false,
+    setIsViewThumbMarker: (isViewThumbMarker: boolean) => set({ isViewThumbMarker }),
   }),
 )
 

@@ -46,6 +46,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setIsReady = usePlayerStore((state) => state.setIsReady);
   const setBackIconType = usePlayerStore((state) => state.setBackIconType);
   const skipDirection = usePlayerStore((state) => state.skipDirection);
+  const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -121,7 +122,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                                                                
     `)
-    console.log("%c Version : 0.4.2-beta.11","color:red;font-weight:bold;");
+    console.log("%c Version : 0.4.2-beta.12","color:red;font-weight:bold;");
   }, []);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -182,6 +183,22 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       }
     },
     setTagView: (value: boolean) => setIsShowTagView(value),
+    seekTo: (value: number, type: "seconds" | "fraction") => {
+      if (!["seconds", "fraction"].includes(type)) {
+        throw new Error('Invalid seek type');
+      }
+      if (type === "fraction") {
+        if (value < 0 || value > 1) {
+          throw new Error('Invalid seek value');
+        }
+      }
+
+      playerRef.current?.seekTo(value, type);
+    },
+    setIsViewThumbMarker: (value: boolean) => {
+      setIsViewThumbMarker(value);
+    },
+    getIsFullScreen: () => isFullScreen,
   }));
   
   return (

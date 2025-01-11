@@ -130,5 +130,42 @@ const playerRef = useRef<{ setTagView: (value: boolean) => void } | null>(null);
   );
 ```
 
+### `setIsViewThumbMarker(isShow: boolean)`
+
+재생바에 태그 생성을 위한 마커의 표시 여부를 설정합니다.
+
+#### 예시 코드
+```tsx
+import React, { useRef } from 'react';
+import { HogakPlayer } from './HogakPlayer';
+
+const playerRef = useRef<{ setIsViewThumbMarker: (value: boolean) => void } | null>(null);
+
+  const handleOnThumbMarker = () => {
+    if (playerRef.current) {
+      playerRef.current.setIsViewThumbMarker(true);
+    }
+  };
+```
+
+### `seekTo(value: number, type: "seconds" | "fraction")`
+
+재생 시간을 설정합니다. <br />
+type이 "seconds"이면 초 단위로 설정하고, "fraction"이면 재생 시간의 비율(0 ~ 1 사이)로 설정합니다.
+
+#### 예시 코드
+```tsx
+import React, { useRef } from 'react';
+import { HogakPlayer } from './HogakPlayer';
+
+const playerRef = useRef<{ seekTo: (value: number, type: "seconds" | "fraction") => void } | null>(null);
+
+  const handleOnSeekTo = () => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(10, "seconds");
+    }
+  };
+```
+
 ## Props 
 <Controls />

@@ -201,20 +201,22 @@ export const Basic: Story = {
   render: (args) => {
     const playerRef = useRef<{ 
       getCurrentSeconds: () => number, 
-      setClipView: (value: boolean) => void
+      setClipView: (value: boolean) => void,
+      seekTo: (value: number, type: "seconds" | "fraction") => void,
+      setIsViewThumbMarker: (value: boolean) => void,
+      setTagView: (value: boolean) => void,
+      getIsFullScreen: () => boolean,
      } | null>(null);
-
-    // const handleOnClipView = () => {
-    //   if (playerRef.current) {
-    //     // 클립 뷰 켜기
-    //     playerRef.current.setClipView(true);
-    //   }
-    // };
 
     return (
       <div>
         <HogakPlayer {...args} ref={playerRef} />
-        {/* <button onClick={handleOnClipView}>setClipView(true)</button> */}
+        <button onClick={() => console.log('getCurrentSeconds', playerRef.current?.getCurrentSeconds())}>getCurrentSeconds()</button>
+        <button onClick={() => playerRef.current?.setClipView(true)}>setClipView(true)</button>
+        <button onClick={() => playerRef.current?.seekTo(10, "seconds")}>seekTo(10, "seconds")</button>
+        <button onClick={() => playerRef.current?.setIsViewThumbMarker(true)}>setIsViewThumbMarker(true)</button>
+        <button onClick={() => playerRef.current?.setTagView(true)}>setTagView(true)</button>
+        <button onClick={() => console.log('getIsFullScreen', playerRef.current?.getIsFullScreen())}>getIsFullScreen()</button>
       </div>
     );
   },

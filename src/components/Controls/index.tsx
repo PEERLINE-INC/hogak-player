@@ -10,6 +10,7 @@ import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
+import RedMarkerIcon from "../../assets/icons/mark_red.svg?react";
 import usePlayerStore from '../../store/playerStore';
 import { PlayTime } from '../PlayTime';
 import './styles.css';
@@ -57,6 +58,8 @@ export function Controls(props: ControlsProps) {
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const backIconType = usePlayerStore((state) => state.backIconType);
+  const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
+  
   const [mute] = useState(false);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -321,7 +324,11 @@ export function Controls(props: ControlsProps) {
               <Slider.Track className="SliderTrack">
                 <Slider.Range className="SliderRange" />
               </Slider.Track>
-              <Slider.Thumb className="SliderThumb" aria-label="Time" />
+              <Slider.Thumb className="SliderThumb" aria-label="Time">
+                {isViewThumbMarker && <AddTagMarker>
+                  <RedMarkerIcon />
+                </AddTagMarker>}
+              </Slider.Thumb>
               {tags.map((tag, index) => {
                 const position = (tag.seconds / duration) * 100;
                 
@@ -568,6 +575,15 @@ const TagMarker = styled.div<{ left: string }>`
   top: -1.6em;
   left: ${props => props.left};
   transform: translateX(-50%);
+  cursor: pointer;
+`;
+
+const AddTagMarker = styled.div`
+  z-index: 10;
+  width: 2.4em;
+  height: 1.8em;
+  position: absolute;
+  top: -2em;
   cursor: pointer;
 `;
 
