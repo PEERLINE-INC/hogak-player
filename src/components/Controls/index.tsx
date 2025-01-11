@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import * as Slider from "@radix-ui/react-slider";
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
+import CloseIcon from "../../assets/icons/icon_close.svg?react";
 import PlayIcon from "../../assets/icons/vod_play.svg?react";
 import PauseIcon from "../../assets/icons/vod_pause.svg?react";
 import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
@@ -19,7 +20,6 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
 import useClipStore from '../../store/clipViewStore';
-import useEventTimeout from '../../hooks/useTimeouts';
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
@@ -40,6 +40,7 @@ export function Controls(props: ControlsProps) {
   // const setPip = usePlayerStore((state) => state.setPip) 241224 PIP 버튼 주석;
   const isPlay = usePlayerStore((state) => state.isPlay);
   const setIsPlay = usePlayerStore((state) => state.setIsPlay);
+  const isSeek = usePlayerStore((state) => state.isSeek);
   const setIsSeek = usePlayerStore((state) => state.setIsSeek);
   const duration = usePlayerStore((state) => state.duration);
   const played = usePlayerStore((state) => state.played);
@@ -55,10 +56,13 @@ export function Controls(props: ControlsProps) {
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
-
+  const backIconType = usePlayerStore((state) => state.backIconType);
   const [mute] = useState(false);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // 자동 숨김 타이머를 제어하기 위한 ref
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const checkPointerType = () => {
@@ -76,18 +80,31 @@ export function Controls(props: ControlsProps) {
     };
   }, []);
 
-  useEventTimeout(
-    () => {
-      console.log('hide overlay');
-      setOverlayVisible(false)
-    }, // 타이머 만료 시 오버레이 숨김
-    ["mousemove", "touchstart"], // 사용자 상호작용 이벤트
-    3000 // 3초 후 오버레이 숨김
-  );
+  // === 자동 숨김 타이머 설정 로직 ===
+  // isOverlayVisible가 true일 때 일정 시간(예: 3초) 후 자동으로 숨김
+  useEffect(() => {
+    // 모바일/터치 디바이스가 아닐 경우(데스크톱)는 기존 마우스 로직 사용하므로 패스
+    if (!isTouchDevice) return;
+    if (!isOverlayVisible) return;
+    if (isSeek) return;
 
-  const handleInteractionStart = () => {
-    setOverlayVisible(true); // 상호작용 시작 시 오버레이 표시
-  };
+    // 먼저 기존 타이머가 있으면 클리어
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+
+    hideTimerRef.current = setTimeout(() => {
+      setOverlayVisible(false);
+    }, 3000);
+
+    return () => {
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
+  }, [isOverlayVisible, isTouchDevice, isSeek]);
 
   const handleMouseEnter = () => {
     if (!isTouchDevice) setOverlayVisible(true);
@@ -96,6 +113,23 @@ export function Controls(props: ControlsProps) {
   const handleMouseLeave = () => {
     if (!isTouchDevice) setOverlayVisible(false);
   };
+
+  // === 모바일 환경에서 한 번 터치할 때마다 오버레이 토글 ===
+  const handleTouchOverlay = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('handleTouchOverlay', e.target, e.currentTarget);
+    const targetElement = e.target as HTMLElement;
+    const currentTargetElement = e.currentTarget as HTMLElement;
+    
+    // 만약 부모 래퍼를 직접 터치했다면
+    if (
+      targetElement.classList.contains('controls-wrapper') && 
+      currentTargetElement.classList.contains('controls-wrapper')
+    ) {
+      // 오버레이 토글
+      setOverlayVisible((prev) => !prev);
+    }
+  };
+
   const handleSeekChange = ([value]: number[]) => {
     // console.log('handleSeekChange', value);
     setIsSeek(true);
@@ -126,17 +160,34 @@ export function Controls(props: ControlsProps) {
     }
   };
 
+  const handleClickClip = () => {
+    setIsPlay(false);
+    setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+    setIsShowClipView(true);
+  };
+
+  const handleClickTag = () => {
+    if (!isFullScreen) {
+      setIsShowTagView(true);
+    }
+
+    onClickTagButton?.();
+  }
+
   return (
     <ControlsWrapper
       className="controls-wrapper"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onTouchStart={handleInteractionStart}
+      onClick={isTouchDevice ? handleTouchOverlay : undefined}
       isOverlayVisible={isOverlayVisible}
     >
-      <ControlsContainer isOverlayVisible={isOverlayVisible}>
-        <TopContainer>
-          <FlexRow style={{width: 'calc(100% - 10em'}}>
+      <ControlsContainer 
+        className="controls-wrapper"
+        isOverlayVisible={isOverlayVisible}
+      >
+        <TopContainer className='controls-wrapper'>
+          <FlexRow style={{width: 'calc(100% - 10em'}} className='controls-wrapper'>
             <IconButton onClick={() => {
               if (isFullScreen) {
                 setIsFullScreen(false);
@@ -149,7 +200,7 @@ export function Controls(props: ControlsProps) {
             }}
             className='back_btn'
             >
-              <ArrowLeftIcon width={'100%'} height={'100%'} />
+              {backIconType === 'close' ? <CloseIcon width={'100%'} height={'100%'} /> : <ArrowLeftIcon width={'100%'} height={'100%'} />}
             </IconButton>
             {/* 241224 스타일 삭제 및 video_title 클래스 추가 */}
             <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{title}</div>
@@ -157,13 +208,9 @@ export function Controls(props: ControlsProps) {
 
           {/* 241224 아이콘 추가 및 클래스네임 설정 */}
           <FlexRow gap={24}>
-            <IconButton className='tag_btn' onClick={() => {
-              if (onClickTagButton) {
-                onClickTagButton();
-              }
-            }}>
+            {!isFullScreen && <IconButton className='tag_btn' onClick={handleClickTag}>
               <TagViewIcon/>
-            </IconButton>
+            </IconButton>}
             <IconButton className='screencast_btn'>
               <ScreenCastIcon/>
             </IconButton>
@@ -194,23 +241,19 @@ export function Controls(props: ControlsProps) {
         {/* //241224 플레이 버튼 구조 변경 */}
 
         
-        <MiddleContainer>
+        <MiddleContainer className='controls-wrapper'>
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가 */}
           <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
             { isFullScreen && !isShowClipView && (
               <>
                 <FlexCol>
-                  <IconButton className='side_icon side_clip' onClick={() => {
-                    setIsPlay(false);
-                    setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
-                    setIsShowClipView(true);
-                  }}>
+                  <IconButton className='side_icon side_clip' onClick={handleClickClip}>
                     <ClipIcon/>
                     <p className='side_icon_name'>클립</p>
                   </IconButton>
                 </FlexCol>
                 <FlexCol>
-                  <IconButton onClick={(_) => setIsShowTagView(true)} className='side_icon side_tag'>
+                  <IconButton className='side_icon side_tag' onClick={handleClickTag}>
                     <TagViewIcon/>
                     <p className='side_icon_name'>태그</p>
                   </IconButton>
@@ -237,16 +280,15 @@ export function Controls(props: ControlsProps) {
               </Slider.Track>
               <Slider.Thumb className="SliderThumb" aria-label="Time" />
               {tags.map((tag, index) => {
-                // 태그의 위치를 계산합니다.
-                const left = `${(tag.seconds / duration) * 100}%`;
+                const position = (tag.seconds / duration) * 100;
+                
                 return (
-                  // width={'2.4em'} height={'1.8em'}
                   <TagMarker
                     key={index}
-                    style={{ left }}
                     onClick={() => handleTagClick(tag.seconds)}
+                    left={`${position}%`}
                   >
-                    <img src={tag.iconUrl} style={{ width: '100%' }} /> {/* 241224 태그 크기 단위 수정 */}
+                    <img src={tag.iconUrl} style={{ width: '100%' }} />
                   </TagMarker>
                 );
               })}
@@ -454,7 +496,7 @@ const SliderContainer = styled.div`
   // width: 100%;
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 0 1.6em 0 1.6em;
 `;
 
 const ControlBox = styled.div`
@@ -476,11 +518,12 @@ const FlexCol = styled.div<{ gap?: number }>`
   gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
 `;
 
-const TagMarker = styled.div`
+const TagMarker = styled.div<{ left: string }>`
   width: 2.4em;
   height: 1.8em;
   position: absolute;
   top: -1.6em;
+  left: ${props => props.left};
   transform: translateX(-50%);
   cursor: pointer;
 `;

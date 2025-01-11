@@ -35,6 +35,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView);
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
+  const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const setTags = useTagStore((state) => state.setTags);
   const setTagMenus = useTagStore((state) => state.setTagMenus);
   const enableDefaultFullScreen = props.enableDefaultFullscreen ?? true;
@@ -43,10 +44,12 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsReady = usePlayerStore((state) => state.setIsReady);
+  const setBackIconType = usePlayerStore((state) => state.setBackIconType);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
+  const onClickClipSave = props.onClickClipSave ?? (() => {});
   
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
@@ -68,6 +71,10 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   useEffect(() => {
     setTagMenus(props.tagMenus ?? []);
   }, [props.tagMenus]);
+
+  useEffect(() => {
+    setBackIconType(props.backIconType ?? 'arrowLeft');
+  }, [props.backIconType]);
 
   // useEffect(() => {
   //   if (!enableDefaultFullScreen) return;
@@ -104,6 +111,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
+  const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
 
   const onEnded = () => {
     setIsPlay(false);
@@ -145,6 +153,20 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       return playerRef.current?.getCurrentTime() ?? 0;
     },
     setClipView: (value: boolean) => setIsShowClipView(value),
+    setClipValues: (values: number[]) => {
+      // 유효하지 않은 값이 들어오면 오류
+      if (values.length !== 2 || values[0] >= values[1]) {
+        throw new Error('Invalid clip values');
+      }
+      // number 타입이 아니면 오류
+      if (typeof values[0] !== 'number' || typeof values[1] !== 'number') {
+        throw new Error('Invalid clip values type');
+      }
+      if (setClipValuesRef.current) {
+        setClipValuesRef.current(values);
+      }
+    },
+    setTagView: (value: boolean) => setIsShowTagView(value),
   }));
   
   return (
@@ -182,7 +204,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
-          <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} /> {/* 241224 클립 */}
+          <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} setValuesRef={setClipValuesRef} onSave={onClickClipSave} /> {/* 241224 클립 */}
         </PlayerWrapper>
       </Container>
     </PlayerContainer>

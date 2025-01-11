@@ -15,6 +15,8 @@ interface ClipViewPopoverProps {
     seekTo: (seconds: number) => void;
     onChangeClipDuration: (data: number[]) => void;
     isShow: boolean;
+    setValuesRef?: React.MutableRefObject<((values: number[]) => void) | null>;
+    onSave?: () => void;
 }
 
 function format(seconds: number) {
@@ -32,11 +34,32 @@ function pad(string: string | number) {
     return ('0' + string).slice(-2)
 }
 
+function calculateClipRange(currentSeconds: number, duration: number) {
+    const clipDuration = 90;
+    const totalClipRange = clipDuration * 2;
+    // 클립 시작점과 끝점 계산
+    let start = currentSeconds - clipDuration;
+    let end = currentSeconds + clipDuration;
+    // 클립 범위 조정 (영상 길이 초과 방지)
+    if (start < 0) {
+        end = Math.min(totalClipRange, duration);
+        start = 0;
+    } else if (end > duration) {
+        start = Math.max(0, duration - totalClipRange);
+        end = duration;
+    }
+
+    console.log('calculateClipRange', { start, end });
+    return { start, end };
+};
+
 export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const {
         seekTo,
         isShow,
         onChangeClipDuration,
+        setValuesRef,
+        onSave,
     } = props;
 
     const played = usePlayerStore((state) => state.played);
@@ -46,12 +69,34 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
     const isFullScreen = usePlayerStore((state) => state.isFullScreen);
     const currentSeconds = useClipStore((state) => state.currentSeconds);
+    const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
     const [values, setValues] = useState<number[]>([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
+    const [min, setMin] = useState<number>(0);
+    const [max, setMax] = useState<number>(180);
 
     useEffect(() => {
-        setValues([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
+        if (setValuesRef) {
+            setValuesRef.current = (newValues: number[]) => {
+                // currentSeconds 를 중간 값으로 설정
+                const middleValue = (newValues[0] + newValues[1]) / 2;
+                setCurrentSeconds(middleValue);
+                setValues(newValues);
+                onChangeClipDuration([Math.floor(newValues[0]), Math.floor(newValues[1])]);
+            };
+        }
+    }, [setValuesRef, onChangeClipDuration]);
+
+    useEffect(() => {
+        // currentSeconds 중심으로 3분 범위 설정
+        const { start, end } = calculateClipRange(currentSeconds, duration);
+        const middleValue = (start + end) / 2;
+
+        setMin(start);
+        setMax(end);
+        setValues([middleValue - 30, middleValue + 30]);
     }, [currentSeconds]);
+
     useEffect(() => {
         if (isShow) {
             const clipEndPlayed = values[1] / duration;
@@ -87,6 +132,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const handleSave = () => {
         handleCancel();
         onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
+        onSave?.();
     };
 
     return (
@@ -137,7 +183,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 </FlexCol>
             </MiddleContainer>
 
-            <ClipRangeWrap>
+            <ClipRangeWrap isFullScreen={isFullScreen}>
                 <ClipRangeWrapper>{/* 241227 추가 */}
                     <ThumbnailTrack>
                         {[...Array(8)].map((_, index) => (
@@ -151,8 +197,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 thumbClassName="clip-thumb"
                                 trackClassName="clip-track"
                                 snapDragDisabled={true}
-                                min={currentSeconds - 90 > 0 ? currentSeconds - 90 : 0}
-                                max={currentSeconds + 90}
+                                min={min}
+                                max={max}
                                 step={0.1}
                                 value={values}
                                 ariaLabel={['클립 시작', '클립 종료']}
@@ -277,7 +323,7 @@ const FlexCol = styled.div<{ gap?: number }>`
     gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; 
 `;
 
-const ClipRangeWrap = styled.div`
+const ClipRangeWrap = styled.div<{ isFullScreen: boolean }>`
     background-color: #000;
     width: 100%;
     height: 26%;
@@ -286,6 +332,17 @@ const ClipRangeWrap = styled.div`
     overflow: hidden;
     position: relative;
     box-sizing: border-box;
+
+    margin-bottom: 0;
+
+    /* iOS Safari 전용 스타일 */
+    @supports (-webkit-touch-callout: none) {
+        ${({ isFullScreen }) =>
+        isFullScreen &&
+        `
+        margin-bottom: 29px;
+        `}
+    }
 `;
 // 241227 추가
 const ClipRangeWrapper = styled.div`

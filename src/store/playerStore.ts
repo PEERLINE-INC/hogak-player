@@ -27,6 +27,8 @@ interface PlayerState {
   setIsShowTagView: (isShowTagView: boolean) => void;
   isShowClipView: boolean;
   setIsShowClipView: (isShowClipView: boolean) => void;
+  backIconType: 'close' | 'arrowLeft';
+  setBackIconType: (backIconType: 'close' | 'arrowLeft') => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -57,6 +59,8 @@ const usePlayerStore = create<PlayerState>()(
     setIsShowTagView: (isShowTagView: boolean) => set({ isShowTagView }),
     isShowClipView: false,
     setIsShowClipView: (isShowClipView: boolean) => set({ isShowClipView }),
+    backIconType: 'arrowLeft',
+    setBackIconType: (backIconType: 'close' | 'arrowLeft') => set({ backIconType }),
   }),
 )
 

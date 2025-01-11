@@ -84,7 +84,7 @@ export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiVie
                   {source.title}
                 </div>
                 <div style={{ fontSize: '0.8em', color: '#999' }}>
-                  {source.title}
+                  {source.description}
                 </div>
               </FlexCol>
             </FlexRow>

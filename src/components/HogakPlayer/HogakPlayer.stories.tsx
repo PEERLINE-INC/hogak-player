@@ -91,6 +91,11 @@ const meta = {
       description: '뒤로가기 버튼을 클릭했을 때 호출되는 콜백입니다.',
       action: 'onBack',
     },
+    backIconType: {
+      defaultValue: 'arrowLeft',
+      description: '뒤로가기 버튼의 아이콘 타입입니다. (arrowLeft: 왼쪽 화살표, close: 닫기 아이콘)',
+      type: 'string',
+    },
     onClickAddTag: {
       description: `태그 추가 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickAddTag',
@@ -111,6 +116,10 @@ const meta = {
     onClickTagButton: {
       description: `태그 버튼 클릭 시 호출되는 콜백입니다. (전체 화면의 태그 버튼 클릭 시에는 호출되지 않습니다)`,
       action: 'onClickTagButton',
+    },
+    onClickClipSave: {
+      description: `클립 저장 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickClipSave',
     },
   },
   args: {
@@ -136,15 +145,20 @@ const meta = {
     onClickTagButton: () => {
       console.log('onClickTagButton');
     },
+    onClickClipSave: () => {
+      console.log('onClickClipSave');
+    },
     multiViewSources: [
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum/300/200',
         title: '[멀티VIEW] 1번 카메라',
+        description: '1번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
       },
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum2/300/200',
         title: '[멀티VIEW] 2번 카메라',
+        description: '2번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
       },
     ],
@@ -175,6 +189,7 @@ const meta = {
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
       }
     ],
+    backIconType: 'arrowLeft',
   },
 } satisfies Meta<typeof HogakPlayer>
 
