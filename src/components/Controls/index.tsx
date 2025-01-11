@@ -60,7 +60,9 @@ export function Controls(props: ControlsProps) {
   const [mute] = useState(false);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-
+  const [lastTapTime, setLastTapTime] = useState<number | null>(null);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setSkipDirection = usePlayerStore((state) => state.setSkipDirection);
   // 자동 숨김 타이머를 제어하기 위한 ref
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,14 +121,61 @@ export function Controls(props: ControlsProps) {
     console.log('handleTouchOverlay', e.target, e.currentTarget);
     const targetElement = e.target as HTMLElement;
     const currentTargetElement = e.currentTarget as HTMLElement;
-    
-    // 만약 부모 래퍼를 직접 터치했다면
-    if (
-      targetElement.classList.contains('controls-wrapper') && 
-      currentTargetElement.classList.contains('controls-wrapper')
-    ) {
-      // 오버레이 토글
-      setOverlayVisible((prev) => !prev);
+    const now = performance.now();
+    const isDoubleTap = lastTapTime && now - lastTapTime < 300; // 300ms 안에 다시 탭하면 더블 탭으로 판단
+
+    if (isDoubleTap) {
+      // 더블 탭이면 1) 단일 탭 타이머 해제
+      if (tapTimerRef.current) {
+        clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+
+      // 2) 좌/우 영역 판별
+      // offsetX: 현재 요소 내에서 터치한 위치(왼쪽 기준)
+      // clientWidth: 현재 요소의 전체 너비
+      const { offsetX } = e.nativeEvent;
+      const { clientWidth } = e.currentTarget;
+      
+      if (offsetX < clientWidth / 2) {
+        // 왼쪽 영역 -> 10초 뒤로
+        if (playerRef.current) {
+          const currentTime = playerRef.current.getCurrentTime();
+          playerRef.current.seekTo(currentTime - 10, "seconds");
+          setSkipDirection('left');
+        }
+      } else {
+        // 오른쪽 영역 -> 10초 앞으로
+        if (playerRef.current) {
+          const currentTime = playerRef.current.getCurrentTime();
+          playerRef.current.seekTo(currentTime + 10, "seconds");
+          setSkipDirection('right');
+        }
+      }
+
+      // 0.6초 뒤에 스킵 메시지 숨기기
+      setTimeout(() => {
+        setSkipDirection(null);
+      }, 600);
+
+      // 마지막 탭 시간 초기화
+      setLastTapTime(null);
+    } else {
+      setLastTapTime(now);
+      // 300ms 안에 두 번째 탭이 발생하지 않으면 단일 탭으로 처리
+      tapTimerRef.current = setTimeout(() => {
+        setLastTapTime(null);
+        tapTimerRef.current = null;
+
+        // 만약 부모 래퍼를 직접 터치했다면
+        if (
+          targetElement.classList.contains('controls-wrapper') && 
+          currentTargetElement.classList.contains('controls-wrapper')
+        ) {
+          // 오버레이 토글
+          setOverlayVisible((prev) => !prev);
+        }
+      }, 300);
     }
   };
 
@@ -222,10 +271,7 @@ export function Controls(props: ControlsProps) {
 
         {/* 241224 플레이 버튼 구조 변경 */}
         <PlayBtnContainer>
-          <FlexCol>
-            {/* <IconButton onDoubleClick={onRewind}>
-                <FastRewind fontSize="medium" />
-              </IconButton> */}
+          <FlexRow>
               <IconButton onClick={(_) => setIsPlay(!isPlay)} className='play_btn'>
                 {isPlay ? (
                   <PauseIcon />
@@ -233,10 +279,7 @@ export function Controls(props: ControlsProps) {
                   <PlayIcon />
                 )}{" "}
               </IconButton>
-              {/* <IconButton>
-                <FastForward fontSize="medium" onDoubleClick={onForward} />
-              </IconButton> */}
-          </FlexCol>
+          </FlexRow>
         </PlayBtnContainer>
         {/* //241224 플레이 버튼 구조 변경 */}
 
@@ -555,4 +598,4 @@ const VolumeControlWrap = styled.div`
       width: 1.2em;
     }
   }
-`
+`;

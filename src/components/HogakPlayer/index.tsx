@@ -45,6 +45,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsReady = usePlayerStore((state) => state.setIsReady);
   const setBackIconType = usePlayerStore((state) => state.setBackIconType);
+  const skipDirection = usePlayerStore((state) => state.skipDirection);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -120,7 +121,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                                                                
     `)
-    console.log("%c Version : 0.4.2-beta.10","color:red;font-weight:bold;");
+    console.log("%c Version : 0.4.2-beta.11","color:red;font-weight:bold;");
   }, []);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -219,6 +220,11 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} setValuesRef={setClipValuesRef} onSave={onClickClipSave} /> {/* 241224 클립 */}
+          {skipDirection && 
+            <SkipMessage style={{ left: skipDirection === 'left' ? "20%" : "80%", top: "50%" }}>
+              {skipDirection === 'left' ? '-10초' : '+10초'}
+            </SkipMessage>
+          }
         </PlayerWrapper>
       </Container>
     </PlayerContainer>
@@ -282,4 +288,15 @@ const PlayerWrapper = styled.div`
       height: 100%;
     }
   }
+`;
+
+const SkipMessage = styled.div`
+  z-index: 10;
+  opacity: 1;
+  color: #fff;
+  font-size: 2em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;

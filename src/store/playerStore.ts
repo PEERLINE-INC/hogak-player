@@ -29,6 +29,8 @@ interface PlayerState {
   setIsShowClipView: (isShowClipView: boolean) => void;
   backIconType: 'close' | 'arrowLeft';
   setBackIconType: (backIconType: 'close' | 'arrowLeft') => void;
+  skipDirection: 'left' | 'right' | null;
+  setSkipDirection: (skipDirection: 'left' | 'right' | null) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -61,6 +63,8 @@ const usePlayerStore = create<PlayerState>()(
     setIsShowClipView: (isShowClipView: boolean) => set({ isShowClipView }),
     backIconType: 'arrowLeft',
     setBackIconType: (backIconType: 'close' | 'arrowLeft') => set({ backIconType }),
+    skipDirection: null,
+    setSkipDirection: (skipDirection: 'left' | 'right' | null) => set({ skipDirection }),
   }),
 )
 
