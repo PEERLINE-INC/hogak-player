@@ -71,7 +71,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const currentSeconds = useClipStore((state) => state.currentSeconds);
     const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
-    const [values, setValues] = useState<number[]>([currentSeconds - 30 > 0 ? currentSeconds - 30 : 0, currentSeconds + 30]);
+    const [values, setValues] = useState<number[]>([0, 30]);
     const [min, setMin] = useState<number>(0);
     const [max, setMax] = useState<number>(180);
 
@@ -95,7 +95,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         setMin(start);
         setMax(end);
         setValues([middleValue - 30, middleValue + 30]);
-    }, [currentSeconds]);
+    }, [currentSeconds, duration]);
 
     useEffect(() => {
         if (isShow) {

@@ -109,6 +109,20 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     // }
   }, [isFullScreen]);
 
+  useEffect(() => {
+    console.log(`
+
+██╗  ██╗ ██████╗  ██████╗  █████╗ ██╗  ██╗    ██████╗ ██╗      █████╗ ██╗   ██╗███████╗██████╗ 
+██║  ██║██╔═══██╗██╔════╝ ██╔══██╗██║ ██╔╝    ██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
+███████║██║   ██║██║  ███╗███████║█████╔╝     ██████╔╝██║     ███████║ ╚████╔╝ █████╗  ██████╔╝
+██╔══██║██║   ██║██║   ██║██╔══██║██╔═██╗     ██╔═══╝ ██║     ██╔══██║  ╚██╔╝  ██╔══╝  ██╔══██╗
+██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+                                                                                               
+    `)
+    console.log("%c Version : 0.4.2-beta.10","color:red;font-weight:bold;");
+  }, []);
+
   const playerRef = useRef<ReactPlayer | null>(null);
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
