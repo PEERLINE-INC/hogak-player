@@ -69,7 +69,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
     const isFullScreen = usePlayerStore((state) => state.isFullScreen);
     const currentSeconds = useClipStore((state) => state.currentSeconds);
-    const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
     const [values, setValues] = useState<number[]>([0, 30]);
     const [min, setMin] = useState<number>(0);
