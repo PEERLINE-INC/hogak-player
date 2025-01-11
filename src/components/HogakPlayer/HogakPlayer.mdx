@@ -41,16 +41,18 @@ const playerRef = useRef<{ getCurrentSeconds: () => number } | null>(null);
   );
 ```
 
-### `setClipView(isShow: boolean)`
+### `setClipView(isShow: boolean, initialCurrentSeconds?: number)`
 
-클립 모드를 설정합니다.
+클립 모드를 설정합니다. <br />
+initialCurrentSeconds 가 제공되지 않으면, 현재 재생 중인 시간을 기준으로 클립 뷰를 설정합니다. <br />
+initialCurrentSeconds 가 제공되면, 해당 시간을 기준으로 클립 뷰를 설정합니다.
 
 #### 예시 코드
 ```tsx
 import React, { useRef } from 'react';
 import { HogakPlayer } from './HogakPlayer';
 
-const playerRef = useRef<{ setClipView: (value: boolean) => void } | null>(null);
+const playerRef = useRef<{ setClipView: (value: boolean, clipValues?: number[]) => void } | null>(null);
 
   const handleOnClipView = () => {
     if (playerRef.current) {

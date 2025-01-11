@@ -124,7 +124,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                                                                
     `)
-    console.log("%c Version : 0.4.2-beta.14","color:red;font-weight:bold;");
+    console.log("%c Version : 0.4.2-beta.15","color:red;font-weight:bold;");
   }, []);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -170,10 +170,15 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     getCurrentSeconds: () => {
       return playerRef.current?.getCurrentTime() ?? 0;
     },
-    setClipView: (value: boolean) => {
+    setClipView: (value: boolean, initialCurrentSeconds?: number) => {
       if (value) {
         setIsPlay(false);
-        setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+        let currentSeconds = playerRef.current?.getCurrentTime() ?? 0;
+        if (initialCurrentSeconds) {
+          currentSeconds = initialCurrentSeconds;
+        }
+
+        setCurrentSeconds(currentSeconds);
         setIsShowClipView(true);
       } else {
         setIsShowClipView(false);
