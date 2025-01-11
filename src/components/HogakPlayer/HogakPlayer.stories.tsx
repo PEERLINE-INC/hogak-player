@@ -202,6 +202,7 @@ export const Basic: Story = {
     const playerRef = useRef<{ 
       getCurrentSeconds: () => number, 
       setClipView: (value: boolean) => void,
+      setClipValues: (values: number[]) => void,
       seekTo: (value: number, type: "seconds" | "fraction") => void,
       setIsViewThumbMarker: (value: boolean) => void,
       setTagView: (value: boolean) => void,
@@ -213,6 +214,7 @@ export const Basic: Story = {
         <HogakPlayer {...args} ref={playerRef} />
         <button onClick={() => console.log('getCurrentSeconds', playerRef.current?.getCurrentSeconds())}>getCurrentSeconds()</button>
         <button onClick={() => playerRef.current?.setClipView(true)}>setClipView(true)</button>
+        <button onClick={() => playerRef.current?.setClipValues([15, 50])}>setClipValues([15, 50])</button>
         <button onClick={() => playerRef.current?.seekTo(10, "seconds")}>seekTo(10, "seconds")</button>
         <button onClick={() => playerRef.current?.setIsViewThumbMarker(true)}>setIsViewThumbMarker(true)</button>
         <button onClick={() => playerRef.current?.setTagView(true)}>setTagView(true)</button>

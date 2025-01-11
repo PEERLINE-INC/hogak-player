@@ -78,9 +78,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     useEffect(() => {
         if (setValuesRef) {
             setValuesRef.current = (newValues: number[]) => {
-                // currentSeconds 를 중간 값으로 설정
-                const middleValue = (newValues[0] + newValues[1]) / 2;
-                setCurrentSeconds(middleValue);
                 setValues(newValues);
                 onChangeClipDuration([Math.floor(newValues[0]), Math.floor(newValues[1])]);
             };
@@ -88,6 +85,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     }, [setValuesRef, onChangeClipDuration]);
 
     useEffect(() => {
+        console.log('useEffect', { currentSeconds, duration });
         // currentSeconds 중심으로 3분 범위 설정
         const { start, end } = calculateClipRange(currentSeconds, duration);
         const middleValue = (start + end) / 2;
