@@ -20,13 +20,15 @@ import { MultiViewPopover } from '../MultiViewPopover';
 import { TagViewPopover } from '../TagViewPopover';
 import { ClipViewPopover } from '../ClipViewPopover';
 
-// ✅ 인터페이스
-import { HogakPlayerProps } from './interfaces';
-
-import Player from 'video.js/dist/types/player';
 // import screenfull from 'screenfull';
 import "pretendard/dist/web/static/pretendard.css";
 import { MultiViewPopoverSmall } from '../MultiViewPopoverSmall';
+
+// ✅ 인터페이스
+import { HogakPlayerProps } from './interfaces';
+
+import 'pretendard/dist/web/static/pretendard.css';
+import Player from 'video.js/dist/types/player';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -230,16 +232,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * 5. Video.js 이벤트 핸들러들
    * ----------------------------------------------------------------
    */
+
   useEffect(() => {
     console.log(`
-
 ██╗  ██╗ ██████╗  ██████╗  █████╗ ██╗  ██╗    ██████╗ ██╗      █████╗ ██╗   ██╗███████╗██████╗ 
 ██║  ██║██╔═══██╗██╔════╝ ██╔══██╗██║ ██╔╝    ██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
 ███████║██║   ██║██║  ███╗███████║█████╔╝     ██████╔╝██║     ███████║ ╚████╔╝ █████╗  ██████╔╝
 ██╔══██║██║   ██║██║   ██║██╔══██║██╔═██╗     ██╔═══╝ ██║     ██╔══██║  ╚██╔╝  ██╔══╝  ██╔══██╗
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
-╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                                                                                               
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
     console.log("%c Version : 0.4.3","color:red;font-weight:bold;");
   }, []);
@@ -369,21 +370,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           {/* Video.js가 제어할 video 엘리먼트 */}
           <div ref={videoRef} className="hogak-player"></div>
 
-          {/* 멀티뷰, 태그, 클립 등의 커스텀 UI 유지 */}
-          <MultiViewPopover
-            isShow={isShowMultiView}
-            seekTo={seekTo}
-            getCurrentSeconds={() => playerRef.current?.currentTime() ?? 0}
-          />
-          <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
-          <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
-          <ClipViewPopover
-            seekTo={seekTo}
-            onChangeClipDuration={onChangeClipDuration}
-            isShow={isShowClipView}
-            setValuesRef={setClipValuesRef}
-            onSave={onClickClipSave}
-          />
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen &&
             <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
@@ -393,15 +379,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           }
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
-          <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} setValuesRef={setClipValuesRef} onSave={onClickClipSave} /> {/* 241224 클립 */}
+          <ClipViewPopover
+            seekTo={seekTo}
+            onChangeClipDuration={onChangeClipDuration}
+            isShow={isShowClipView}
+            setValuesRef={setClipValuesRef}
+            onSave={onClickClipSave}
+          />
           {skipDirection && (
-            <SkipMessage
-              style={{
-                left: skipDirection === 'left' ? '30%' : '70%',
-                top: '50%',
-              }}
-            >
-              <span style={{ fontSize: '1.4em' }}>
+            <SkipMessage style={{ left: skipDirection === 'left' ? "30%" : "70%", top: "50%" }}>{/* 250113 left 값 수정 */}
+              <span style={{fontSize: '1.4em'}}>
                 {skipDirection === 'left' ? '-10초' : '+10초'}
               </span>
             </SkipMessage>
