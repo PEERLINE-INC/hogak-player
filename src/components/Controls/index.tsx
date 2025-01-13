@@ -18,9 +18,10 @@ import useMultiViewStore from '../../store/multiViewStore';
 import useTagStore from '../../store/tagViewStore';
 import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
 import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
-import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
-import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
+//import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
+//import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
 import useClipStore from '../../store/clipViewStore';
+import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
 
 interface ControlsProps {
   playerRef: React.RefObject<ReactPlayer | null>;
@@ -258,8 +259,8 @@ export function Controls(props: ControlsProps) {
             <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{title}</div>
           </FlexRow>
 
-          {/* 241224 아이콘 추가 및 클래스네임 설정 */}
-          <FlexRow gap={24}>
+          {/* 241224 아이콘 추가 및 클래스네임 설정, 250113 간격 수정 및 클래스네임 추가 */}
+          <FlexRow gap={16} className='icon_box'>
             {!isFullScreen && <IconButton className='tag_btn' onClick={handleClickTag}>
               <TagViewIcon/>
             </IconButton>}
@@ -288,8 +289,8 @@ export function Controls(props: ControlsProps) {
 
         
         <MiddleContainer className='controls-wrapper'>
-          {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가 */}
-          <FlexCol style={{paddingRight: '1.6em', gap: '2em'}}>
+          {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가, 250113 클래스 추가 및 간격 수정 */}
+          <FlexCol style={{paddingRight: '1em', gap: '1.3em'}} className='icon_box'>
             { isFullScreen && !isShowClipView && (
               <>
                 <FlexCol>
@@ -351,13 +352,16 @@ export function Controls(props: ControlsProps) {
               <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
               <PlayTime seconds={duration} />
             </FlexRow>
-            <FlexRow gap={24}>
-              <IconButton className='play_control_btn'>
+            <FlexRow gap={16} className='icon_box'>{/* 250113 간격수정 및 클래스 추가 */}
+              {/* <IconButton className='play_control_btn'>
                 <PlayControlIcon/>
               </IconButton>
               <IconButton className='speed_control_btn'>
                 <SpeedControlIcon/>
-              </IconButton>
+              </IconButton> */}
+              {/* 250113 드롭다운 추가 */}
+              <Dropdown options={[{value : '2x'}, {value : '1.75x'}, {value : '1.5x'}, {value : '1.25x'}, {value : '1x'}, {value : '0.5x'}]} defaultValue="1x"></Dropdown>
+              <Dropdown options={[{value : '1080p', tag: 'HD'}, {value : '720p'},{value : '480p'}, {value : '360p'}, {value : '240p'}, {value : '144p'}, {value : '자동'}]} defaultValue="자동"></Dropdown>
               <FlexRow>
                 <VolumeControlWrap>
                   <IconButton className='volume_control_btn'>
@@ -540,6 +544,19 @@ const IconButton = styled.div`
     width: 100%;
     height: 100%;
   }
+  /* 250113 추가 */
+  @media screen and (min-width: 390px){font-size:10.8334px;}
+  @media screen and (min-width: 396px){font-size:11px;}
+  @media screen and (min-width: 411px){font-size:11.4166px;}
+  @media screen and (min-width: 412px){font-size:11.4444px;}
+  /* iphone 6 Plus */
+  @media screen and (min-width: 414px){font-size:11.5px;}
+  /* iphone 12 Pro Max */
+  @media screen and (min-width: 428px){font-size:11.8889px;}
+  @media screen and (min-width: 432px){font-size:12px;}
+  @media screen and (min-width: 468px){font-size:13px;}
+  @media screen and (min-width: 504px){font-size:14px;}
+  @media screen and (min-width: 540px){font-size:15px;} 
 `;
 
 const SliderContainer = styled.div`
@@ -560,12 +577,42 @@ const FlexRow = styled.div<{ gap?: number }>`
   display: flex;
   align-items: center;
   gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
+  /* 250113 추가 */
+  &.icon_box {
+        @media screen and (min-width: 390px){font-size:10.8334px;}
+        @media screen and (min-width: 396px){font-size:11px;}
+        @media screen and (min-width: 411px){font-size:11.4166px;}
+        @media screen and (min-width: 412px){font-size:11.4444px;}
+        /* iphone 6 Plus */
+        @media screen and (min-width: 414px){font-size:11.5px;}
+        /* iphone 12 Pro Max */
+        @media screen and (min-width: 428px){font-size:11.8889px;}
+        @media screen and (min-width: 432px){font-size:12px;}
+        @media screen and (min-width: 468px){font-size:13px;}
+        @media screen and (min-width: 504px){font-size:14px;}
+        @media screen and (min-width: 540px){font-size:15px;} 
+    }
 `;
 
 const FlexCol = styled.div<{ gap?: number }>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
+  /* 250113 추가 */
+  &.icon_box {
+        @media screen and (min-width: 390px){font-size:10.8334px;}
+        @media screen and (min-width: 396px){font-size:11px;}
+        @media screen and (min-width: 411px){font-size:11.4166px;}
+        @media screen and (min-width: 412px){font-size:11.4444px;}
+        /* iphone 6 Plus */
+        @media screen and (min-width: 414px){font-size:11.5px;}
+        /* iphone 12 Pro Max */
+        @media screen and (min-width: 428px){font-size:11.8889px;}
+        @media screen and (min-width: 432px){font-size:12px;}
+        @media screen and (min-width: 468px){font-size:13px;}
+        @media screen and (min-width: 504px){font-size:14px;}
+        @media screen and (min-width: 540px){font-size:15px;} 
+    }
 `;
 
 const TagMarker = styled.div<{ left: string }>`
@@ -607,7 +654,7 @@ const VolumeControlWrap = styled.div`
   &:hover {
     gap: .4em;
     .SliderRoot {
-      width: 8em;
+      width: 5em; /* 250113 수정 */
       opacity: 1;
     }
     .SliderThumb {
