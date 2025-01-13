@@ -12,7 +12,7 @@ import './styles.css';
 import { useEffect, useState } from "react";
 
 interface ClipViewPopoverProps {
-    seekTo: (seconds: number) => void;
+    seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
     onChangeClipDuration: (data: number[]) => void;
     isShow: boolean;
     setValuesRef?: React.MutableRefObject<((values: number[]) => void) | null>;
@@ -117,7 +117,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         console.log('handleAfterChange', value);
         onChangeClipDuration([Math.floor(value[0]), Math.floor(value[1])]);
         setValues([...value]);
-        seekTo(value[0] / duration);
+        seekTo(value[0] / duration, 'fraction');
         setIsPlay(true);
     };
     const handleCancel = () => {

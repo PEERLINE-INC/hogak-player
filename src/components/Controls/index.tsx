@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import * as Slider from "@radix-ui/react-slider";
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
@@ -21,11 +20,13 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
 import useClipStore from '../../store/clipViewStore';
+import Player from 'video.js/dist/types/player';
 
 interface ControlsProps {
-  playerRef: React.RefObject<ReactPlayer | null>;
+  playerRef: React.RefObject<Player | null>;
   onBack?: () => void;
   onClickTagButton?: () => void;
+  seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
 }
 
 export function Controls(props: ControlsProps) {
@@ -33,6 +34,7 @@ export function Controls(props: ControlsProps) {
     playerRef,
     onBack,
     onClickTagButton,
+    seekTo,
   } = props;
 
   //const url = usePlayerStore((state) => state.url); 241224 PIP 버튼 주석
@@ -143,15 +145,15 @@ export function Controls(props: ControlsProps) {
       if (offsetX < clientWidth / 2) {
         // 왼쪽 영역 -> 10초 뒤로
         if (playerRef.current) {
-          const currentTime = playerRef.current.getCurrentTime();
-          playerRef.current.seekTo(currentTime - 10, "seconds");
+          const currentTime = playerRef.current.currentTime() ?? 0;
+          seekTo(currentTime - 10, "seconds");
           setSkipDirection('left');
         }
       } else {
         // 오른쪽 영역 -> 10초 앞으로
         if (playerRef.current) {
-          const currentTime = playerRef.current.getCurrentTime();
-          playerRef.current.seekTo(currentTime + 10, "seconds");
+          const currentTime = playerRef.current.currentTime() ?? 0;
+          seekTo(currentTime + 10, "seconds");
           setSkipDirection('right');
         }
       }
@@ -191,7 +193,7 @@ export function Controls(props: ControlsProps) {
     console.log('handleSeekCommit', value);
     setIsSeek(false);
     if (playerRef.current) {
-      playerRef.current.seekTo(played);
+      seekTo(played, 'fraction');
     } else {
       console.warn('playerRef is null, cannot seek');
     }
@@ -206,7 +208,7 @@ export function Controls(props: ControlsProps) {
   };
   const handleTagClick = (seconds: number) => {
     if (playerRef.current) {
-      playerRef.current.seekTo(seconds);
+      seekTo(seconds, 'seconds');
     } else {
       console.warn('playerRef is null, cannot seek');
     }
@@ -214,7 +216,7 @@ export function Controls(props: ControlsProps) {
 
   const handleClickClip = () => {
     setIsPlay(false);
-    setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+    setCurrentSeconds(playerRef.current?.currentTime() ?? 0);
     setIsShowClipView(true);
   };
 

@@ -1,18 +1,31 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import ReactPlayer from 'react-player';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useCallback,
+} from 'react';
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
 import styled, { createGlobalStyle } from 'styled-components';
-import { OnProgressProps } from 'react-player/base';
+
+// ✅ store (zustand 등)에서 가져오는 상태 & 액션들
 import usePlayerStore from '../../store/playerStore';
+import useMultiViewStore from '../../store/multiViewStore';
+import useTagStore from '../../store/tagViewStore';
+import useClipStore from '../../store/clipViewStore';
+
+// ✅ UI 컴포넌트들
 import { Controls } from '../Controls';
 import { MultiViewPopover } from '../MultiViewPopover';
-import useMultiViewStore from '../../store/multiViewStore';
-import { HogakPlayerProps } from './interfaces';
 import { TagViewPopover } from '../TagViewPopover';
-import useTagStore from '../../store/tagViewStore';
-import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가 */
-// import screenfull from 'screenfull';
-import "pretendard/dist/web/static/pretendard.css";
-import useClipStore from '../../store/clipViewStore';
+import { ClipViewPopover } from '../ClipViewPopover';
+
+// ✅ 인터페이스
+import { HogakPlayerProps } from './interfaces';
+
+import 'pretendard/dist/web/static/pretendard.css';
+import Player from 'video.js/dist/types/player';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -22,39 +35,152 @@ const GlobalStyles = createGlobalStyle`
   }
 `;
 
-export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
+export const HogakPlayer = forwardRef(function HogakPlayer(
+  props: HogakPlayerProps,
+  ref
+) {
+  /**
+   * ----------------------------------------------------------------
+   * 1. 기존 store / props 로직 그대로 가져오기
+   * ----------------------------------------------------------------
+   */
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setTitle = usePlayerStore((state) => state.setTitle);
+
   const pip = usePlayerStore((state) => state.pip);
   const isPlay = usePlayerStore((state) => state.isPlay);
-  const isSeek = usePlayerStore((state) => state.isSeek);
   const setIsPlay = usePlayerStore((state) => state.setIsPlay);
+  const isSeek = usePlayerStore((state) => state.isSeek);
   const setDuration = usePlayerStore((state) => state.setDuration);
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
+
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView);
-  const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources);
+  const setMultiViewSources = useMultiViewStore(
+    (state) => state.setMultiViewSources
+  );
+
   const isShowTagView = usePlayerStore((state) => state.isShowTagView);
   const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const setTags = useTagStore((state) => state.setTags);
   const setTagMenus = useTagStore((state) => state.setTagMenus);
+
   const enableDefaultFullScreen = props.enableDefaultFullscreen ?? true;
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
-  // const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsReady = usePlayerStore((state) => state.setIsReady);
   const setBackIconType = usePlayerStore((state) => state.setBackIconType);
   const skipDirection = usePlayerStore((state) => state.skipDirection);
   const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker);
+
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
 
+  // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
   const onClickClipSave = props.onClickClipSave ?? (() => {});
-  
+
+  /**
+   * ----------------------------------------------------------------
+   * 2. Video.js 관련 ref & 초기화
+   * ----------------------------------------------------------------
+   */
+  const videoRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<Player | null>(null);
+  // ClipViewPopover와 연동하는 ref
+  const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
+
+  // Video.js Player 초기화
+  useEffect(() => {
+    if (!playerRef.current) {
+      const videoElement = document.createElement('video-js');
+      videoRef.current?.appendChild(videoElement);
+      console.log('url', url);
+      // Video.js 인스턴스 생성
+      playerRef.current = videojs(videoElement, {
+        // 원하는 Video.js 옵션들
+        autoplay: false,
+        controls: false, // 자체 Controls를 쓰므로 false
+        fluid: true, // 반응형을 직접 제어
+        sources: [
+          {
+            src: url, // 기본 소스
+            type: 'application/x-mpegurl'
+          },
+        ],
+        // ...기타 Video.js 옵션...
+      });
+
+      /**
+       * ----------------------------------------------------------------
+       * 2-1. Video.js 이벤트 등록
+       * ----------------------------------------------------------------
+       */
+      // ready
+      playerRef.current.on('ready', handleOnReady);
+      // play
+      playerRef.current.on('play', handleOnPlay);
+      // timeupdate -> onProgress 대체
+      playerRef.current.on('timeupdate', handleOnTimeUpdate);
+      // ended
+      playerRef.current.on('ended', handleOnEnded);
+      // loadedmetadata -> onDuration 대체
+      playerRef.current.on('loadedmetadata', handleOnDuration);
+      // error
+      playerRef.current.on('error', handleOnError);
+    }
+  }, [url]); // url이 바뀌면 재설정
+
+  useEffect(() => {
+    const player = playerRef.current;
+
+    return () => {
+      if (player && !player.isDisposed()) {
+        player.dispose();
+        playerRef.current = null;
+      }
+    };
+  }, [playerRef]);
+
+  /**
+   * ----------------------------------------------------------------
+   * 3. props.isPlay / volume / pip 등의 값 반영
+   * ----------------------------------------------------------------
+   */
+  useEffect(() => {
+    if (!playerRef.current) return;
+    if (isPlay) {
+      playerRef.current.play();
+    } else {
+      playerRef.current.pause();
+    }
+  }, [isPlay]);
+
+  useEffect(() => {
+    if (!playerRef.current) return;
+    if (volume !== undefined) {
+      playerRef.current.volume(volume);
+    }
+  }, [volume]);
+
+  // Video.js는 기본적으로 PIP를 직접 지원하지 않으므로,
+  // 필요하다면 별도 플러그인을 사용하거나 브라우저 Picture-in-Picture API를 래핑해야 함.
+  useEffect(() => {
+    if (pip) {
+      // pip 활성화 로직(별도 구현 필요)
+      console.log('[Video.js] PIP requested - 별도 구현 필요');
+    }
+  }, [pip]);
+
+  /**
+   * ----------------------------------------------------------------
+   * 4. 기존 useEffects: store 업데이트
+   * ----------------------------------------------------------------
+   */
+  // url, title, multiView, tag 등등은 기존과 동일하게 처리
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
     setUrl(props.url);
@@ -80,119 +206,113 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
     setBackIconType(props.backIconType ?? 'arrowLeft');
   }, [props.backIconType]);
 
-  // useEffect(() => {
-  //   if (!enableDefaultFullScreen) return;
-
-  //   const handleFullScreenChange = () => {
-  //     setIsFullScreen(screenfull.isFullscreen);
-  //   };
-  //   if (screenfull.isEnabled) {
-  //     screenfull.on('change', handleFullScreenChange);
-  //   }
-
-  //   // cleanup
-  //   return () => {
-  //     if (screenfull.isEnabled) {
-  //       screenfull.off('change', handleFullScreenChange);
-  //     }
-  //   }
-  // });
-
+  // 풀스크린 로직 (screenfull → Video.js 자체 fullscreen or 별도 라이브러리)
   useEffect(() => {
     if (props.onChangeFullScreen) {
       props.onChangeFullScreen(isFullScreen);
     }
 
     if (!enableDefaultFullScreen) return;
-    // if (screenfull.isEnabled && playerContainerRef.current) {
+
+    // Video.js 자체 풀스크린 (requestFullscreen / exitFullscreen)
+    // isFullScreen 상태가 바뀌면 직접 제어
+    // if (playerRef.current) {
     //   if (isFullScreen) {
-    //     screenfull.request(playerContainerRef.current);
+    //     playerRef.current.requestFullscreen();
     //   } else {
-    //     screenfull.exit();
+    //     playerRef.current.exitFullscreen();
     //   }
     // }
   }, [isFullScreen]);
 
-  useEffect(() => {
-    console.log(`
+  /**
+   * ----------------------------------------------------------------
+   * 5. Video.js 이벤트 핸들러들
+   * ----------------------------------------------------------------
+   */
+  const handleOnReady = useCallback(() => {
+    console.log('onReady (video.js)');
+    setIsReady(true);
+  }, [setIsReady]);
 
-██╗  ██╗ ██████╗  ██████╗  █████╗ ██╗  ██╗    ██████╗ ██╗      █████╗ ██╗   ██╗███████╗██████╗ 
-██║  ██║██╔═══██╗██╔════╝ ██╔══██╗██║ ██╔╝    ██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
-███████║██║   ██║██║  ███╗███████║█████╔╝     ██████╔╝██║     ███████║ ╚████╔╝ █████╗  ██████╔╝
-██╔══██║██║   ██║██║   ██║██╔══██║██╔═██╗     ██╔═══╝ ██║     ██╔══██║  ╚██╔╝  ██╔══╝  ██╔══██╗
-██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
-╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                                                                                               
-    `)
-    console.log("%c Version : 0.4.2-beta.15","color:red;font-weight:bold;");
+  const handleOnPlay = useCallback(() => {
+    console.log('onPlay (video.js)');
+    // 원하는 추가 로직
   }, []);
 
-  const playerRef = useRef<ReactPlayer | null>(null);
-  const playerContainerRef = useRef<HTMLDivElement | null>(null);
-  const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
-
-  const onEnded = () => {
-    setIsPlay(false);
-  };
-
-  const handleDuration = (duration: number) => {
-    // console.log('onDuration', duration);
-    setDuration(duration);
-  }
-
-  const handleProgress = (state: OnProgressProps) => {
-    // console.log('onProgress', state);
+  const handleOnTimeUpdate = useCallback(() => {
+    if (!playerRef.current) return;
     if (!isSeek) {
-      setPlayed(state.played);
+      // played = (현재시간 / 전체길이)
+      const current = playerRef.current.currentTime() ?? 0;
+      const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
+      const playedFraction = current / duration;
+      setPlayed(playedFraction);
     }
-  };
-  const handleOnReady = () => {
-    console.log('onReady');
-    setIsReady(true);
-  };
-  const handleOnStart = () => {
-    console.log('onStart');
-  };
-  const handleOnPlay = () => {
-    console.log('onPlay');
-  };
+  }, [isSeek, setPlayed]);
 
-  const seekTo = (played: number) => {
-    playerRef.current?.seekTo(played);
+  const handleOnEnded = useCallback(() => {
+    console.log('onEnded (video.js)');
+    setIsPlay(false);
+  }, [setIsPlay]);
+
+  const handleOnDuration = useCallback(() => {
+    if (!playerRef.current) return;
+    const duration = playerRef.current.duration() || 0;
+    console.log('onDuration (video.js)', duration);
+    setDuration(duration);
+  }, [setDuration]);
+
+  const handleOnError = useCallback(() => {
+    console.error('onError (video.js)', playerRef.current?.error());
+  }, []);
+
+  const seekTo = (value: number, type: 'seconds' | 'fraction') => {
+    if (!playerRef.current) return;
+
+    // fraction일 경우 전체 길이에 비례해 계산
+    if (type === 'fraction') {
+      if (value < 0 || value > 1) {
+        throw new Error('Invalid seek value');
+      }
+      const duration = playerRef.current.duration() || 0;
+      playerRef.current.currentTime(duration * value);
+    } else {
+      // seconds
+      playerRef.current.currentTime(value);
+    }
   }
 
-  const getCurrentSeconds = () => {
-    return playerRef.current?.getCurrentTime() ?? 0;
-  }
-
-  // 메소드 노출
+  /**
+   * ----------------------------------------------------------------
+   * 6. 외부에서 호출하는 메소드 (useImperativeHandle)
+   * ----------------------------------------------------------------
+   */
   useImperativeHandle(ref, () => ({
     getCurrentSeconds: () => {
-      return playerRef.current?.getCurrentTime() ?? 0;
+      return playerRef.current?.currentTime() ?? 0;
     },
     setClipView: (value: boolean, initialCurrentSeconds?: number) => {
       if (value) {
         setIsPlay(false);
-        let currentSeconds = playerRef.current?.getCurrentTime() ?? 0;
+        let currentSeconds = playerRef.current?.currentTime() ?? 0;
         if (initialCurrentSeconds) {
           currentSeconds = initialCurrentSeconds;
         }
-
         setCurrentSeconds(currentSeconds);
         setIsShowClipView(true);
       } else {
         setIsShowClipView(false);
+        // 닫힐 때, 재생 상태 복구
         if (!isPlay) {
-            setIsPlay(true);
+          setIsPlay(true);
         }
       }
     },
     setClipValues: (values: number[]) => {
-      // 유효하지 않은 값이 들어오면 오류
       if (values.length !== 2 || values[0] >= values[1]) {
         throw new Error('Invalid clip values');
       }
-      // number 타입이 아니면 오류
       if (typeof values[0] !== 'number' || typeof values[1] !== 'number') {
         throw new Error('Invalid clip values type');
       }
@@ -201,116 +321,124 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
       }
     },
     setTagView: (value: boolean) => setIsShowTagView(value),
-    seekTo: (value: number, type: "seconds" | "fraction") => {
-      if (!["seconds", "fraction"].includes(type)) {
-        throw new Error('Invalid seek type');
-      }
-      if (type === "fraction") {
-        if (value < 0 || value > 1) {
-          throw new Error('Invalid seek value');
-        }
-      }
-
-      playerRef.current?.seekTo(value, type);
-    },
-    setIsViewThumbMarker: (value: boolean) => {
-      setIsViewThumbMarker(value);
+    seekTo: seekTo,
+    setIsViewThumbMarker: (v: boolean) => {
+      setIsViewThumbMarker(v);
     },
     getIsFullScreen: () => isFullScreen,
   }));
-  
+
+  /**
+   * ----------------------------------------------------------------
+   * 7. 최종 렌더
+   *  - 기존 스타일, Popover, Controls, ClipViewPopover 등 유지
+   * ----------------------------------------------------------------
+   */
   return (
-    <PlayerContainer
-      ref={playerContainerRef}
-      width={props.width}
-      height={props.height}
-    >
+    <PlayerContainer width={props.width} height={props.height}>
       <GlobalStyles />
       <Container>
-        {/* 241224 클래스 (video_ratio_wrapper) 추가
-        : 비디오 비율 16:9 고정, 
-        비율 고정 원하지 않으시면 (video_ratio_wrapper) 클래스 제거하시면 됩니다. */}
-        <PlayerWrapper className={isFullScreen ? '' : 'video_ratio_wrapper'}>
-          <ReactPlayer
-            width="100%"
-            height="100%"
-            ref={playerRef}
-            url={url}
-            className='hogak-player'
-            playing={isPlay}
-            controls={false}
-            onEnded={onEnded}
-            onReady={handleOnReady}
-            onStart={handleOnStart}
-            onPlay={handleOnPlay}
-            onError={(e) => console.error('onError', e)}
-            onSeek={(seconds: number) => console.log('onSeek', seconds)}
-            onDuration={handleDuration}
-            onProgress={handleProgress}
-            volume={volume}
-            pip={pip}
-            playsinline={true}
+        {/* <PlayerWrapper className={isFullScreen ? '' : 'video_ratio_wrapper'}> */}
+        <PlayerWrapper>
+          {/* Video.js가 제어할 video 엘리먼트 */}
+          <div ref={videoRef} className="hogak-player"></div>
+
+          {/* 멀티뷰, 태그, 클립 등의 커스텀 UI 유지 */}
+          <MultiViewPopover
+            isShow={isShowMultiView}
+            seekTo={seekTo}
+            getCurrentSeconds={() => playerRef.current?.currentTime() ?? 0}
           />
-          <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
-          <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
-          <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} setValuesRef={setClipValuesRef} onSave={onClickClipSave} /> {/* 241224 클립 */}
-          {skipDirection && 
-            <SkipMessage style={{ left: skipDirection === 'left' ? "20%" : "80%", top: "50%" }}>
+          <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
+          <ClipViewPopover
+            seekTo={seekTo}
+            onChangeClipDuration={onChangeClipDuration}
+            isShow={isShowClipView}
+            setValuesRef={setClipValuesRef}
+            onSave={onClickClipSave}
+          />
+          {skipDirection && (
+            <SkipMessage
+              style={{
+                left: skipDirection === 'left' ? '20%' : '80%',
+                top: '50%',
+              }}
+            >
               {skipDirection === 'left' ? '-10초' : '+10초'}
             </SkipMessage>
-          }
+          )}
         </PlayerWrapper>
       </Container>
     </PlayerContainer>
   );
 });
 
+/**
+ * ----------------------------------------------------------------
+ * 8. 스타일 정의
+ * ----------------------------------------------------------------
+ */
 const Container = styled.div`
   width: 100%;
   margin-left: auto;
-  box-sizing: border-box;
   margin-right: auto;
-  height: 100%;/* 240108 추가 */
+  box-sizing: border-box;
+  height: 100%; /* 240108 추가 */
 `;
 
-const PlayerContainer = styled.div<{ width: number | undefined; height: number | undefined }>`
+const PlayerContainer = styled.div<{
+  width: number | undefined;
+  height: number | undefined;
+}>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  ${(props) => props.width ? `width: ${props.width}px;` : 'width: 100%;'}
-  ${(props) => props.height ? `height: ${props.height}px;` : 'height: 100%;'}
-  
-  /* 241224 반응형 font-size 추가 */
+  ${(props) => (props.width ? `width: ${props.width}px;` : 'width: 100%;')}
+  ${(props) => (props.height ? `height: ${props.height}px;` : 'height: 100%;')}
+
   font-size: 5px;
-  /* EM rules */
-  @media screen and (min-width: 216px){font-size:6px;}
-  @media screen and (min-width: 229px){font-size:6.3611px;}
-  @media screen and (min-width: 250px){font-size:6.9444px;}
-  @media screen and (min-width: 252px){font-size:7px;}
-  @media screen and (min-width: 288px){font-size:8px;}
-  @media screen and (min-width: 292px){font-size:8.1111px;}
-  /* iphone 5 */
-  @media screen and (min-width: 320px){font-size:8.8888px;}
-  @media screen and (min-width: 324px){font-size:9px;}
-  @media screen and (min-width: 360px){font-size:10px;}
+  @media screen and (min-width: 216px) {
+    font-size: 6px;
+  }
+  @media screen and (min-width: 229px) {
+    font-size: 6.3611px;
+  }
+  @media screen and (min-width: 250px) {
+    font-size: 6.9444px;
+  }
+  @media screen and (min-width: 252px) {
+    font-size: 7px;
+  }
+  @media screen and (min-width: 288px) {
+    font-size: 8px;
+  }
+  @media screen and (min-width: 292px) {
+    font-size: 8.1111px;
+  }
+  @media screen and (min-width: 320px) {
+    font-size: 8.8888px;
+  }
+  @media screen and (min-width: 324px) {
+    font-size: 9px;
+  }
+  @media screen and (min-width: 360px) {
+    font-size: 10px;
+  }
 
   .hogak-player {
     object-fit: cover;
     padding: 0;
     margin: 0;
-
-    /* 241224 추가 */
     font-size: 0;
   }
 `;
 
 const PlayerWrapper = styled.div`
   position: relative;
-  height: 100%; /* 240108 추가 */
+  height: 100%;
 
-  /* 241224 추가 */
   &.video_ratio_wrapper {
     padding-top: calc((9 / 16) * 100%);
     background: black;
@@ -327,11 +455,8 @@ const PlayerWrapper = styled.div`
 
 const SkipMessage = styled.div`
   z-index: 10;
-  opacity: 1;
   color: #fff;
   font-size: 2em;
   position: absolute;
-  top: 50%;
-  left: 50%;
   transform: translate(-50%, -50%);
 `;
