@@ -244,22 +244,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     `)
     console.log("%c Version : 0.4.3","color:red;font-weight:bold;");
   }, []);
-
-  const onEnded = () => {
-    setIsPlay(false);
-  };
-
-  const handleDuration = (duration: number) => {
-    // console.log('onDuration', duration);
-    setDuration(duration);
-  }
-
-  const handleProgress = (state: OnProgressProps) => {
-    // console.log('onProgress', state);
-    if (!isSeek) {
-      setPlayed(state.played);
-    }
-  };
+  
   const handleOnReady = () => {
     console.log('onReady (video.js)');
     setIsReady(true);
