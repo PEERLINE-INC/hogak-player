@@ -63,6 +63,8 @@ export function Controls(props: ControlsProps) {
   const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
   
   const [mute] = useState(false);
+  // 드래그 중 임시로 써 줄 로컬 state
+  const [timeSliderValue, setTimeSliderValue] = useState(played * 100);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [lastTapTime, setLastTapTime] = useState<number | null>(null);
@@ -187,16 +189,16 @@ export function Controls(props: ControlsProps) {
   const handleSeekChange = ([value]: number[]) => {
     // console.log('handleSeekChange', value);
     setIsSeek(true);
-    setPlayed(value / 100);
+    setTimeSliderValue(value);
   };
   const handleSeekCommit = ([value]: number[]) => {
     console.log('handleSeekCommit', value);
-    setIsSeek(false);
-    if (playerRef.current) {
-      seekTo(played, 'fraction');
-    } else {
-      console.warn('playerRef is null, cannot seek');
-    }
+    const fraction = value / 100;
+    seekTo(fraction, 'fraction');
+    // setIsSeek(false);
+    requestAnimationFrame(() => {
+      setIsSeek(false);
+    });
   };
   const handleSeekMouseUp = () => {
     console.log('handleSeekMouseUp');
@@ -315,7 +317,7 @@ export function Controls(props: ControlsProps) {
           <SliderContainer>
             <Slider.Root className="SliderRoot"
               style={{ width: '100%' }}
-              value={[played * 100]}
+              value={[isSeek ? timeSliderValue : played * 100]}
               max={100}
               step={0.1}
               onMouseDown={handleSeekMouseDown}
@@ -348,7 +350,7 @@ export function Controls(props: ControlsProps) {
           </SliderContainer>
           <ControlBox>
             <FlexRow>
-              <PlayTime seconds={duration * played} />
+              <PlayTime seconds={isSeek ? duration * timeSliderValue / 100 : duration * played} />
               {/* 241224 fontSize, padding 수정 */}
               <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
               <PlayTime seconds={duration} />

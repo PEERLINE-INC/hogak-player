@@ -95,44 +95,40 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   // Video.js Player 초기화
   useEffect(() => {
+    if (!url) return; // URL이 없으면 초기화하지 않음
+
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js');
       videoRef.current?.appendChild(videoElement);
-      console.log('url', url);
+      
       // Video.js 인스턴스 생성
-      playerRef.current = videojs(videoElement, {
-        // 원하는 Video.js 옵션들
+      const player = videojs(videoElement, {
         autoplay: false,
-        controls: false, // 자체 Controls를 쓰므로 false
-        fluid: true, // 반응형을 직접 제어
-        sources: [
-          {
-            src: url, // 기본 소스
-            type: 'application/x-mpegurl'
-          },
-        ],
-        // ...기타 Video.js 옵션...
+        controls: false,
+        fluid: true,
+        sources: [{
+          src: url,
+          type: 'application/x-mpegurl'
+        }]
       });
-
-      /**
-       * ----------------------------------------------------------------
-       * 2-1. Video.js 이벤트 등록
-       * ----------------------------------------------------------------
-       */
-      // ready
-      playerRef.current.on('ready', handleOnReady);
-      // play
-      playerRef.current.on('play', handleOnPlay);
-      // timeupdate -> onProgress 대체
-      playerRef.current.on('timeupdate', handleOnTimeUpdate);
-      // ended
-      playerRef.current.on('ended', handleOnEnded);
-      // loadedmetadata -> onDuration 대체
-      playerRef.current.on('loadedmetadata', handleOnDuration);
-      // error
-      playerRef.current.on('error', handleOnError);
+      
+      playerRef.current = player;
+      
+      // 이벤트 리스너 등록
+      player.on('ready', handleOnReady);
+      player.on('play', handleOnPlay);
+      player.on('timeupdate', handleOnTimeUpdate);
+      player.on('ended', handleOnEnded);
+      player.on('loadedmetadata', handleOnDuration);
+      player.on('error', handleOnError);
+    } else {
+      // player가 이미 존재하면 source만 업데이트
+      playerRef.current.src({
+        src: url,
+        type: 'application/x-mpegurl'
+      });
     }
-  }, [url]); // url이 바뀌면 재설정
+  }, [url]); // url이 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current;
@@ -153,7 +149,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   useEffect(() => {
     if (!playerRef.current) return;
     if (isPlay) {
-      playerRef.current.play();
+      playerRef.current.play()?.catch((error) => {
+        console.error('Error playing video :', error);
+      });
     } else {
       playerRef.current.pause();
     }
@@ -230,42 +228,40 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * 5. Video.js 이벤트 핸들러들
    * ----------------------------------------------------------------
    */
-  const handleOnReady = useCallback(() => {
+  const handleOnReady = () => {
     console.log('onReady (video.js)');
     setIsReady(true);
-  }, [setIsReady]);
+  };
 
-  const handleOnPlay = useCallback(() => {
+  const handleOnPlay = () => {
     console.log('onPlay (video.js)');
-    // 원하는 추가 로직
-  }, []);
+  };
 
-  const handleOnTimeUpdate = useCallback(() => {
+  const handleOnTimeUpdate = () => {
     if (!playerRef.current) return;
-    if (!isSeek) {
-      // played = (현재시간 / 전체길이)
-      const current = playerRef.current.currentTime() ?? 0;
-      const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
-      const playedFraction = current / duration;
-      setPlayed(playedFraction);
-    }
-  }, [isSeek, setPlayed]);
+    // played = (현재시간 / 전체길이)
+    const current = playerRef.current.currentTime() ?? 0;
+    const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
+    const playedFraction = current / duration;
+    console.log('handleOnTimeUpdate (video.js)', playedFraction);
+    setPlayed(playedFraction);
+  };
 
-  const handleOnEnded = useCallback(() => {
+  const handleOnEnded = () => {
     console.log('onEnded (video.js)');
     setIsPlay(false);
-  }, [setIsPlay]);
+  }
 
-  const handleOnDuration = useCallback(() => {
+  const handleOnDuration = () => {
     if (!playerRef.current) return;
     const duration = playerRef.current.duration() || 0;
     console.log('onDuration (video.js)', duration);
     setDuration(duration);
-  }, [setDuration]);
+  };
 
-  const handleOnError = useCallback(() => {
+  const handleOnError = () => {
     console.error('onError (video.js)', playerRef.current?.error());
-  }, []);
+  };
 
   const seekTo = (value: number, type: 'seconds' | 'fraction') => {
     if (!playerRef.current) return;
@@ -275,7 +271,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       if (value < 0 || value > 1) {
         throw new Error('Invalid seek value');
       }
-      const duration = playerRef.current.duration() || 0;
+      const duration = playerRef.current.duration() ?? 0;
       playerRef.current.currentTime(duration * value);
     } else {
       // seconds

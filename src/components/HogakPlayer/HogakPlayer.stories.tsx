@@ -124,7 +124,7 @@ const meta = {
   },
   args: {
     title: '',
-    url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+    url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/677a1493cb60cd241b27f3a9/venue_hls/hd_hls/hd_hls.m3u8',
     width: undefined,
     height: undefined,
     isPlay: false,
