@@ -19,6 +19,10 @@ interface PlayerState {
   setPlayed: (played: number) => void;
   volume: number;
   setVolume: (volume: number) => void;
+  speed: number;
+  setSpeed: (speed: number) => void;
+  quality: number;
+  setQuality: (quality: number) => void;
   isFullScreen: boolean;
   setIsFullScreen: (isFullScreen: boolean) => void;
   isShowMultiView: boolean;
@@ -69,6 +73,10 @@ const usePlayerStore = create<PlayerState>()(
     setSkipDirection: (skipDirection: 'left' | 'right' | null) => set({ skipDirection }),
     isViewThumbMarker: false,
     setIsViewThumbMarker: (isViewThumbMarker: boolean) => set({ isViewThumbMarker }),
+    speed: 1,
+    setSpeed: (speed: number) => set({ speed }),
+    quality: 720,
+    setQuality: (quality: number) => set({ quality }),
   }),
 )
 

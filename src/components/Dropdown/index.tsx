@@ -2,18 +2,20 @@ import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 
 interface Option {
-  value: string; // 옵션 값
-  tag?: string; // 추가 태그 (예: HD 표시)
+  value: string | number; // 실제 값
+  label: string; // 보이는 값
+  tag?: string;  // 추가 태그 (예: HD 표시)
 }
 
 interface DropdownProps {
   options: Option[]; // 옵션 배열
-  defaultValue?: string;
+  defaultValue?: string | number; // 초기 값
+  onChangeValue?: (value: Option) => void; // 값 변경 핸들러
 }
 
-const Dropdown = ({ options, defaultValue }: DropdownProps) => {
+const Dropdown = ({ options, defaultValue, onChangeValue }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(defaultValue || "");
+  const [selectedOption, setSelectedOption] = useState<string | number>(defaultValue || "");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
@@ -23,6 +25,9 @@ const Dropdown = ({ options, defaultValue }: DropdownProps) => {
   const handleOptionClick = (option: Option) => {
     setSelectedOption(option.value);
     setIsOpen(false);
+    if (onChangeValue) {
+      onChangeValue(option); // 변경 핸들러 호출
+    }
   };
 
   useEffect(() => {
@@ -44,10 +49,12 @@ const Dropdown = ({ options, defaultValue }: DropdownProps) => {
     }
   }, [defaultValue]);
 
+  const selectedLabel = options.find(option => option.value === selectedOption)?.label || defaultValue;
+
   return (
     <DropdownContainer ref={dropdownRef}>
       <DropdownButton onClick={toggleDropdown}>
-        {selectedOption || "Select an option"}
+        {selectedLabel}
       </DropdownButton>
 
       <DropdownList isOpen={isOpen}>
@@ -57,7 +64,7 @@ const Dropdown = ({ options, defaultValue }: DropdownProps) => {
             isActive={option.value === selectedOption}
             onClick={() => handleOptionClick(option)}
           >
-            <span>{option.value}</span>
+            <span>{option.label}</span>
             {option.tag && <TagLabel>{option.tag}</TagLabel>}
           </DropdownItem>
         ))}

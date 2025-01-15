@@ -50,6 +50,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
   const skipDirection = usePlayerStore((state) => state.skipDirection);
   const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker);
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
+  const speed = usePlayerStore((state) => state.speed);
 
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -125,7 +126,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                                                                
     `)
-    console.log("%c Version : 0.4.2-beta.15","color:red;font-weight:bold;");
+    console.log("%c Version : 0.4.3","color:red;font-weight:bold;");
   }, []);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -251,6 +252,7 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
             volume={volume}
             pip={pip}
             playsinline={true}
+            playbackRate={speed}
           />
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen &&
