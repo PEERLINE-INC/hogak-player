@@ -77,6 +77,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker);
 
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
+  const speed = usePlayerStore((state) => state.speed);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
@@ -229,6 +230,35 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * 5. Video.js 이벤트 핸들러들
    * ----------------------------------------------------------------
    */
+  useEffect(() => {
+    console.log(`
+
+██╗  ██╗ ██████╗  ██████╗  █████╗ ██╗  ██╗    ██████╗ ██╗      █████╗ ██╗   ██╗███████╗██████╗ 
+██║  ██║██╔═══██╗██╔════╝ ██╔══██╗██║ ██╔╝    ██╔══██╗██║     ██╔══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
+███████║██║   ██║██║  ███╗███████║█████╔╝     ██████╔╝██║     ███████║ ╚████╔╝ █████╗  ██████╔╝
+██╔══██║██║   ██║██║   ██║██╔══██║██╔═██╗     ██╔═══╝ ██║     ██╔══██║  ╚██╔╝  ██╔══╝  ██╔══██╗
+██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+                                                                                               
+    `)
+    console.log("%c Version : 0.4.3","color:red;font-weight:bold;");
+  }, []);
+
+  const onEnded = () => {
+    setIsPlay(false);
+  };
+
+  const handleDuration = (duration: number) => {
+    // console.log('onDuration', duration);
+    setDuration(duration);
+  }
+
+  const handleProgress = (state: OnProgressProps) => {
+    // console.log('onProgress', state);
+    if (!isSeek) {
+      setPlayed(state.played);
+    }
+  };
   const handleOnReady = () => {
     console.log('onReady (video.js)');
     setIsReady(true);
@@ -335,7 +365,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     <PlayerContainer width={props.width} height={props.height}>
       <GlobalStyles />
       <Container>
-        {/* <PlayerWrapper className={isFullScreen ? '' : 'video_ratio_wrapper'}> */}
         <PlayerWrapper>
           {/* Video.js가 제어할 video 엘리먼트 */}
           <div ref={videoRef} className="hogak-player"></div>

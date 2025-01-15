@@ -62,6 +62,7 @@ export function Controls(props: ControlsProps) {
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const backIconType = usePlayerStore((state) => state.backIconType);
   const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
+  const setSpeed = usePlayerStore((state) => state.setSpeed);
   
   const [mute] = useState(false);
   // 드래그 중 임시로 써 줄 로컬 state
@@ -334,7 +335,7 @@ export function Controls(props: ControlsProps) {
                   <RedMarkerIcon />
                 </AddTagMarker>}
               </Slider.Thumb>
-              {tags.map((tag, index) => {
+              {!isViewThumbMarker && tags.map((tag, index) => {
                 const position = (tag.seconds / duration) * 100;
                 
                 return (
@@ -364,8 +365,12 @@ export function Controls(props: ControlsProps) {
                 <SpeedControlIcon/>
               </IconButton> */}
               {/* 250113 드롭다운 추가 */}
-              <Dropdown options={[{value : '2x'}, {value : '1.75x'}, {value : '1.5x'}, {value : '1.25x'}, {value : '1x'}, {value : '0.5x'}]} defaultValue="1x"></Dropdown>
-              <Dropdown options={[{value : '1080p', tag: 'HD'}, {value : '720p'},{value : '480p'}, {value : '360p'}, {value : '240p'}, {value : '144p'}, {value : '자동'}]} defaultValue="자동"></Dropdown>
+              <Dropdown 
+                onChangeValue={(option) => setSpeed(Number(option.value))} 
+                options={[{label: '2x', value: 2}, {label : '1.75x', value: 1.75}, {label : '1.5x', value: 1.5}, {label : '1.25x', value: 1.25}, {label : '1x', value: 1}, {label : '0.5x', value: 0.5}]} 
+                defaultValue={1}
+              />
+              <Dropdown onChangeValue={(option) => console.log(option)} options={[{label : '1080p', tag: 'HD', value: 1080}, {label : '720p', value: 720},{label : '480p', value: 480}, {label : '360p', value: 360}, {label : '240p', value: 240}, {label : '144p', value: 144}]} defaultValue={720}></Dropdown>
               <FlexRow>
                 <VolumeControlWrap>
                   <IconButton className='volume_control_btn'>
