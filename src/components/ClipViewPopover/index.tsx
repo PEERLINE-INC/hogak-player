@@ -135,7 +135,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     return (
         <PopoverContainer isShow={isShow}>
             <TopContainer>
-                <FlexRow style={{ width: 'calc(100% - 10em' }}>
+                {/* 250113 클래스 네임 추가 */}
+                <FlexRow style={{ width: 'calc(100% - 10em' }} className="icon_box">
                     <IconButton onClick={handleCancel}
                         className='back_btn'
                     >
@@ -145,8 +146,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                     <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{/* {title} */}</div>
                 </FlexRow>
 
-
-                <FlexRow gap={12}>
+                {/* 250113 간격 수정 및  클래스 네임 추가 */}
+                <FlexRow gap={16} className="icon_box">
                     <IconButton className='tag_btn'>
                         <TagViewIcon />
                     </IconButton>
@@ -160,7 +161,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             </TopContainer>
 
             <MiddleContainer>
-                <FlexCol style={{ paddingRight: '1.6em', gap: '2em' }}>
+                {/* 250113 간격 수정 및 클래스 추가 */}
+                <FlexCol style={{ paddingRight: '1em', gap: '1.3em' }} className="icon_box">
                     {isFullScreen && (
                         <>
                             <FlexCol>
@@ -312,12 +314,42 @@ const FlexRow = styled.div<{ gap?: number }>`
     display: flex;
     align-items: center;
     gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; /* 241224 gap em 단위 수정 */
+    /* 250113 추가 */
+    &.icon_box {
+            @media screen and (min-width: 390px){font-size:10.8334px;}
+            @media screen and (min-width: 396px){font-size:11px;}
+            @media screen and (min-width: 411px){font-size:11.4166px;}
+            @media screen and (min-width: 412px){font-size:11.4444px;}
+            /* iphone 6 Plus */
+            @media screen and (min-width: 414px){font-size:11.5px;}
+            /* iphone 12 Pro Max */
+            @media screen and (min-width: 428px){font-size:11.8889px;}
+            @media screen and (min-width: 432px){font-size:12px;}
+            @media screen and (min-width: 468px){font-size:13px;}
+            @media screen and (min-width: 504px){font-size:14px;}
+            @media screen and (min-width: 540px){font-size:15px;} 
+        }
 `;
 
 const FlexCol = styled.div<{ gap?: number }>`
     display: flex;
     flex-direction: column;
     gap: ${(props) => props.gap ? props.gap * 0.1 : 0}em; 
+    /* 250113 추가 */
+    &.icon_box {
+            @media screen and (min-width: 390px){font-size:10.8334px;}
+            @media screen and (min-width: 396px){font-size:11px;}
+            @media screen and (min-width: 411px){font-size:11.4166px;}
+            @media screen and (min-width: 412px){font-size:11.4444px;}
+            /* iphone 6 Plus */
+            @media screen and (min-width: 414px){font-size:11.5px;}
+            /* iphone 12 Pro Max */
+            @media screen and (min-width: 428px){font-size:11.8889px;}
+            @media screen and (min-width: 432px){font-size:12px;}
+            @media screen and (min-width: 468px){font-size:13px;}
+            @media screen and (min-width: 504px){font-size:14px;}
+            @media screen and (min-width: 540px){font-size:15px;} 
+        }
 `;
 
 const ClipRangeWrap = styled.div<{ isFullScreen: boolean }>`

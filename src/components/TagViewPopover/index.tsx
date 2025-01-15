@@ -118,6 +118,19 @@ const IconButton = styled.div`
     width: 100%;
     height: 100%;
   }
+  /* 250113 추가 */
+  @media screen and (min-width: 390px){font-size:10.8334px;}
+  @media screen and (min-width: 396px){font-size:11px;}
+  @media screen and (min-width: 411px){font-size:11.4166px;}
+  @media screen and (min-width: 412px){font-size:11.4444px;}
+  /* iphone 6 Plus */
+  @media screen and (min-width: 414px){font-size:11.5px;}
+  /* iphone 12 Pro Max */
+  @media screen and (min-width: 428px){font-size:11.8889px;}
+  @media screen and (min-width: 432px){font-size:12px;}
+  @media screen and (min-width: 468px){font-size:13px;}
+  @media screen and (min-width: 504px){font-size:14px;}
+  @media screen and (min-width: 540px){font-size:15px;} 
 `;
 
 const TagIcon = styled.div`
