@@ -13,6 +13,7 @@ import { ClipViewPopover } from '../ClipViewPopover'; // /* 241224 클립 추가
 // import screenfull from 'screenfull';
 import "pretendard/dist/web/static/pretendard.css";
 import useClipStore from '../../store/clipViewStore';
+import { MultiViewPopoverSmall } from '../MultiViewPopoverSmall';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -251,13 +252,21 @@ export const HogakPlayer = forwardRef(function (props: HogakPlayerProps, ref) {
             pip={pip}
             playsinline={true}
           />
-          <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
+          {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
+          {isFullScreen &&
+            <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
+          }
+          {!isFullScreen &&
+            <MultiViewPopoverSmall isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
+          }
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover seekTo={seekTo} onChangeClipDuration={onChangeClipDuration} isShow={isShowClipView} setValuesRef={setClipValuesRef} onSave={onClickClipSave} /> {/* 241224 클립 */}
           {skipDirection && 
-            <SkipMessage style={{ left: skipDirection === 'left' ? "20%" : "80%", top: "50%" }}>
-              {skipDirection === 'left' ? '-10초' : '+10초'}
+            <SkipMessage style={{ left: skipDirection === 'left' ? "30%" : "70%", top: "50%" }}>{/* 250113 left 값 수정 */}
+              <span style={{fontSize: '1.4em'}}>
+                {skipDirection === 'left' ? '-10초' : '+10초'}
+              </span>
             </SkipMessage>
           }
         </PlayerWrapper>
@@ -329,9 +338,28 @@ const SkipMessage = styled.div`
   z-index: 10;
   opacity: 1;
   color: #fff;
-  font-size: 2em;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* 250113 스타일 추가 */
+  background-color: rgba(217, 217, 217,.2);
+  width: 5em;
+  height: 5em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @media screen and (min-width: 390px){font-size:10.8334px;}
+  @media screen and (min-width: 396px){font-size:11px;}
+  @media screen and (min-width: 411px){font-size:11.4166px;}
+  @media screen and (min-width: 412px){font-size:11.4444px;}
+  /* iphone 6 Plus */
+  @media screen and (min-width: 414px){font-size:11.5px;}
+  /* iphone 12 Pro Max */
+  @media screen and (min-width: 428px){font-size:11.8889px;}
+  @media screen and (min-width: 432px){font-size:12px;}
+  @media screen and (min-width: 468px){font-size:13px;}
+  @media screen and (min-width: 504px){font-size:14px;}
+  @media screen and (min-width: 540px){font-size:15px;} 
 `;
