@@ -29,6 +29,8 @@ import { HogakPlayerProps } from './interfaces';
 
 import 'pretendard/dist/web/static/pretendard.css';
 import Player from 'video.js/dist/types/player';
+import '@theonlyducks/videojs-zoom';
+import '@theonlyducks/videojs-zoom/styles';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -108,6 +110,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
         autoplay: false,
+        enableSmoothSeeking: true,
+        playsinline: true,
         controls: false,
         fluid: true,
         sources: [{
@@ -117,6 +121,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       });
       
       playerRef.current = player;
+      // @ts-ignore
+      const zoomPlugin = player.zoomPlugin({
+        showZoom: false,
+        showMove: false,
+        showRotate: false,
+        gestureHandler: true,
+      });
       
       // 이벤트 리스너 등록
       player.on('ready', handleOnReady);
@@ -176,6 +187,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       console.log('[Video.js] PIP requested - 별도 구현 필요');
     }
   }, [pip]);
+
+  // 재생 속도
+  useEffect(() => {
+    if (!playerRef.current) return;
+    playerRef.current.playbackRate(speed);
+  }, [speed]);
 
   /**
    * ----------------------------------------------------------------
@@ -294,7 +311,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       // seconds
       playerRef.current.currentTime(value);
     }
-  }
+  };
+
+  const getCurrentSeconds = () => {
+    return playerRef.current?.currentTime() ?? 0;
+  };
 
   /**
    * ----------------------------------------------------------------

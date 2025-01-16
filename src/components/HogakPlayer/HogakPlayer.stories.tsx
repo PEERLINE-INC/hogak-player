@@ -124,7 +124,7 @@ const meta = {
   },
   args: {
     title: '',
-    url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/677a1493cb60cd241b27f3a9/venue_hls/hd_hls/hd_hls.m3u8',
+    url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
     width: undefined,
     height: undefined,
     isPlay: false,

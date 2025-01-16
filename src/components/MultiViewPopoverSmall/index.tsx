@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 interface MultiViewPopoverProps {
   isShow: boolean;
-  seekTo: (seconds: number) => void;
+  seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
   getCurrentSeconds: () => number;
 }
 
@@ -32,7 +32,7 @@ export const MultiViewPopoverSmall = ({ isShow, seekTo, getCurrentSeconds }: Mul
 
   const handlePlayerReady = () => {
     if (pendingSeek !== null) {
-      seekTo(pendingSeek);
+      seekTo(pendingSeek, 'seconds');
       setPendingSeek(null);
     }
   };

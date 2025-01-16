@@ -22,7 +22,6 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import useClipStore from '../../store/clipViewStore';
 import Player from 'video.js/dist/types/player';
 import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
-import Player from 'video.js/dist/types/player';
 
 interface ControlsProps {
   playerRef: React.RefObject<Player | null>;
