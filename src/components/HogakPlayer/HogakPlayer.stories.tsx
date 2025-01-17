@@ -121,6 +121,10 @@ const meta = {
       description: `클립 저장 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickClipSave',
     },
+    onClickTagSave: {
+      description: `태그 저장 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickTagSave',
+    },
   },
   args: {
     title: '',
@@ -147,6 +151,9 @@ const meta = {
     },
     onClickClipSave: () => {
       console.log('onClickClipSave');
+    },
+    onClickTagSave: () => {
+      console.log('onClickTagSave');
     },
     multiViewSources: [
       {

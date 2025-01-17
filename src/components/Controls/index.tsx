@@ -62,6 +62,8 @@ export function Controls(props: ControlsProps) {
   const backIconType = usePlayerStore((state) => state.backIconType);
   const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
   const setSpeed = usePlayerStore((state) => state.setSpeed);
+  const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
+  const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
   
   const [mute] = useState(false);
   // 드래그 중 임시로 써 줄 로컬 state
@@ -226,6 +228,8 @@ export function Controls(props: ControlsProps) {
   const handleClickTag = () => {
     if (!isFullScreen) {
       setIsShowTagView(true);
+    } else {
+      setIsShowTagSaveView(true);
     }
 
     onClickTagButton?.();
@@ -276,26 +280,24 @@ export function Controls(props: ControlsProps) {
             </IconButton>}
           </FlexRow>
         </TopContainer>
-
-        {/* 241224 플레이 버튼 구조 변경 */}
-        <PlayBtnContainer>
-          <FlexRow>
-              <IconButton onClick={(_) => setIsPlay(!isPlay)} className='play_btn'>
-                {isPlay ? (
-                  <PauseIcon />
-                ) : (
-                  <PlayIcon />
-                )}{" "}
-              </IconButton>
-          </FlexRow>
-        </PlayBtnContainer>
-        {/* //241224 플레이 버튼 구조 변경 */}
-
         
         <MiddleContainer className='controls-wrapper'>
+          {/* 241224 플레이 버튼 구조 변경 */}
+          <PlayBtnContainer>
+            <FlexRow>
+                <IconButton onClick={(_) => setIsPlay(!isPlay)} className='play_btn'>
+                  {isPlay ? (
+                    <PauseIcon />
+                  ) : (
+                    <PlayIcon />
+                  )}{" "}
+                </IconButton>
+            </FlexRow>
+          </PlayBtnContainer>
+          {/* //241224 플레이 버튼 구조 변경 */}
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가, 250113 클래스 추가 및 간격 수정 */}
           <FlexCol style={{paddingRight: '1em', gap: '1.3em'}} className='icon_box'>
-            { isFullScreen && !isShowClipView && (
+            { isFullScreen && !isShowClipView && !isShowTagSaveView && (
               <>
                 <FlexCol>
                   <IconButton className='side_icon side_clip' onClick={handleClickClip}>
@@ -473,6 +475,15 @@ const BottomContainer = styled.div<{ isFullScreen: boolean }>`
       isFullScreen &&
       `
       margin-bottom: 42px;
+    `}
+  }
+
+  /* 안드로이드 스타일 */
+  @supports (-webkit-overflow-scrolling: touch) and (not (-webkit-touch-callout: none)) {
+    ${({ isFullScreen }) =>
+      isFullScreen &&
+      `
+      margin-bottom: 9%;
     `}
   }
 `;

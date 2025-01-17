@@ -37,6 +37,8 @@ interface PlayerState {
   setSkipDirection: (skipDirection: 'left' | 'right' | null) => void;
   isViewThumbMarker: boolean;
   setIsViewThumbMarker: (isViewThumbMarker: boolean) => void;
+  isShowTagSaveView: boolean;
+  setIsShowTagSaveView: (isShowTagSaveView: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -73,6 +75,8 @@ const usePlayerStore = create<PlayerState>()(
     setSkipDirection: (skipDirection: 'left' | 'right' | null) => set({ skipDirection }),
     isViewThumbMarker: false,
     setIsViewThumbMarker: (isViewThumbMarker: boolean) => set({ isViewThumbMarker }),
+    isShowTagSaveView: false,
+    setIsShowTagSaveView: (isShowTagSaveView: boolean) => set({ isShowTagSaveView }),
     speed: 1,
     setSpeed: (speed: number) => set({ speed }),
     quality: 720,

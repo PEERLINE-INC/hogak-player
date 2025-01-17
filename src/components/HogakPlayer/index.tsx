@@ -92,12 +92,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const speed = usePlayerStore((state) => state.speed);
+  const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
   const onClickClipSave = props.onClickClipSave ?? (() => {});
+  const onClickTagSave = props.onClickTagSave ?? (() => {});
 
   /**
    * ----------------------------------------------------------------
@@ -272,7 +274,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.0-beta.8","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.0-beta.9","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -406,7 +408,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           {!isFullScreen &&
             <MultiViewPopoverSmall isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           }
-          <TagSaveViewPopover isShow={isShowTagView} onCancel={() => {}} onSave={() => {}} />
+          <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={() => {}} onSave={onClickTagSave} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover

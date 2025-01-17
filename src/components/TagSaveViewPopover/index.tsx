@@ -2,9 +2,6 @@ import styled from "styled-components";
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react';
 import SaveIcon from '../../assets/icons/icon_save.svg?react';
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
-import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
-import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
-import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import usePlayerStore from "../../store/playerStore";
 
 interface TagSaveViewPopoverProps {
@@ -21,8 +18,10 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
     } = props;
 
     const isFullScreen = usePlayerStore((state) => state.isFullScreen);
+    const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
 
     const handleCancel = () => {
+        setIsShowTagSaveView(false);
         onCancel?.();
     };
     const handleSave = () => {
@@ -42,19 +41,6 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
                     </IconButton>
                     {/* 241224 스타일 삭제 및 video_title 클래스 추가 */}
                     <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{/* {title} */}</div>
-                </FlexRow>
-
-                {/* 250113 간격 수정 및  클래스 네임 추가 */}
-                <FlexRow gap={16} className="icon_box">
-                    <IconButton className='tag_btn'>
-                        <TagViewIcon />
-                    </IconButton>
-                    <IconButton className='screencast_btn'>
-                        <ScreenCastIcon />
-                    </IconButton>
-                    { /* multiViewSources.length && */ <IconButton /* onClick={() => setIsShowMultiView(true)}  */ className='multiview_btn'>
-                        <MultiViewIcon />
-                    </IconButton>}
                 </FlexRow>
             </TopContainer>
 
@@ -96,7 +82,7 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
     flex-direction: column;
     justify-content: space-between;
     z-index: 2;
-    background-color: rgba(0,0,0,.6);
+    height: 80%;
 `
 const TopContainer = styled.div`
     display: flex;

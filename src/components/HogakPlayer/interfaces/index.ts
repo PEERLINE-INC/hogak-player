@@ -48,4 +48,5 @@ export type HogakPlayerProps = {
   onChangeFullScreen?: (isFullScreen: boolean) => void;
   onClickTagButton?: () => void;
   onClickClipSave?: () => void;
+  onClickTagSave?: () => void;
 }
