@@ -32,9 +32,19 @@ import Player from 'video.js/dist/types/player';
 import '@theonlyducks/videojs-zoom';
 import '@theonlyducks/videojs-zoom/styles';
 import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
+import { TagSaveViewPopover } from '../TagSaveViewPopover';
 
 const GlobalStyles = createGlobalStyle`
+  * {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+  }
+
   html, body, #root {
+    margin: 0; 
+    padding: 0;
+    height: 100%;
     font-family: 'Pretendard';
     font-weight: 400;
     letter-spacing: -0.02px;
@@ -262,7 +272,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.0-beta.6","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.0-beta.8","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -396,6 +406,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           {!isFullScreen &&
             <MultiViewPopoverSmall isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           }
+          <TagSaveViewPopover isShow={isShowTagView} onCancel={() => {}} onSave={() => {}} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover

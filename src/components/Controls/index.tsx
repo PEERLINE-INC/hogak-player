@@ -425,23 +425,17 @@ const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
 `;
 
 const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0;
-  justify-content: space-between;
+  height: 100%;
+  justify-content: flex-start;
   opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
   pointer-events: ${({ isOverlayVisible }) => (isOverlayVisible ? "auto" : "none")};
 `;
 
 const TopContainer = styled.div`
-  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -460,7 +454,7 @@ const TopContainer = styled.div`
 `;
 
 const MiddleContainer = styled.div`
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -468,7 +462,6 @@ const MiddleContainer = styled.div`
 `;
 
 const BottomContainer = styled.div<{ isFullScreen: boolean }>`
-  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
