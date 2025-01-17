@@ -143,11 +143,11 @@ export default function usePinchZoomAndMove(
           let nextOffsetX = prev.offsetX + deltaX;
           let nextOffsetY = prev.offsetY + deltaY;
 
-          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, initialScale);
+          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, currentScale);
 
           // 컨테이너 범위를 초과할 수 없음 (컨테이너 사이즈 / 배율)
-          const maxX = size.width / currentScale;
-          const maxY = size.height / currentScale;
+          const maxX = size.width;
+          const maxY = size.height;
           if (Math.abs(nextOffsetX) > maxX) {
             return prev;
           }
@@ -201,6 +201,46 @@ export default function usePinchZoomAndMove(
     initialPinchDistance,
     initialScale,
   ]);
+
+  useEffect(() => {
+    const container = videoRef.current;
+    if (!container) return;
+
+    function handleWheel(e: WheelEvent) {
+      e.preventDefault();
+
+      if (!zoomPluginRef.current) return;
+
+      // deltaY (+) -> 스크롤 내림 -> 보통 배율 축소
+      // deltaY (-) -> 스크롤 올림 -> 보통 배율 확대
+      // 원하는 로직에 따라 반대 설정 가능
+      const deltaScale = -e.deltaY * 0.001; 
+      // 값이 너무 크거나 작다면 상수 조정 (예: 0.001 -> 0.005 등)
+
+      let newScale = currentScale + deltaScale;
+
+      // 최소 배율 1
+      if (newScale < 1) {
+        newScale = 1;
+        // 배율이 1이 되면 위치도 (0,0)으로 리셋
+        setOffset((prev) => ({
+          ...prev,
+          offsetX: 0,
+          offsetY: 0,
+        }));
+        zoomPluginRef.current.move(0, 0);
+      }
+
+      setCurrentScale(newScale);
+      zoomPluginRef.current.zoom(newScale);
+    }
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, [videoRef, zoomPluginRef, currentScale]);
 
   return { offset, size, currentScale }; 
 }
