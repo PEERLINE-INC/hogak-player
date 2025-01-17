@@ -31,6 +31,7 @@ import 'pretendard/dist/web/static/pretendard.css';
 import Player from 'video.js/dist/types/player';
 import '@theonlyducks/videojs-zoom';
 import '@theonlyducks/videojs-zoom/styles';
+import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
 
 const GlobalStyles = createGlobalStyle`
   html, body, #root {
@@ -56,7 +57,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const pip = usePlayerStore((state) => state.pip);
   const isPlay = usePlayerStore((state) => state.isPlay);
   const setIsPlay = usePlayerStore((state) => state.setIsPlay);
-  const isSeek = usePlayerStore((state) => state.isSeek);
   const setDuration = usePlayerStore((state) => state.setDuration);
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
@@ -94,10 +94,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * 2. Video.js 관련 ref & 초기화
    * ----------------------------------------------------------------
    */
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<Player | null>(null);
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
+  const zoomPluginRef = useRef<any>(null);
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -126,9 +128,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         showZoom: false,
         showMove: false,
         showRotate: false,
-        gestureHandler: true,
+        gestureHandler: false,
       });
-      
+      zoomPlugin.zoom(2.0);
+      zoomPluginRef.current = zoomPlugin;
+
       // 이벤트 리스너 등록
       player.on('ready', handleOnReady);
       player.on('play', handleOnPlay);
@@ -259,7 +263,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.4.3","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.0-beta.2","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -277,7 +281,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     const current = playerRef.current.currentTime() ?? 0;
     const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
     const playedFraction = current / duration;
-    console.log('handleOnTimeUpdate (video.js)', playedFraction);
+    // console.log('handleOnTimeUpdate (video.js)', playedFraction);
     setPlayed(playedFraction);
   };
 
@@ -362,6 +366,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     getIsFullScreen: () => isFullScreen,
   }));
 
+  usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
+
   /**
    * ----------------------------------------------------------------
    * 7. 최종 렌더
@@ -369,7 +375,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * ----------------------------------------------------------------
    */
   return (
-    <PlayerContainer width={props.width} height={props.height}>
+    <PlayerContainer width={props.width} height={props.height} ref={playerContainerRef}>
+      {/* <input type="number" defaultValue={100} onChange={(e) => {
+        zoomPluginRef.current?.move(Number(e.target.value), Number(e.target.value));
+      }} />
+      <button onClick={() => {
+        zoomPluginRef.current?.move(0, 0);
+      }}>
+        move
+      </button> */}
       <GlobalStyles />
       <Container>
         <PlayerWrapper>

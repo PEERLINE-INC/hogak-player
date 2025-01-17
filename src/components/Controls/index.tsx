@@ -48,7 +48,6 @@ export function Controls(props: ControlsProps) {
   const setIsSeek = usePlayerStore((state) => state.setIsSeek);
   const duration = usePlayerStore((state) => state.duration);
   const played = usePlayerStore((state) => state.played);
-  const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
   const setVolume = usePlayerStore((state) => state.setVolume);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);

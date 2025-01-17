@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react';
 
-// 두 손가락 사이 거리 계산 함수
 function getDistance(touch1: Touch, touch2: Touch) {
   const dx = touch1.clientX - touch2.clientX;
   const dy = touch1.clientY - touch2.clientY;
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 한 손가락 이동을 추적하기 위해 (이전 좌표 저장)
-interface PanState {
-  startX: number;
-  startY: number;
-  currentX: number;
-  currentY: number;
+// 누적 이동을 추적하기 위한 인터페이스
+interface OffsetState {
+  offsetX: number;
+  offsetY: number;
+  lastX: number;  // touchMove에서 이전 터치 위치를 저장해두기 위해
+  lastY: number;
   isPanning: boolean;
+}
+
+// 컨테이너 사이즈 인터페이스
+interface SizeState {
+  width: number;
+  height: number;
 }
 
 export default function usePinchZoomAndMove(
@@ -23,27 +28,56 @@ export default function usePinchZoomAndMove(
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(1);
 
-  const [pan, setPan] = useState<PanState>({
-    startX: 0,
-    startY: 0,
-    currentX: 0,
-    currentY: 0,
+  // 누적 이동을 위한 상태
+  const [offset, setOffset] = useState<OffsetState>({
+    offsetX: 0,
+    offsetY: 0,
+    lastX: 0,
+    lastY: 0,
     isPanning: false,
+  });
+
+  // 컨테이너 사이즈
+  const [size, setSize] = useState<SizeState>({
+    width: 0,
+    height: 0,
   });
 
   useEffect(() => {
     const container = videoRef.current;
     if (!container) return;
 
-    // 터치 시작
+    // ResizeObserver 콜백
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.target === container) {
+          const cr = entry.contentRect;
+          console.log('ResizeObserver (size)', cr.width, cr.height);
+          setSize({
+            width: cr.width,
+            height: cr.height,
+          });
+        }
+      }
+    });
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [videoRef]);
+
+  useEffect(() => {
+    const container = videoRef.current;
+    if (!container) return;
+
     function handleTouchStart(e: TouchEvent) {
-      // 핀치(두 손가락)
+      // (1) 두 손가락 → pinch
       if (e.touches.length === 2 && zoomPluginRef.current) {
         const dist = getDistance(e.touches[0], e.touches[1]);
         setInitialPinchDistance(dist);
 
-        // plugin 내부에서 현재 스케일을 관리하는 경우가 많습니다.
-        // 혹은 직접 state 로 scale 을 관리하는 경우도 있음
         const plugin = zoomPluginRef.current;
         const currentScale = plugin.getScale 
           ? plugin.getScale() 
@@ -51,71 +85,82 @@ export default function usePinchZoomAndMove(
 
         setInitialScale(currentScale);
       }
-      // 이동(한 손가락)
+      // (2) 한 손가락 → pan
       else if (e.touches.length === 1 && zoomPluginRef.current) {
-        setPan({
-          startX: e.touches[0].clientX,
-          startY: e.touches[0].clientY,
-          currentX: e.touches[0].clientX,
-          currentY: e.touches[0].clientY,
+        console.log('handleTouchStart (pan)', offset);
+        setOffset((prev) => ({
+          ...prev,
+          lastX: e.touches[0].clientX,
+          lastY: e.touches[0].clientY,
           isPanning: true,
-        });
+        }));
       }
     }
 
-    // 터치 이동
     function handleTouchMove(e: TouchEvent) {
-      // 두 손가락: pinch zoom
+      // (1) 두 손가락: pinch
       if (e.touches.length === 2 && zoomPluginRef.current) {
-        console.log('handleTouchMove (pinch zoom)');
-        e.preventDefault(); // 일부 브라우저에서 스크롤 방지
+        e.preventDefault();
 
         const dist = getDistance(e.touches[0], e.touches[1]);
         if (initialPinchDistance === 0) return;
 
         const scaleFactor = dist / initialPinchDistance;
         const newScale = initialScale * scaleFactor;
-
-        // plugin 의 zoom 메소드 호출
         zoomPluginRef.current.zoom(newScale);
       }
-      // 한 손가락: move (pan)
+      // (2) 한 손가락: move (누적 이동)
       else if (e.touches.length === 1 && zoomPluginRef.current) {
-        console.log('handleTouchMove (move)');
         e.preventDefault();
 
-        setPan((prev) => {
+        setOffset((prev) => {
           if (!prev.isPanning) return prev;
+          // 이번 move 이벤트에서 터치 이동량
+          const deltaX = e.touches[0].clientX - prev.lastX;
+          const deltaY = e.touches[0].clientY - prev.lastY;
 
-          const deltaX = e.touches[0].clientX - prev.currentX;
-          const deltaY = e.touches[0].clientY - prev.currentY;
+          // 새 누적 좌표
+          let nextOffsetX = prev.offsetX + deltaX;
+          let nextOffsetY = prev.offsetY + deltaY;
 
-          const newX = e.touches[0].clientX;
-          const newY = e.touches[0].clientY;
+          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, initialScale);
 
-          // plugin 의 move 메소드 호출
-          console.log('handleTouchMove (move) deltaX', deltaX, 'deltaY', deltaY);
-          zoomPluginRef.current.move(deltaX, deltaY);
+          // 컨테이너 범위를 초과할 수 없음 (컨테이너 사이즈 / 배율)
+          const maxX = size.width / initialScale;
+          const maxY = size.height / initialScale;
+          if (Math.abs(nextOffsetX) > maxX) {
+            return prev;
+          }
+          if (Math.abs(nextOffsetY) > maxY) {
+            return prev;
+          }
+
+          // 절대 좌표로 이동
+          zoomPluginRef.current.move(nextOffsetX, nextOffsetY);
 
           return {
-            ...prev,
-            currentX: newX,
-            currentY: newY,
+            offsetX: nextOffsetX,
+            offsetY: nextOffsetY,
+            lastX: e.touches[0].clientX,
+            lastY: e.touches[0].clientY,
+            isPanning: true,
           };
         });
       }
     }
 
-    // 터치 종료
     function handleTouchEnd(e: TouchEvent) {
-      // 손가락이 하나라도 떨어지면 pinch 종료
+      // pinch 종료
       if (e.touches.length < 2) {
         setInitialPinchDistance(0);
         setInitialScale(1);
       }
-      // 손가락이 0개(모두 떨어짐)
+      // pan 종료
       if (e.touches.length === 0) {
-        setPan((prev) => ({ ...prev, isPanning: false }));
+        setOffset((prev) => ({ 
+          ...prev, 
+          isPanning: false 
+        }));
       }
     }
 
@@ -135,6 +180,7 @@ export default function usePinchZoomAndMove(
     zoomPluginRef,
     initialPinchDistance,
     initialScale,
-    pan,
   ]);
-};
+
+  return { offset, size }; 
+}
