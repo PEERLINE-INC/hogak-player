@@ -130,7 +130,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         showRotate: false,
         gestureHandler: false,
       });
-      zoomPlugin.zoom(2.0);
       zoomPluginRef.current = zoomPlugin;
 
       // 이벤트 리스너 등록
@@ -263,7 +262,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.0-beta.2","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.0-beta.3","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

@@ -106,7 +106,10 @@ export default function usePinchZoomAndMove(
         if (initialPinchDistance === 0) return;
 
         const scaleFactor = dist / initialPinchDistance;
-        const newScale = initialScale * scaleFactor;
+        let newScale = initialScale * scaleFactor;
+        // 최소 배율 1
+        newScale = Math.max(1, newScale);
+
         zoomPluginRef.current.zoom(newScale);
       }
       // (2) 한 손가락: move (누적 이동)
