@@ -108,10 +108,21 @@ export default function usePinchZoomAndMove(
 
         const scaleFactor = dist / initialPinchDistance;
         let newScale = initialScale * scaleFactor;
-        // 최소 배율 1
-        newScale = Math.max(1, newScale);
-        setCurrentScale(newScale);
 
+        // 최소 배율을 1로 고정
+        if (newScale < 1) {
+          newScale = 1;
+
+          // 배율이 1이 되었다면 offset도 (0,0)으로 조정
+          setOffset((prev) => ({
+            ...prev,
+            offsetX: 0,
+            offsetY: 0,
+          }));
+          zoomPluginRef.current.move(0, 0);
+        }
+
+        setCurrentScale(newScale);
         zoomPluginRef.current.zoom(newScale);
       }
       // (2) 한 손가락: move (누적 이동)
@@ -135,8 +146,8 @@ export default function usePinchZoomAndMove(
           console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, initialScale);
 
           // 컨테이너 범위를 초과할 수 없음 (컨테이너 사이즈 / 배율)
-          const maxX = size.width / initialScale;
-          const maxY = size.height / initialScale;
+          const maxX = size.width / currentScale;
+          const maxY = size.height / currentScale;
           if (Math.abs(nextOffsetX) > maxX) {
             return prev;
           }
