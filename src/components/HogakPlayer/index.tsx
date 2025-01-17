@@ -262,7 +262,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.0-beta.3","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.0-beta.4","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

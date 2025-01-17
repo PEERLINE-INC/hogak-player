@@ -27,6 +27,7 @@ export default function usePinchZoomAndMove(
 ) {
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(1);
+  const [currentScale, setCurrentScale] = useState(1);
 
   // 누적 이동을 위한 상태
   const [offset, setOffset] = useState<OffsetState>({
@@ -109,12 +110,17 @@ export default function usePinchZoomAndMove(
         let newScale = initialScale * scaleFactor;
         // 최소 배율 1
         newScale = Math.max(1, newScale);
+        setCurrentScale(newScale);
 
         zoomPluginRef.current.zoom(newScale);
       }
       // (2) 한 손가락: move (누적 이동)
       else if (e.touches.length === 1 && zoomPluginRef.current) {
         e.preventDefault();
+
+        if (currentScale <= 1) {
+          return;
+        }
 
         setOffset((prev) => {
           if (!prev.isPanning) return prev;
@@ -185,5 +191,5 @@ export default function usePinchZoomAndMove(
     initialScale,
   ]);
 
-  return { offset, size }; 
+  return { offset, size, currentScale }; 
 }
