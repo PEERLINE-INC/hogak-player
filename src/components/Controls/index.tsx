@@ -432,6 +432,8 @@ const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
   right: 0;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   justify-content: space-between;
   opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
@@ -439,10 +441,11 @@ const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
 `;
 
 const TopContainer = styled.div`
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 1.2em 1.6em 0 1.6em;/* 241224 수정 */
+  padding: 1.2em 1.6em 0 1.6em;
 
   /* 241224 추가 */
   .video_title {
@@ -457,17 +460,18 @@ const TopContainer = styled.div`
 `;
 
 const MiddleContainer = styled.div`
+  flex: 1 1 auto;
   display: flex;
-  justify-content: flex-end; /* 241224 수정 */
+  justify-content: flex-end;
   align-items: center;
-  height: 100%;
+  min-height: 0;
 `;
 
 const BottomContainer = styled.div<{ isFullScreen: boolean }>`
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  
   margin-bottom: 0;
 
   /* iOS Safari 전용 스타일 */
