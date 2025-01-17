@@ -78,12 +78,6 @@ export default function usePinchZoomAndMove(
       if (e.touches.length === 2 && zoomPluginRef.current) {
         const dist = getDistance(e.touches[0], e.touches[1]);
         setInitialPinchDistance(dist);
-
-        const plugin = zoomPluginRef.current;
-        const currentScale = plugin.getScale 
-          ? plugin.getScale() 
-          : plugin.scale ?? 1;
-
         setInitialScale(currentScale);
       }
       // (2) 한 손가락 → pan
@@ -120,6 +114,11 @@ export default function usePinchZoomAndMove(
             offsetY: 0,
           }));
           zoomPluginRef.current.move(0, 0);
+        } else {
+          // 최대 배율은 5
+          if (newScale > 5) {
+            newScale = 5;
+          }
         }
 
         setCurrentScale(newScale);
@@ -143,19 +142,18 @@ export default function usePinchZoomAndMove(
           let nextOffsetX = prev.offsetX + deltaX;
           let nextOffsetY = prev.offsetY + deltaY;
 
-          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, currentScale);
-
-          // 컨테이너 범위를 초과할 수 없음 (컨테이너 사이즈 / 배율)
-          const maxX = size.width;
-          const maxY = size.height;
-          if (Math.abs(nextOffsetX) > maxX) {
+          // 컨테이너 범위를 초과할 수 없음
+          const maxOffsetX = (size.width * currentScale) / 2 - (size.width / 2);
+          const maxOffsetY = (size.height * currentScale) / 2 - (size.height / 2);
+          if (Math.abs(nextOffsetX) > maxOffsetX) {
             return prev;
           }
-          if (Math.abs(nextOffsetY) > maxY) {
+          if (Math.abs(nextOffsetY) > maxOffsetY) {
             return prev;
           }
 
           // 절대 좌표로 이동
+          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, currentScale);
           zoomPluginRef.current.move(nextOffsetX, nextOffsetY);
 
           return {
@@ -173,7 +171,6 @@ export default function usePinchZoomAndMove(
       // pinch 종료
       if (e.touches.length < 2) {
         setInitialPinchDistance(0);
-        setInitialScale(1);
       }
       // pan 종료
       if (e.touches.length === 0) {
