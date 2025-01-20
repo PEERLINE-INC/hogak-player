@@ -3,6 +3,8 @@ import { create } from 'zustand'
 interface PlayerState {
   url: string;
   setUrl: (url: string) => void;
+  isLive: boolean;
+  setIsLive: (isLive: boolean) => void;
   title: string;
   setTitle: (title: string) => void;
   pip: boolean;
@@ -53,6 +55,8 @@ const usePlayerStore = create<PlayerState>()(
   (set) => ({
     url: '',
     setUrl: (url: string) => set({ url }),
+    isLive: false,
+    setIsLive: (isLive: boolean) => set({ isLive }),
     title: '',
     setTitle: (title: string) => set({ title }),
     pip: false,

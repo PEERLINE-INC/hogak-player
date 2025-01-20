@@ -22,12 +22,14 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 import useClipStore from '../../store/clipViewStore';
 import Player from 'video.js/dist/types/player';
 import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
+import useLiveStore from '../../store/liveStore';
 
 interface ControlsProps {
   playerRef: React.RefObject<Player | null>;
   onBack?: () => void;
   onClickTagButton?: () => void;
   seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
+  seekToLive: () => void;
 }
 
 export function Controls(props: ControlsProps) {
@@ -36,6 +38,7 @@ export function Controls(props: ControlsProps) {
     onBack,
     onClickTagButton,
     seekTo,
+    seekToLive,
   } = props;
 
   //const url = usePlayerStore((state) => state.url); 241224 PIP 버튼 주석
@@ -66,6 +69,8 @@ export function Controls(props: ControlsProps) {
   const isDisableClip = usePlayerStore((state) => state.isDisableClip);
   const isDisableTag = usePlayerStore((state) => state.isDisableTag);
   const isDisableMultiView = usePlayerStore((state) => state.isDisableMultiView);
+  const isLive = usePlayerStore((state) => state.isLive);
+  const atLive = useLiveStore((state) => state.atLive);
   
   const [mute] = useState(false);
   // 드래그 중 임시로 써 줄 로컬 state
@@ -355,10 +360,21 @@ export function Controls(props: ControlsProps) {
           </SliderContainer>
           <ControlBox>
             <FlexRow>
-              <PlayTime seconds={isSeek ? duration * timeSliderValue / 100 : duration * played} />
-              {/* 241224 fontSize, padding 수정 */}
-              <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
-              <PlayTime seconds={duration} />
+              {isLive ? (
+                <LiveContainer 
+                  isAtLive={atLive} 
+                  onClick={atLive ? undefined : () => seekToLive()} 
+                >
+                  <LiveDot isAtLive={atLive} />
+                  <span>LIVE</span>
+                </LiveContainer>
+              ) : (
+                <>
+                  <PlayTime seconds={isSeek ? duration * timeSliderValue / 100 : duration * played} />
+                  <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
+                  <PlayTime seconds={duration} />
+                </>
+              )}
             </FlexRow>
             <FlexRow gap={16} className='icon_box'>{/* 250113 간격수정 및 클래스 추가 */}
               {/* <IconButton className='play_control_btn'>
@@ -623,12 +639,15 @@ const FlexCol = styled.div<{ gap?: number }>`
     }
 `;
 
-const TagMarker = styled.div<{ left: string }>`
+const TagMarker = styled.div.attrs<{ left: string }>((props) => ({
+  style: {
+    left: props.left,
+  },
+}))`
   width: 2.4em;
   height: 1.8em;
   position: absolute;
   top: -1.6em;
-  left: ${props => props.left};
   transform: translateX(-50%);
   cursor: pointer;
 `;
@@ -668,5 +687,26 @@ const VolumeControlWrap = styled.div`
     .SliderThumb {
       width: 1.2em;
     }
+  }
+`;
+
+const LiveDot = styled.div<{ isAtLive: boolean }>`
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  margin-right: 0.5em;
+  background-color: ${({ isAtLive }) => isAtLive ? '#FF0000' : '#666666'};
+  transition: background-color 0.2s ease;
+`;
+
+const LiveContainer = styled.div<{ isAtLive: boolean }>`
+  display: flex;
+  align-items: center;
+  cursor: ${({ isAtLive }) => isAtLive ? 'default' : 'pointer'};
+  
+  span {
+    color: white;
+    font-size: 1.4em;
+    padding-right: 0.5em;
   }
 `;

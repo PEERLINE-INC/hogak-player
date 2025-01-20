@@ -33,6 +33,7 @@ import '@theonlyducks/videojs-zoom';
 import '@theonlyducks/videojs-zoom/styles';
 import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
 import { TagSaveViewPopover } from '../TagSaveViewPopover';
+import useLiveStore from '../../store/liveStore';
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -63,10 +64,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setTitle = usePlayerStore((state) => state.setTitle);
+  const isLive = usePlayerStore((state) => state.isLive);
+  const setIsLive = usePlayerStore((state) => state.setIsLive);
 
   const pip = usePlayerStore((state) => state.pip);
   const isPlay = usePlayerStore((state) => state.isPlay);
   const setIsPlay = usePlayerStore((state) => state.setIsPlay);
+  const duration = usePlayerStore((state) => state.duration);
   const setDuration = usePlayerStore((state) => state.setDuration);
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
@@ -101,6 +105,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setIsDisableTag = usePlayerStore((state) => state.setIsDisableTag);
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView);
 
+  const setAtLive = useLiveStore((state) => state.setAtLive);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -132,6 +138,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
+        liveTracker: isLive,
         autoplay: false,
         enableSmoothSeeking: true,
         playsinline: true,
@@ -160,14 +167,21 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       player.on('ended', handleOnEnded);
       player.on('loadedmetadata', handleOnDuration);
       player.on('error', handleOnError);
+      if (isLive) {
+        // @ts-ignore
+        player.liveTracker.on('seekableendchange', handleOnSeekableEndChange);
+        // @ts-ignore
+        player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange);
+      }
     } else {
       // player가 이미 존재하면 source만 업데이트
       playerRef.current.src({
         src: url,
         type: 'application/x-mpegurl'
       });
+      playerRef.current.play();
     }
-  }, [url]); // url이 변경될 때만 실행
+  }, [url, isLive]); // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current;
@@ -227,6 +241,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
   }, [props.isPlay]);
+
+  useEffect(() => {
+    setIsLive(props.isLive ?? false);
+  }, [props.isLive]);
 
   useEffect(() => {
     setIsPanoramaMode(props.isPanorama ?? false);
@@ -305,7 +323,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.1-beta.2","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.2","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -315,16 +333,29 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   const handleOnPlay = () => {
     console.log('onPlay (video.js)');
+    setIsReady(true);
   };
 
   const handleOnTimeUpdate = () => {
     if (!playerRef.current) return;
-    // played = (현재시간 / 전체길이)
-    const current = playerRef.current.currentTime() ?? 0;
-    const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
-    const playedFraction = current / duration;
-    // console.log('handleOnTimeUpdate (video.js)', playedFraction);
-    setPlayed(playedFraction);
+    if (isLive) {
+      // @ts-ignore
+      const liveTracker = playerRef.current.liveTracker;
+      const current = playerRef.current.currentTime() ?? 0;
+      const duration = liveTracker.liveWindow();
+      const atLive = liveTracker.atLiveEdge();
+      // console.log('handleOnTimeUpdate duration (live)', duration);
+      setDuration(duration);
+      setPlayed(current / duration);
+      setAtLive(atLive);
+    } else {
+      // played = (현재시간 / 전체길이)
+      const current = playerRef.current.currentTime() ?? 0;
+      const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
+      const playedFraction = current / duration;
+      // console.log('handleOnTimeUpdate (video.js)', playedFraction);
+      setPlayed(playedFraction);
+    }
   };
 
   const handleOnEnded = () => {
@@ -343,6 +374,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     console.error('onError (video.js)', playerRef.current?.error());
   };
 
+  const handleOnLiveEdgeChange = () => {
+    console.log('onLiveEdgeChange (video.js)');
+  };
+
+  const handleOnSeekableEndChange = () => {
+    // @ts-ignore
+    const liveTracker = playerRef.current.liveTracker;
+    console.log('onSeekableEndChange (video.js)', liveTracker.seekableEnd());
+  };
+
   const seekTo = (value: number, type: 'seconds' | 'fraction') => {
     if (!playerRef.current) return;
 
@@ -351,7 +392,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       if (value < 0 || value > 1) {
         throw new Error('Invalid seek value');
       }
-      const duration = playerRef.current.duration() ?? 0;
       playerRef.current.currentTime(duration * value);
     } else {
       // seconds
@@ -361,6 +401,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   const getCurrentSeconds = () => {
     return playerRef.current?.currentTime() ?? 0;
+  };
+
+  const seekToLive = () => {
+    if (!isLive) return;
+    if (!playerRef.current) return;
+
+    // @ts-ignore
+    const liveTracker = playerRef.current.liveTracker;
+    liveTracker.seekToLiveEdge();
   };
 
   /**
@@ -445,7 +494,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           }
           <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={onClickTagCancel} onSave={onClickTagSave} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
-          <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
+          <Controls playerRef={playerRef} seekTo={seekTo} seekToLive={seekToLive} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover
             seekTo={seekTo}
             onChangeClipDuration={onChangeClipDuration}
