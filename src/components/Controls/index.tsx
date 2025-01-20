@@ -63,6 +63,9 @@ export function Controls(props: ControlsProps) {
   const setSpeed = usePlayerStore((state) => state.setSpeed);
   const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
   const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
+  const isDisableClip = usePlayerStore((state) => state.isDisableClip);
+  const isDisableTag = usePlayerStore((state) => state.isDisableTag);
+  const isDisableMultiView = usePlayerStore((state) => state.isDisableMultiView);
   
   const [mute] = useState(false);
   // 드래그 중 임시로 써 줄 로컬 state
@@ -266,13 +269,13 @@ export function Controls(props: ControlsProps) {
 
           {/* 241224 아이콘 추가 및 클래스네임 설정, 250113 간격 수정 및 클래스네임 추가 */}
           <FlexRow gap={16} className='icon_box'>
-            {!isFullScreen && <IconButton className='tag_btn' onClick={handleClickTag}>
-              <TagViewIcon/>
+            {!isFullScreen && !isDisableTag && <IconButton className='tag_btn' onClick={handleClickTag}>
+              <TagViewIcon />
             </IconButton>}
             <IconButton className='screencast_btn'>
-              <ScreenCastIcon/>
+              <ScreenCastIcon />
             </IconButton>
-            { multiViewSources.length && <IconButton onClick={() => setIsShowMultiView(true)} className='multiview_btn'>
+            { multiViewSources.length && !isDisableMultiView && <IconButton onClick={() => setIsShowMultiView(true)} className='multiview_btn'>
               <MultiViewIcon/>
             </IconButton>}
           </FlexRow>
@@ -296,18 +299,20 @@ export function Controls(props: ControlsProps) {
           <FlexCol style={{paddingRight: '1em', gap: '1.3em'}} className='icon_box'>
             { isFullScreen && !isShowClipView && !isShowTagSaveView && (
               <>
-                <FlexCol>
-                  <IconButton className='side_icon side_clip' onClick={handleClickClip}>
-                    <ClipIcon/>
-                    <p className='side_icon_name'>클립</p>
-                  </IconButton>
-                </FlexCol>
-                <FlexCol>
-                  <IconButton className='side_icon side_tag' onClick={handleClickTag}>
-                    <TagViewIcon/>
-                    <p className='side_icon_name'>태그</p>
-                  </IconButton>
-                </FlexCol>
+                {!isDisableClip && <FlexCol>
+                    <IconButton className='side_icon side_clip' onClick={handleClickClip}>
+                      <ClipIcon/>
+                      <p className='side_icon_name'>클립</p>
+                    </IconButton>
+                  </FlexCol>
+                }
+                {!isDisableTag && <FlexCol>
+                    <IconButton className='side_icon side_tag' onClick={handleClickTag}>
+                      <TagViewIcon/>
+                      <p className='side_icon_name'>태그</p>
+                    </IconButton>
+                  </FlexCol>
+                }
               </>
             )}
           </FlexCol>
@@ -425,7 +430,7 @@ const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
 
 const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
   display: grid;
-  grid-template-rows: auto 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
   /* 부모(ControlsWrapper)의 높이를 전부 차지 */
   flex: 1;
   height: 100%;

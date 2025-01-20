@@ -41,6 +41,12 @@ interface PlayerState {
   setIsShowTagSaveView: (isShowTagSaveView: boolean) => void;
   isPanoramaMode: boolean;
   setIsPanoramaMode: (isPanoramaMode: boolean) => void;
+  isDisableClip: boolean;
+  setIsDisableClip: (isDisableClip: boolean) => void;
+  isDisableTag: boolean;
+  setIsDisableTag: (isDisableTag: boolean) => void;
+  isDisableMultiView: boolean;
+  setIsDisableMultiView: (isDisableMultiView: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -85,6 +91,12 @@ const usePlayerStore = create<PlayerState>()(
     setQuality: (quality: number) => set({ quality }),
     isPanoramaMode: false,
     setIsPanoramaMode: (isPanoramaMode: boolean) => set({ isPanoramaMode }),
+    isDisableClip: false,
+    setIsDisableClip: (isDisableClip: boolean) => set({ isDisableClip }),
+    isDisableTag: false,
+    setIsDisableTag: (isDisableTag: boolean) => set({ isDisableTag }),
+    isDisableMultiView: false,
+    setIsDisableMultiView: (isDisableMultiView: boolean) => set({ isDisableMultiView }),
   }),
 )
 

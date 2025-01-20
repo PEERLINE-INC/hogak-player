@@ -95,6 +95,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
   const isPanoramaMode = usePlayerStore((state) => state.isPanoramaMode);
   const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
+  const isDisableClip = usePlayerStore((state) => state.isDisableClip);
+  const setIsDisableClip = usePlayerStore((state) => state.setIsDisableClip);
+  const isDisableTag = usePlayerStore((state) => state.isDisableTag);
+  const setIsDisableTag = usePlayerStore((state) => state.setIsDisableTag);
+  const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
@@ -131,7 +136,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         enableSmoothSeeking: true,
         playsinline: true,
         controls: false,
-        fluid: true,
+        aspectRatio: '16:9',
         sources: [{
           src: url,
           type: 'application/x-mpegurl'
@@ -263,6 +268,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     if (props.onChangeFullScreen) {
       props.onChangeFullScreen(isFullScreen);
     }
+    setScale(1);
+    setCurrentOffset(0, 0);
 
     if (!enableDefaultFullScreen) return;
 
@@ -276,6 +283,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     //   }
     // }
   }, [isFullScreen]);
+
+  useEffect(() => {
+    setIsDisableClip(props.disableClip ?? false);
+    setIsDisableTag(props.disableTag ?? false);
+    setIsDisableMultiView(props.disableMultiView ?? false);
+  }, [props.disableClip, props.disableTag, props.disableMultiView]);
 
   /**
    * ----------------------------------------------------------------
@@ -292,7 +305,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.1","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.1-beta.2","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -360,6 +373,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       return playerRef.current?.currentTime() ?? 0;
     },
     setClipView: (value: boolean, initialCurrentSeconds?: number) => {
+      if (isDisableClip) return;
       if (value) {
         setIsPlay(false);
         let currentSeconds = playerRef.current?.currentTime() ?? 0;
@@ -377,6 +391,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       }
     },
     setClipValues: (values: number[]) => {
+      if (isDisableClip) return;
       if (values.length !== 2 || values[0] >= values[1]) {
         throw new Error('Invalid clip values');
       }
@@ -387,9 +402,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         setClipValuesRef.current(values);
       }
     },
-    setTagView: (value: boolean) => setIsShowTagView(value),
+    setTagView: (value: boolean) => {
+      if (isDisableTag) return;
+      setIsShowTagView(value);
+    },
     seekTo: seekTo,
     setIsViewThumbMarker: (v: boolean) => {
+      if (isDisableTag) return;
       setIsViewThumbMarker(v);
     },
     getIsFullScreen: () => isFullScreen,

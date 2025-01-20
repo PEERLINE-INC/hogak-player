@@ -93,6 +93,21 @@ const meta = {
         },
       }
     },
+    disableClip: {
+      defaultValue: false,
+      description: '클립 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
+    disableTag: {
+      defaultValue: false,
+      description: '태그 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
+    disableMultiView: {
+      defaultValue: false,
+      description: '멀티뷰 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
     onBack: {
       description: '뒤로가기 버튼을 클릭했을 때 호출되는 콜백입니다.',
       action: 'onBack',
@@ -211,6 +226,9 @@ const meta = {
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
       }
     ],
+    disableClip: false,
+    disableTag: false,
+    disableMultiView: false,
     backIconType: 'arrowLeft',
   },
 } satisfies Meta<typeof HogakPlayer>
