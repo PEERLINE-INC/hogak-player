@@ -54,7 +54,6 @@ export function Controls(props: ControlsProps) {
   const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
-  const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const tags = useTagStore((state) => state.tags);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
@@ -226,9 +225,7 @@ export function Controls(props: ControlsProps) {
   };
 
   const handleClickTag = () => {
-    if (!isFullScreen) {
-      setIsShowTagView(true);
-    } else {
+    if (isFullScreen) {
       setIsShowTagSaveView(true);
     }
 
@@ -420,18 +417,19 @@ const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   background-color: ${({ isOverlayVisible }) =>
     isOverlayVisible ? "rgba(0, 0, 0, 0.6)" : "transparent"};
   transition: background-color 0.3s ease;
 `;
 
 const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr 1fr;
+  /* 부모(ControlsWrapper)의 높이를 전부 차지 */
   flex: 1;
   height: 100%;
-  justify-content: flex-start;
+
   opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
   pointer-events: ${({ isOverlayVisible }) => (isOverlayVisible ? "auto" : "none")};
@@ -456,11 +454,9 @@ const TopContainer = styled.div`
 `;
 
 const MiddleContainer = styled.div`
-  flex: 1 0 auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  min-height: 0;
 `;
 
 const BottomContainer = styled.div<{ isFullScreen: boolean }>`
@@ -475,15 +471,6 @@ const BottomContainer = styled.div<{ isFullScreen: boolean }>`
       isFullScreen &&
       `
       margin-bottom: 42px;
-    `}
-  }
-
-  /* 안드로이드 스타일 */
-  @supports (-webkit-overflow-scrolling: touch) and (not (-webkit-touch-callout: none)) {
-    ${({ isFullScreen }) =>
-      isFullScreen &&
-      `
-      margin-bottom: 9%;
     `}
   }
 `;

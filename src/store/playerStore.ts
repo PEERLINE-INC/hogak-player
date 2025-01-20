@@ -39,6 +39,8 @@ interface PlayerState {
   setIsViewThumbMarker: (isViewThumbMarker: boolean) => void;
   isShowTagSaveView: boolean;
   setIsShowTagSaveView: (isShowTagSaveView: boolean) => void;
+  isPanoramaMode: boolean;
+  setIsPanoramaMode: (isPanoramaMode: boolean) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -81,6 +83,8 @@ const usePlayerStore = create<PlayerState>()(
     setSpeed: (speed: number) => set({ speed }),
     quality: 720,
     setQuality: (quality: number) => set({ quality }),
+    isPanoramaMode: false,
+    setIsPanoramaMode: (isPanoramaMode: boolean) => set({ isPanoramaMode }),
   }),
 )
 

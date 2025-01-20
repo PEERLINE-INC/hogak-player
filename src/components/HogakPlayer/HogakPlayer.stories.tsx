@@ -26,6 +26,11 @@ const meta = {
       description: '재생할 영상의 URL입니다.',
       type: 'string',
     },
+    isPanorama: {
+      defaultValue: false,
+      description: '파노라마 모드의 초기값을 설정합니다. (영상 소스가 변경되면 해당 소스의 파노라마 모드 여부를 따릅니다)',
+      type: 'boolean',
+    },
     width: {
       defaultValue: 640,
       description: '플레이어의 너비입니다. 입력하지 않으면 100%로 취급합니다.',
@@ -52,6 +57,7 @@ const meta = {
             thumbnailUrl: { name: 'string' },
             title: { name: 'string' },
             url: { name: 'string' },
+            isPanorama: { name: 'boolean' },
           },
         },
       }
@@ -125,6 +131,10 @@ const meta = {
       description: `태그 저장 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickTagSave',
     },
+    onClickTagCancel: {
+      description: `태그 취소 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickTagCancel',
+    },
   },
   args: {
     title: '',
@@ -155,18 +165,23 @@ const meta = {
     onClickTagSave: () => {
       console.log('onClickTagSave');
     },
+    onClickTagCancel: () => {
+      console.log('onClickTagCancel');
+    },
     multiViewSources: [
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum/300/200',
         title: '[멀티VIEW] 1번 카메라',
         description: '1번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+        isPanorama: false,
       },
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum2/300/200',
-        title: '[멀티VIEW] 2번 카메라',
+        title: '[멀티VIEW] 2번 카메라(파노라마)',
         description: '2번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+        isPanorama: true,
       },
     ],
     tags: [

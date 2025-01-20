@@ -4,6 +4,7 @@ export class MultiViewSource {
     public title: string,
     public description: string,
     public url: string,
+    public isPanorama?: boolean,
   ) {}
 }
 
@@ -37,6 +38,7 @@ export type HogakPlayerProps = {
   onBack?: () => void;
   backIconType?: 'close' | 'arrowLeft';
   url: string;
+  isPanorama?: boolean;
   width?: number | undefined;
   height?: number | undefined;
   multiViewSources?: MultiViewSource[];
@@ -49,4 +51,5 @@ export type HogakPlayerProps = {
   onClickTagButton?: () => void;
   onClickClipSave?: () => void;
   onClickTagSave?: () => void;
+  onClickTagCancel?: () => void;
 }

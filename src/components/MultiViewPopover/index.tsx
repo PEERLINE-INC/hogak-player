@@ -18,6 +18,7 @@ export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiVie
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const isReady = usePlayerStore((state) => state.isReady);
   const setIsReady = usePlayerStore((state) => state.setIsReady);
+  const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const [pendingSeek, setPendingSeek] = useState<number | null>(null);
 
@@ -26,6 +27,7 @@ export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiVie
     setPendingSeek(seconds);
     setIsReady(false);
     console.log('handleChangeMultiView', source, seconds);
+    setIsPanoramaMode(source.isPanorama ?? false);
     setUrl(source.url);
   };
 

@@ -93,6 +93,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const speed = usePlayerStore((state) => state.speed);
   const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
+  const isPanoramaMode = usePlayerStore((state) => state.isPanoramaMode);
+  const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
@@ -100,6 +102,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onChangeClipDuration = props.onChangeClipDuration ?? (() => {});
   const onClickClipSave = props.onClickClipSave ?? (() => {});
   const onClickTagSave = props.onClickTagSave ?? (() => {});
+  const onClickTagCancel = props.onClickTagCancel ?? (() => {});
 
   /**
    * ----------------------------------------------------------------
@@ -112,6 +115,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
+  const { setScale, setCurrentOffset } = usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -217,8 +221,22 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // url, title, multiView, tag 등등은 기존과 동일하게 처리
   useEffect(() => {
     setIsPlay(props.isPlay ?? false);
+  }, [props.isPlay]);
+
+  useEffect(() => {
+    setIsPanoramaMode(props.isPanorama ?? false);
+  }, [props.isPanorama]);
+
+  useEffect(() => {
     setUrl(props.url);
-  }, [props.isPlay, props.url]);
+    if (isPanoramaMode) {
+      setScale(1);
+      setCurrentOffset(0, 0);
+    } else {
+      setScale(1);
+      setCurrentOffset(0, 0);
+    }
+  }, [props.url]);
 
   useEffect(() => {
     setTitle(props.title ?? '');
@@ -274,7 +292,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.0-beta.9","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.1","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -377,8 +395,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     getIsFullScreen: () => isFullScreen,
   }));
 
-  usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
-
   /**
    * ----------------------------------------------------------------
    * 7. 최종 렌더
@@ -408,7 +424,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           {!isFullScreen &&
             <MultiViewPopoverSmall isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
           }
-          <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={() => {}} onSave={onClickTagSave} />
+          <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={onClickTagCancel} onSave={onClickTagSave} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
           <Controls playerRef={playerRef} seekTo={seekTo} onBack={onBack} onClickTagButton={onClickTagButton} />
           <ClipViewPopover

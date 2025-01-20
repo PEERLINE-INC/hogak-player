@@ -239,5 +239,19 @@ export default function usePinchZoomAndMove(
     };
   }, [videoRef, zoomPluginRef, currentScale]);
 
-  return { offset, size, currentScale }; 
+  function setScale(scale: number) {
+    setCurrentScale(scale);
+    zoomPluginRef.current?.zoom(scale);
+  }
+
+  function setCurrentOffset(x: number, y: number) {
+    setOffset((prev) => ({
+      ...prev,
+      offsetX: x,
+      offsetY: y,
+    }));
+    zoomPluginRef.current?.move(x, y);
+  }
+
+  return { offset, size, currentScale, setScale, setCurrentOffset }; 
 }
