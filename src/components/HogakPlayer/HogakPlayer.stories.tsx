@@ -158,9 +158,9 @@ const meta = {
   },
   args: {
     title: '',
-    isLive: true,
-    // url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
-    url: 'https://d258gifgiy8x7f.cloudfront.net/3b288404b399ad46a4cf019a61f08071/0_hd_hls.m3u8?hlsid=HTTP_ID_1',
+    isLive: false,
+    url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+    // url: 'https://d258gifgiy8x7f.cloudfront.net/3b288404b399ad46a4cf019a61f08071/0_hd_hls.m3u8?hlsid=HTTP_ID_1',
     width: undefined,
     height: undefined,
     isPlay: false,
