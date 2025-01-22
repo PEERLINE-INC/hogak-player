@@ -63,6 +63,7 @@ export function Controls(props: ControlsProps) {
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const backIconType = usePlayerStore((state) => state.backIconType);
   const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
+  const speed = usePlayerStore((state) => state.speed);
   const setSpeed = usePlayerStore((state) => state.setSpeed);
   const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
   const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
@@ -124,6 +125,13 @@ export function Controls(props: ControlsProps) {
       }
     };
   }, [isOverlayVisible, isTouchDevice, isSeek]);
+
+  // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
+  useEffect(() => {
+    if (atLive) {
+      setSpeed(1);
+    }
+  }, [atLive]);
 
   const handleMouseEnter = () => {
     if (!isTouchDevice) setOverlayVisible(true);
@@ -387,7 +395,7 @@ export function Controls(props: ControlsProps) {
               <Dropdown 
                 onChangeValue={(option) => setSpeed(Number(option.value))} 
                 options={[{label: '2x', value: 2}, {label : '1.75x', value: 1.75}, {label : '1.5x', value: 1.5}, {label : '1.25x', value: 1.25}, {label : '1x', value: 1}, {label : '0.5x', value: 0.5}]} 
-                defaultValue={1}
+                defaultValue={speed}
               />
               <Dropdown onChangeValue={(option) => console.log(option)} options={[{label : '1080p', tag: 'HD', value: 1080}, {label : '720p', value: 720},{label : '480p', value: 480}, {label : '360p', value: 360}, {label : '240p', value: 240}, {label : '144p', value: 144}]} defaultValue={720}></Dropdown>
               <FlexRow>

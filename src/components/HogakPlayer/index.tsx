@@ -106,6 +106,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView);
 
   const setAtLive = useLiveStore((state) => state.setAtLive);
+  const pendingSeek = useMultiViewStore((state) => state.pendingSeek);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
@@ -179,7 +180,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         src: url,
         type: 'application/x-mpegurl'
       });
-      playerRef.current.play();
+      if (pendingSeek) {
+        playerRef.current.play();
+      }
     }
   }, [url, isLive]); // url, isLive 변경될 때만 실행
 
@@ -323,7 +326,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.2","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.3","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

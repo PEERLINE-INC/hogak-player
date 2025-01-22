@@ -4,7 +4,7 @@ import usePlayerStore from "../../store/playerStore";
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
 import { MultiViewSource } from "../HogakPlayer/interfaces";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface MultiViewPopoverProps {
   isShow: boolean;
@@ -20,7 +20,8 @@ export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiVie
   const setIsReady = usePlayerStore((state) => state.setIsReady);
   const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
-  const [pendingSeek, setPendingSeek] = useState<number | null>(null);
+  const pendingSeek = useMultiViewStore((state) => state.pendingSeek);
+  const setPendingSeek = useMultiViewStore((state) => state.setPendingSeek);
 
   const handleChangeMultiView = (source: MultiViewSource) => {
     const seconds = getCurrentSeconds();
