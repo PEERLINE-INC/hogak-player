@@ -21,14 +21,13 @@ interface SizeState {
   height: number;
 }
 
-export default function usePinchZoomAndMove(
+export default function usePinch(
   videoRef: React.RefObject<HTMLDivElement>,
-  zoomPluginRef: React.MutableRefObject<any>
 ) {
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(1);
   const [currentScale, setCurrentScale] = useState(1);
-
+  
   // 누적 이동을 위한 상태
   const [offset, setOffset] = useState<OffsetState>({
     offsetX: 0,
@@ -43,6 +42,19 @@ export default function usePinchZoomAndMove(
     width: 0,
     height: 0,
   });
+
+  // video 엘리먼트에 transform 스타일을 적용하는 헬퍼 함수
+  const applyTransform = () => {
+    if (videoRef.current) {
+      const [video] = videoRef.current.getElementsByTagName('video');
+      if (!video) return;
+      video.style.transform = `translate(${offset.offsetX}px, ${offset.offsetY}px) scale(+${currentScale}, ${currentScale})`;
+    }
+  };
+
+  useEffect(() => {
+    applyTransform();
+  }, [offset, currentScale]);
 
   useEffect(() => {
     const container = videoRef.current;
@@ -75,15 +87,14 @@ export default function usePinchZoomAndMove(
 
     function handleTouchStart(e: TouchEvent) {
       console.log('handleTouchStart', e.touches.length);
-
       // (1) 두 손가락 → pinch
-      if (e.touches.length === 2 && zoomPluginRef.current) {
+      if (e.touches.length === 2) {
         const dist = getDistance(e.touches[0], e.touches[1]);
         setInitialPinchDistance(dist);
         setInitialScale(currentScale);
       }
       // (2) 한 손가락 → pan
-      else if (e.touches.length === 1 && zoomPluginRef.current) {
+      else if (e.touches.length === 1) {
         console.log('handleTouchStart (pan)', offset);
         setOffset((prev) => ({
           ...prev,
@@ -96,9 +107,8 @@ export default function usePinchZoomAndMove(
 
     function handleTouchMove(e: TouchEvent) {
       console.log('handleTouchMove', e.touches.length);
-
       // (1) 두 손가락: pinch
-      if (e.touches.length === 2 && zoomPluginRef.current) {
+      if (e.touches.length === 2) {
         e.preventDefault();
 
         const dist = getDistance(e.touches[0], e.touches[1]);
@@ -117,7 +127,6 @@ export default function usePinchZoomAndMove(
             offsetX: 0,
             offsetY: 0,
           }));
-          zoomPluginRef.current.move(0, 0);
         } else {
           // 최대 배율은 5
           if (newScale > 5) {
@@ -126,10 +135,9 @@ export default function usePinchZoomAndMove(
         }
 
         setCurrentScale(newScale);
-        zoomPluginRef.current.zoom(newScale);
       }
       // (2) 한 손가락: move (누적 이동)
-      else if (e.touches.length === 1 && zoomPluginRef.current) {
+      else if (e.touches.length === 1) {
         e.preventDefault();
 
         if (currentScale <= 1) {
@@ -158,7 +166,6 @@ export default function usePinchZoomAndMove(
 
           // 절대 좌표로 이동
           console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, currentScale);
-          zoomPluginRef.current.move(nextOffsetX, nextOffsetY);
 
           return {
             offsetX: nextOffsetX,
@@ -172,6 +179,7 @@ export default function usePinchZoomAndMove(
     }
 
     function handleTouchEnd(e: TouchEvent) {
+      console.log('handleTouchEnd', e.touches.length);
       // pinch 종료
       if (e.touches.length < 2) {
         setInitialPinchDistance(0);
@@ -198,7 +206,6 @@ export default function usePinchZoomAndMove(
     };
   }, [
     videoRef,
-    zoomPluginRef,
     initialPinchDistance,
     initialScale,
   ]);
@@ -209,8 +216,7 @@ export default function usePinchZoomAndMove(
 
     function handleWheel(e: WheelEvent) {
       e.preventDefault();
-
-      if (!zoomPluginRef.current) return;
+      console.log('handleWheel', e.deltaY);
 
       // deltaY (+) -> 스크롤 내림 -> 보통 배율 축소
       // deltaY (-) -> 스크롤 올림 -> 보통 배율 확대
@@ -229,11 +235,9 @@ export default function usePinchZoomAndMove(
           offsetX: 0,
           offsetY: 0,
         }));
-        zoomPluginRef.current.move(0, 0);
       }
 
       setCurrentScale(newScale);
-      zoomPluginRef.current.zoom(newScale);
     }
 
     container.addEventListener('wheel', handleWheel, { passive: false });
@@ -241,11 +245,10 @@ export default function usePinchZoomAndMove(
     return () => {
       container.removeEventListener('wheel', handleWheel);
     };
-  }, [videoRef, zoomPluginRef, currentScale]);
+  }, [videoRef, currentScale]);
 
   function setScale(scale: number) {
     setCurrentScale(scale);
-    zoomPluginRef.current?.zoom(scale);
   }
 
   function setCurrentOffset(x: number, y: number) {
@@ -254,7 +257,6 @@ export default function usePinchZoomAndMove(
       offsetX: x,
       offsetY: y,
     }));
-    zoomPluginRef.current?.move(x, y);
   }
 
   return { offset, size, currentScale, setScale, setCurrentOffset }; 

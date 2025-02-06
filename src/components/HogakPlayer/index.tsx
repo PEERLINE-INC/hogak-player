@@ -33,6 +33,8 @@ import '@theonlyducks/videojs-zoom/styles';
 import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
 import { TagSaveViewPopover } from '../TagSaveViewPopover';
 import useLiveStore from '../../store/liveStore';
+// import useVideoPinchZoom from '../../hooks/useVideoPinchZoom';
+import usePinch from '../../hooks/usePinch';
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -126,7 +128,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
-  const { setScale, setCurrentOffset } = usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
+  // const { setScale, setCurrentOffset } = usePinchZoomAndMove(videoRef, zoomPluginRef);
+  // const { resetZoom } = useVideoPinchZoom(videoRef);
+  const { setScale, setCurrentOffset } = usePinch(videoRef);
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -149,7 +153,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           type: 'application/x-mpegurl'
         }]
       });
-      
+
       playerRef.current = player;
       // @ts-ignore
       const zoomPlugin = player.zoomPlugin({
@@ -174,96 +178,98 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange);
       }
 
-      // 오버레이 플러그인 선언
-      videojs.registerPlugin("addUrlOverlay", function (options: any) {
-        // 기본 옵션 설정
-        options = videojs.mergeOptions(
-          {
-            url: "",
-            opacity: 0.8,
-          },
-          options
-        );
+      // // 오버레이 플러그인 선언
+      // videojs.registerPlugin("addUrlOverlay", function (options: any) {
+      //   // 기본 옵션 설정
+      //   options = videojs.mergeOptions(
+      //     {
+      //       url: "",
+      //       opacity: 0.8,
+      //     },
+      //     options
+      //   );
 
-        // 오버레이 요소 생성
-        var overlayElement = document.createElement("div");
-        overlayElement.id = "vjs-overlay-iframe";
-        overlayElement.className = "vjs-url-overlay";
-        overlayElement.style.position = "absolute";
-        overlayElement.style.top = "0";
-        overlayElement.style.left = "0";
-        overlayElement.style.width = "100%";
-        overlayElement.style.height = "100%";
-        overlayElement.style.pointerEvents = "none";
+      //   // 오버레이 요소 생성
+      //   var overlayElement = document.createElement("div");
+      //   overlayElement.id = "vjs-overlay-iframe";
+      //   overlayElement.className = "vjs-url-overlay";
+      //   overlayElement.style.position = "absolute";
+      //   overlayElement.style.top = "0";
+      //   overlayElement.style.left = "0";
+      //   overlayElement.style.width = "100%";
+      //   overlayElement.style.height = "100%";
+      //   // overlayElement.style.pointerEvents = "none";
+      //   overlayElement.style.display = "none";
 
-        // iframe 추가
-        var iframe = document.createElement("iframe");
-        iframe.src = options.url;
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        iframe.style.border = "none";
-        iframe.style.opacity = options.opacity;
+      //   // iframe 추가
+      //   var iframe = document.createElement("iframe");
+      //   iframe.src = options.url;
+      //   iframe.style.width = "100%";
+      //   iframe.style.height = "100%";
+      //   iframe.style.border = "none";
+      //   iframe.style.opacity = options.opacity;
+      //   iframe.style.display = "none";
 
-        overlayElement.appendChild(iframe);
+      //   overlayElement.appendChild(iframe);
 
-        // 비디오 컨테이너에 오버레이 추가
-        player.el().appendChild(overlayElement);
+      //   // 비디오 컨테이너에 오버레이 추가
+      //   player.el().appendChild(overlayElement);
 
-        // 비디오 플레이어의 이벤트 처리
-        player.on("play", function () {
-          overlayElement.style.display = "block";
-        });
+      //   // 비디오 플레이어의 이벤트 처리
+      //   player.on("play", function () {
+      //     overlayElement.style.display = "block";
+      //   });
 
-        player.on("pause", function () {
-          overlayElement.style.display = "block";
-        });
+      //   player.on("pause", function () {
+      //     overlayElement.style.display = "block";
+      //   });
 
-        player.on("ended", function () {
-          overlayElement.style.display = "none";
-        });
-      });
+      //   player.on("ended", function () {
+      //     overlayElement.style.display = "none";
+      //   });
+      // });
 
-      // 오버레이 플러그인 사용
-      // @ts-ignore
-      player.addUrlOverlay({
-        url: "https://scorebug.peerline.net:24200/output/v5VaeOG",
-        opacity: 0.8,
-      });
+      // // 오버레이 플러그인 사용
+      // // @ts-ignore
+      // player.addUrlOverlay({
+      //   url: "https://scorebug.peerline.net:24200/output/v5VaeOG",
+      //   opacity: 0.8,
+      // });
       
-      function adjustContainerSize() {
-        console.log('adjustContainerSize');
-        // iframe 크기 조정
-        const iframe = document.getElementById("vjs-overlay-iframe");
-        if (!iframe) return;
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        iframe.style.transform = "scale(0.75)";
-        iframe.style.transformOrigin = "bottom right";
+      // function adjustContainerSize() {
+      //   console.log('adjustContainerSize');
+      //   // iframe 크기 조정
+      //   const iframe = document.getElementById("vjs-overlay-iframe");
+      //   if (!iframe) return;
+      //   iframe.style.width = "100%";
+      //   iframe.style.height = "100%";
+      //   // iframe.style.transform = "scale(0.75)";
+      //   // iframe.style.transformOrigin = "bottom right";
 
-        // const container = document.getElementById("container");
-        // if (!container) return;
-        // const width = window.innerWidth;
-        // const height = window.innerHeight;
+      //   // const container = document.getElementById("container");
+      //   // if (!container) return;
+      //   // const width = window.innerWidth;
+      //   // const height = window.innerHeight;
 
-        // if (width > height) {
-        //   console.log("가로 모드");
-        //   // 가로 모드일 때
-        //   container.style.width = "100%";
-        //   container.style.height = "100%";
-        // } else {
-        //   console.log("세로 모드");
-        //   // 세로 모드일 때
-        //   container.style.width = "100%";
-        //   container.style.height = "100%";
-        //   // container.style.height = width * 0.5625 + "px";
-        // }
-      }
+      //   // if (width > height) {
+      //   //   console.log("가로 모드");
+      //   //   // 가로 모드일 때
+      //   //   container.style.width = "100%";
+      //   //   container.style.height = "100%";
+      //   // } else {
+      //   //   console.log("세로 모드");
+      //   //   // 세로 모드일 때
+      //   //   container.style.width = "100%";
+      //   //   container.style.height = "100%";
+      //   //   // container.style.height = width * 0.5625 + "px";
+      //   // }
+      // }
 
-      // 초기 크기 설정
-      adjustContainerSize();
+      // // 초기 크기 설정
+      // adjustContainerSize();
 
-      // 화면 회전 이벤트 리스너 추가
-      window.addEventListener("resize", adjustContainerSize);
+      // // 화면 회전 이벤트 리스너 추가
+      // window.addEventListener("resize", adjustContainerSize);
     } else {
       // player가 이미 존재하면 source만 업데이트
       playerRef.current.src({
@@ -416,7 +422,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.5","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.6","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -576,7 +582,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       <Container>
         <PlayerWrapper>
           {/* Video.js가 제어할 video 엘리먼트 */}
-          <div ref={videoRef} className="hogak-player"></div>
+          <div ref={videoRef} className="hogak-player" style={{zIndex: 1000}}></div>
 
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen &&
@@ -625,6 +631,7 @@ const PlayerContainer = styled.div<{
   width: number | undefined;
   height: number | undefined;
 }>`
+  touch-action: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
