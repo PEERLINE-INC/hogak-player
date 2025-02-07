@@ -5,6 +5,8 @@ import {
   useRef,
 } from 'react';
 import videojs from 'video.js';
+import 'videojs-contrib-ads';
+import 'videojs-overlay';
 import 'video.js/dist/video-js.css';
 import styled, { createGlobalStyle } from 'styled-components';
 import './font.css';
@@ -14,6 +16,7 @@ import usePlayerStore from '../../store/playerStore';
 import useMultiViewStore from '../../store/multiViewStore';
 import useTagStore from '../../store/tagViewStore';
 import useClipStore from '../../store/clipViewStore';
+import useAdStore from '../../store/adStore';
 
 // ✅ UI 컴포넌트들
 import { Controls } from '../Controls';
@@ -30,11 +33,11 @@ import { HogakPlayerProps } from './interfaces';
 import Player from 'video.js/dist/types/player';
 import '@theonlyducks/videojs-zoom';
 import '@theonlyducks/videojs-zoom/styles';
-import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
 import { TagSaveViewPopover } from '../TagSaveViewPopover';
 import useLiveStore from '../../store/liveStore';
-// import useVideoPinchZoom from '../../hooks/useVideoPinchZoom';
-import usePinch from '../../hooks/usePinch';
+// import usePinch from '../../hooks/usePinch';
+import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
+import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -50,6 +53,20 @@ const GlobalStyles = createGlobalStyle`
     font-family: 'Pretendard';
     font-weight: 400;
     letter-spacing: -0.02px;
+  }
+
+  .overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .overlay-logo {
+    width: 16em;
+    padding: 2em;
+    opacity: 0.8;
   }
 `;
 
@@ -105,6 +122,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const isDisableTag = usePlayerStore((state) => state.isDisableTag);
   const setIsDisableTag = usePlayerStore((state) => state.setIsDisableTag);
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView);
+  const setIsPlayAd = useAdStore((state) => state.setIsPlayAd);
+  const setEnablePrerollAd = useAdStore((state) => state.setEnablePrerollAd);
+  const prerollAdUrl = useAdStore((state) => state.prerollAdUrl);
+  const setPrerollAdUrl = useAdStore((state) => state.setPrerollAdUrl);
 
   const setAtLive = useLiveStore((state) => state.setAtLive);
   const pendingSeek = useMultiViewStore((state) => state.pendingSeek);
@@ -128,9 +149,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
-  // const { setScale, setCurrentOffset } = usePinchZoomAndMove(videoRef, zoomPluginRef);
-  // const { resetZoom } = useVideoPinchZoom(videoRef);
-  const { setScale, setCurrentOffset } = usePinch(videoRef);
+  const { setScale, setCurrentOffset } = usePinchZoomAndMove(videoRef, zoomPluginRef);
+  // const { setScale, setCurrentOffset } = usePinch(videoRef);
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -155,6 +175,42 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       });
 
       playerRef.current = player;
+
+      // @ts-ignore
+      const ads = player.ads();
+      // 콘텐츠 변경 시 광고 준비 이벤트 트리거
+      // player.on('contentchanged', function() {
+      //   player.trigger('adsready');
+      // });
+
+      player.on('readyforpreroll', function() {
+        console.log('readyforpreroll');
+        console.log('prerollAdUrl', prerollAdUrl);
+        if (!prerollAdUrl) return;
+
+        // @ts-ignore
+        // 광고 모드 시작
+        player.ads.startLinearAdMode();
+        // 광고 영상으로 변경
+        player.src(prerollAdUrl);
+
+        // 로딩 스피너 제거를 위한 광고 시작 이벤트
+        player.one('adplaying', function() {
+          player.trigger('ads-ad-started');
+          setIsPlayAd(true);
+        });
+
+        // 광고 종료 시 컨텐츠 재개
+        player.one('adended', function() {
+          // @ts-ignore
+          player.ads.endLinearAdMode();
+          setIsPlayAd(false);
+        });
+      });
+
+      // 광고 준비 이벤트 트리거
+      player.trigger('adsready');
+
       // @ts-ignore
       const zoomPlugin = player.zoomPlugin({
         showZoom: false,
@@ -270,6 +326,18 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       // // 화면 회전 이벤트 리스너 추가
       // window.addEventListener("resize", adjustContainerSize);
+
+      // 오버레이 플러그인 초기화
+        // @ts-ignore
+      const overlay = player.overlay({
+        debug: true,
+        content: `<img class="overlay-logo" src="${logo}" />`,
+        align: 'top-left',
+        class: 'overlay-container',
+        showBackground: false,
+      });
+      
+
     } else {
       // player가 이미 존재하면 source만 업데이트
       playerRef.current.src({
@@ -380,6 +448,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     setBackIconType(props.backIconType ?? 'arrowLeft');
   }, [props.backIconType]);
 
+  useEffect(() => {
+    setEnablePrerollAd(props.enablePrerollAd ?? false);
+  }, [props.enablePrerollAd]);
+
+  useEffect(() => {
+    setPrerollAdUrl(props.prerollAdUrl ?? '');
+  }, [props.prerollAdUrl]);
+
   // 풀스크린 로직 (screenfull → Video.js 자체 fullscreen or 별도 라이브러리)
   useEffect(() => {
     if (props.onChangeFullScreen) {
@@ -422,7 +498,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.6","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.7","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

@@ -23,6 +23,7 @@ import useClipStore from '../../store/clipViewStore';
 import Player from 'video.js/dist/types/player';
 import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
 import useLiveStore from '../../store/liveStore';
+import useAdStore from '../../store/adStore';
 
 interface ControlsProps {
   playerRef: React.RefObject<Player | null>;
@@ -71,6 +72,7 @@ export function Controls(props: ControlsProps) {
   const isDisableTag = usePlayerStore((state) => state.isDisableTag);
   const isDisableMultiView = usePlayerStore((state) => state.isDisableMultiView);
   const isLive = usePlayerStore((state) => state.isLive);
+  const isPlayAd = useAdStore((state) => state.isPlayAd);
   const atLive = useLiveStore((state) => state.atLive);
   
   const [mute] = useState(false);
@@ -150,6 +152,9 @@ export function Controls(props: ControlsProps) {
     const isDoubleTap = lastTapTime && now - lastTapTime < 300; // 300ms 안에 다시 탭하면 더블 탭으로 판단
 
     if (isDoubleTap) {
+      // 광고 중 스킵 방지
+      if (isPlayAd) return;
+
       // 더블 탭이면 1) 단일 탭 타이머 해제
       if (tapTimerRef.current) {
         clearTimeout(tapTimerRef.current);
@@ -205,19 +210,23 @@ export function Controls(props: ControlsProps) {
   };
 
   const handleSeekChange = ([value]: number[]) => {
-    // console.log('handleSeekChange', value);
+    // 광고 중에는 seek 불가
+    if (isPlayAd) return;
     setIsSeek(true);
     setTimeSliderValue(value);
   };
+
   const handleSeekCommit = ([value]: number[]) => {
-    console.log('handleSeekCommit', value);
+    // 광고 중에는 seek 불가
+    if (isPlayAd) return;
+    
     const fraction = value / 100;
     seekTo(fraction, 'fraction');
-    // setIsSeek(false);
     requestAnimationFrame(() => {
       setIsSeek(false);
     });
   };
+
   const handleSeekMouseUp = () => {
     console.log('handleSeekMouseUp');
     setIsSeek(false);
@@ -295,16 +304,16 @@ export function Controls(props: ControlsProps) {
         </TopContainer>
         
         <MiddleContainer className='controls-wrapper'>
-          {/* 241224 플레이 버튼 구조 변경 */}
           <PlayBtnContainer>
             <FlexRow>
-                <IconButton onClick={(_) => setIsPlay(!isPlay)} className='play_btn'>
-                  {isPlay ? (
-                    <PauseIcon />
-                  ) : (
-                    <PlayIcon />
-                  )}{" "}
-                </IconButton>
+              {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
+              <IconButton 
+                onClick={isPlayAd ? undefined : () => setIsPlay(!isPlay)} 
+                className='play_btn'
+                style={{ opacity: isPlayAd ? 0.5 : 1 }}
+              >
+                {isPlay ? <PauseIcon /> : <PlayIcon />}
+              </IconButton>
             </FlexRow>
           </PlayBtnContainer>
           {/* //241224 플레이 버튼 구조 변경 */}
@@ -333,8 +342,13 @@ export function Controls(props: ControlsProps) {
 
         <BottomContainer isFullScreen={isFullScreen}>
           <SliderContainer>
-            <Slider.Root className="SliderRoot"
-              style={{ width: '100%' }}
+            <Slider.Root 
+              className="SliderRoot"
+              style={{ 
+                width: '100%',
+                opacity: isPlayAd ? 0.5 : 1,
+                pointerEvents: isPlayAd ? 'none' : 'auto'
+              }}
               value={[isSeek ? timeSliderValue : played * 100]}
               max={100}
               step={0.1}
@@ -393,11 +407,35 @@ export function Controls(props: ControlsProps) {
               </IconButton> */}
               {/* 250113 드롭다운 추가 */}
               <Dropdown 
-                onChangeValue={(option) => setSpeed(Number(option.value))} 
-                options={[{label: '2x', value: 2}, {label : '1.75x', value: 1.75}, {label : '1.5x', value: 1.5}, {label : '1.25x', value: 1.25}, {label : '1x', value: 1}, {label : '0.5x', value: 0.5}]} 
+                onChangeValue={(option) => {
+                  if (!isPlayAd) {
+                    setSpeed(Number(option.value));
+                  }
+                }} 
+                options={[
+                  {label: '2x', value: 2}, 
+                  {label: '1.75x', value: 1.75}, 
+                  {label: '1.5x', value: 1.5}, 
+                  {label: '1.25x', value: 1.25}, 
+                  {label: '1x', value: 1}, 
+                  {label: '0.5x', value: 0.5}
+                ]} 
                 defaultValue={speed}
+                disabled={isPlayAd}
               />
-              <Dropdown onChangeValue={(option) => console.log(option)} options={[{label : '1080p', tag: 'HD', value: 1080}, {label : '720p', value: 720},{label : '480p', value: 480}, {label : '360p', value: 360}, {label : '240p', value: 240}, {label : '144p', value: 144}]} defaultValue={720}></Dropdown>
+              <Dropdown 
+                onChangeValue={(option) => console.log(option)} 
+                options={[
+                  {label: '1080p', tag: 'HD', value: 1080}, 
+                  {label: '720p', value: 720},
+                  {label: '480p', value: 480}, 
+                  {label: '360p', value: 360}, 
+                  {label: '240p', value: 240}, 
+                  {label: '144p', value: 144}
+                ]} 
+                defaultValue={720}
+                disabled={isPlayAd}
+              />
               <FlexRow>
                 <VolumeControlWrap>
                   <IconButton className='volume_control_btn'>

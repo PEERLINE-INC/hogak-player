@@ -155,6 +155,16 @@ const meta = {
       description: `태그 취소 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickTagCancel',
     },
+    enablePrerollAd: {
+      defaultValue: false,
+      description: `프리롤 광고 기능을 사용할지 여부입니다.`,
+      type: 'boolean',
+    },
+    prerollAdUrl: {
+      defaultValue: '',
+      description: `프리롤 광고 영상의 URL입니다.`,
+      type: 'string',
+    },
   },
   args: {
     title: '',
@@ -237,6 +247,8 @@ const meta = {
     disableTag: false,
     disableMultiView: false,
     backIconType: 'arrowLeft',
+    enablePrerollAd: true,
+    prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
   },
 } satisfies Meta<typeof HogakPlayer>
 
