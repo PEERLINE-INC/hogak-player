@@ -196,12 +196,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
         // 로딩 스피너 제거를 위한 광고 시작 이벤트
         player.one('adplaying', function() {
+          console.log('adplaying');
           player.trigger('ads-ad-started');
           setIsPlayAd(true);
         });
 
         // 광고 종료 시 컨텐츠 재개
         player.one('adended', function() {
+          console.log('adended');
           // @ts-ignore
           player.ads.endLinearAdMode();
           setIsPlayAd(false);
@@ -339,14 +341,29 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       
 
     } else {
+      playerRef.current.one('loadedmetadata', () => {
+        console.log('loadedmetadata');
+        if (!playerRef.current) return;
+
+        if (pendingSeek) {
+          playerRef.current.currentTime(pendingSeek);
+        }
+        
+        const playPromise = playerRef.current.play();
+        if (playPromise) {
+          playPromise.then(() => {
+            console.log('url changed');
+          }).catch((error) => {
+            console.error('Play error:', error);
+          });
+        }
+      });
+
       // player가 이미 존재하면 source만 업데이트
       playerRef.current.src({
         src: url,
         type: 'application/x-mpegurl'
       });
-      if (pendingSeek) {
-        playerRef.current.play();
-      }
     }
   }, [url, isLive]); // url, isLive 변경될 때만 실행
 
@@ -498,7 +515,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.7","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.8","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -662,10 +679,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen &&
-            <MultiViewPopover isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
+            <MultiViewPopover isShow={isShowMultiView} getCurrentSeconds={getCurrentSeconds} />
           }
           {!isFullScreen &&
-            <MultiViewPopoverSmall isShow={isShowMultiView} seekTo={seekTo} getCurrentSeconds={getCurrentSeconds} />
+            <MultiViewPopoverSmall isShow={isShowMultiView} getCurrentSeconds={getCurrentSeconds} />
           }
           <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={onClickTagCancel} onSave={onClickTagSave} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
