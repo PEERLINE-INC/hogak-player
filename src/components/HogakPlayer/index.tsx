@@ -519,7 +519,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.10","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.11","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -667,7 +667,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    */
   return (
     <PlayerContainer width={props.width} height={props.height} ref={playerContainerRef}>
-      <input type="number" defaultValue={1} onChange={(e) => {
+      {/* <input type="number" defaultValue={1} onChange={(e) => {
         setScale(Number(e.target.value));
       }} />
       <button onClick={() => {
@@ -682,7 +682,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         zoomPluginRef.current?.move(0, 0);
       }}>
         move
-      </button>
+      </button> */}
       <GlobalStyles />
       <Container>
         <PlayerWrapper>
