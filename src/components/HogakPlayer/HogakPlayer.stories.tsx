@@ -247,7 +247,7 @@ const meta = {
     disableTag: false,
     disableMultiView: false,
     backIconType: 'arrowLeft',
-    enablePrerollAd: true,
+    enablePrerollAd: false,
     prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
   },
 } satisfies Meta<typeof HogakPlayer>

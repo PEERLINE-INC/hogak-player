@@ -123,6 +123,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setIsDisableTag = usePlayerStore((state) => state.setIsDisableTag);
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView);
   const setIsPlayAd = useAdStore((state) => state.setIsPlayAd);
+  const enablePrerollAd = useAdStore((state) => state.enablePrerollAd);
   const setEnablePrerollAd = useAdStore((state) => state.setEnablePrerollAd);
   const prerollAdUrl = useAdStore((state) => state.prerollAdUrl);
   const setPrerollAdUrl = useAdStore((state) => state.setPrerollAdUrl);
@@ -176,42 +177,45 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       playerRef.current = player;
 
-      // @ts-ignore
-      const ads = player.ads();
-      // 콘텐츠 변경 시 광고 준비 이벤트 트리거
-      // player.on('contentchanged', function() {
-      //   player.trigger('adsready');
-      // });
-
-      player.on('readyforpreroll', function() {
-        console.log('readyforpreroll');
-        console.log('prerollAdUrl', prerollAdUrl);
-        if (!prerollAdUrl) return;
-
+      // 광고 활성화 로직
+      if (enablePrerollAd) {
         // @ts-ignore
-        // 광고 모드 시작
-        player.ads.startLinearAdMode();
-        // 광고 영상으로 변경
-        player.src(prerollAdUrl);
+        const ads = player.ads();
+        // 콘텐츠 변경 시 광고 준비 이벤트 트리거
+        // player.on('contentchanged', function() {
+        //   player.trigger('adsready');
+        // });
 
-        // 로딩 스피너 제거를 위한 광고 시작 이벤트
-        player.one('adplaying', function() {
-          console.log('adplaying');
-          player.trigger('ads-ad-started');
-          setIsPlayAd(true);
-        });
+        player.on('readyforpreroll', function() {
+          console.log('readyforpreroll');
+          console.log('prerollAdUrl', prerollAdUrl);
+          if (!prerollAdUrl || !enablePrerollAd) return;
 
-        // 광고 종료 시 컨텐츠 재개
-        player.one('adended', function() {
-          console.log('adended');
           // @ts-ignore
-          player.ads.endLinearAdMode();
-          setIsPlayAd(false);
-        });
-      });
+          // 광고 모드 시작
+          player.ads.startLinearAdMode();
+          // 광고 영상으로 변경
+          player.src(prerollAdUrl);
 
-      // 광고 준비 이벤트 트리거
-      player.trigger('adsready');
+          // 로딩 스피너 제거를 위한 광고 시작 이벤트
+          player.one('adplaying', function() {
+            console.log('adplaying');
+            player.trigger('ads-ad-started');
+            setIsPlayAd(true);
+          });
+
+          // 광고 종료 시 컨텐츠 재개
+          player.one('adended', function() {
+            console.log('adended');
+            // @ts-ignore
+            player.ads.endLinearAdMode();
+            setIsPlayAd(false);
+          });
+        });
+
+        // 광고 준비 이벤트 트리거
+        player.trigger('adsready');
+      }
 
       // @ts-ignore
       const zoomPlugin = player.zoomPlugin({
@@ -331,13 +335,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       // 오버레이 플러그인 초기화
         // @ts-ignore
-      const overlay = player.overlay({
-        debug: true,
-        content: `<img class="overlay-logo" src="${logo}" />`,
-        align: 'top-left',
-        class: 'overlay-container',
-        showBackground: false,
-      });
+      // const overlay = player.overlay({
+      //   debug: true,
+      //   content: `<img class="overlay-logo" src="${logo}" />`,
+      //   align: 'top-left',
+      //   class: 'overlay-container',
+      //   showBackground: false,
+      // });
       
 
     } else {
@@ -515,7 +519,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.8","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.9","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
