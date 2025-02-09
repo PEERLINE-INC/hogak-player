@@ -37,7 +37,7 @@ import { TagSaveViewPopover } from '../TagSaveViewPopover';
 import useLiveStore from '../../store/liveStore';
 // import usePinch from '../../hooks/usePinch';
 import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
-import logo from '../../assets/icons/ci_skylife_logo.png';
+// import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
   * {
