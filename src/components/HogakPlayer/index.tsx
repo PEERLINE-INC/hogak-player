@@ -150,7 +150,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
-  const { setScale, setCurrentOffset } = usePinchZoomAndMove(videoRef, zoomPluginRef);
+  const { setScale, setCurrentOffset } = usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
   // const { setScale, setCurrentOffset } = usePinch(videoRef);
 
   // Video.js Player 초기화
@@ -519,7 +519,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.9","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.10","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -667,14 +667,22 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    */
   return (
     <PlayerContainer width={props.width} height={props.height} ref={playerContainerRef}>
-      {/* <input type="number" defaultValue={100} onChange={(e) => {
+      <input type="number" defaultValue={1} onChange={(e) => {
+        setScale(Number(e.target.value));
+      }} />
+      <button onClick={() => {
+        setScale(1);
+      }}>
+        zoom
+      </button>
+      <input type="number" defaultValue={100} onChange={(e) => {
         zoomPluginRef.current?.move(Number(e.target.value), Number(e.target.value));
       }} />
       <button onClick={() => {
         zoomPluginRef.current?.move(0, 0);
       }}>
         move
-      </button> */}
+      </button>
       <GlobalStyles />
       <Container>
         <PlayerWrapper>
