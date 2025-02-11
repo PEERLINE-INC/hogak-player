@@ -145,7 +145,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     };
 
     return (
-        <PopoverContainer isShow={isShow}>
+        <PopoverContainer isShow={isShow} className="hogak-popover">
             <TopContainer>
                 {/* 250113 클래스 네임 추가 */}
                 <FlexRow style={{ width: 'calc(100% - 10em' }} className="icon_box">

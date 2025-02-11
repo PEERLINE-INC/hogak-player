@@ -27,7 +27,7 @@ export const MultiViewPopover = ({ isShow, getCurrentSeconds }: MultiViewPopover
   };
 
   return (
-    <PopoverContainer isShow={isShow}>
+    <PopoverContainer isShow={isShow} className="hogak-popover">
       <IconButton onClick={() => setIsShowMultiView(false)} className="back_btn">
         <ArrowLeftIcon style={{ transform: 'scaleX(-1)' }} />
       </IconButton>

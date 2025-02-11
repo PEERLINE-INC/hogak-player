@@ -28,7 +28,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
   };
 
   return (
-    <PopoverContainer isShow={isShow}>
+    <PopoverContainer isShow={isShow} className="hogak-popover">
 
       {/* 241224 클래스 추가 */}
       <FlexRow gap={12} className='popover_list'>

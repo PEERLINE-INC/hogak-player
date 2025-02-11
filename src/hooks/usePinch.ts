@@ -85,6 +85,12 @@ export default function usePinch(
 
     function handleTouchStart(e: TouchEvent) {
       console.log('handleTouchStart', e.touches.length);
+      // popover 떠있는 경우 터치 이벤트 무시
+      const targetEl = e.target as HTMLElement;
+      if (targetEl.closest('.hogak-popover')) {
+        return;
+      }
+      
       if (e.touches.length === 2) {
         // pinch 시작
         const dist = getDistance(e.touches[0], e.touches[1]);
@@ -103,6 +109,11 @@ export default function usePinch(
 
     function handleTouchMove(e: TouchEvent) {
       console.log('handleTouchMove', e.touches.length);
+      // popover 떠있는 경우 터치 이벤트 무시
+      const targetEl = e.target as HTMLElement;
+      if (targetEl.closest('.hogak-popover')) {
+        return;
+      }
 
       if (e.touches.length === 2) {
         // pinch 중
@@ -199,6 +210,12 @@ export default function usePinch(
 
     function handleTouchEnd(e: TouchEvent) {
       console.log('handleTouchEnd', e.touches.length);
+      // popover 떠있는 경우 터치 이벤트 무시
+      const targetEl = e.target as HTMLElement;
+      if (targetEl.closest('.hogak-popover')) {
+        return;
+      }
+      
       if (e.touches.length < 2) {
         // pinch 종료
         setInitialPinchDistance(0);

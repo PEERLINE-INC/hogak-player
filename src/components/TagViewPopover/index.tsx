@@ -25,7 +25,7 @@ export const TagViewPopover = ({ isShow, onAddTagClick }: TagViewPopoverProps) =
   }
 
   return (
-    <PopoverContainer isShow={isShow}>
+    <PopoverContainer isShow={isShow} className="hogak-popover">
       <FlexCol gap={8} style={{ paddingLeft: '1em', height: '100%' }}>
         <FlexRow style={{justifyContent: 'space-between'}}>
           {/* 241224 아이콘 변경 및 스타일 수정 */}
