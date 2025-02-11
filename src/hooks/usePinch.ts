@@ -6,16 +6,14 @@ function getDistance(touch1: Touch, touch2: Touch) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 누적 이동을 추적하기 위한 인터페이스
 interface OffsetState {
   offsetX: number;
   offsetY: number;
-  lastX: number;  // touchMove에서 이전 터치 위치를 저장해두기 위해
+  lastX: number;
   lastY: number;
   isPanning: boolean;
 }
 
-// 컨테이너 사이즈 인터페이스
 interface SizeState {
   width: number;
   height: number;
@@ -28,7 +26,6 @@ export default function usePinch(
   const [initialScale, setInitialScale] = useState(1);
   const [currentScale, setCurrentScale] = useState(1);
   
-  // 누적 이동을 위한 상태
   const [offset, setOffset] = useState<OffsetState>({
     offsetX: 0,
     offsetY: 0,
@@ -37,18 +34,17 @@ export default function usePinch(
     isPanning: false,
   });
 
-  // 컨테이너 사이즈
   const [size, setSize] = useState<SizeState>({
     width: 0,
     height: 0,
   });
 
-  // video 엘리먼트에 transform 스타일을 적용하는 헬퍼 함수
+  // transform 적용
   const applyTransform = () => {
     if (videoRef.current) {
       const [video] = videoRef.current.getElementsByTagName('video');
       if (!video) return;
-      video.style.transform = `translate(${offset.offsetX}px, ${offset.offsetY}px) scale(+${currentScale}, ${currentScale})`;
+      video.style.transform = `translate(${offset.offsetX}px, ${offset.offsetY}px) scale(${currentScale})`;
     }
   };
 
@@ -56,11 +52,11 @@ export default function usePinch(
     applyTransform();
   }, [offset, currentScale]);
 
+  // 컨테이너 사이즈 추적
   useEffect(() => {
     const container = videoRef.current;
     if (!container) return;
 
-    // ResizeObserver 콜백
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
         if (entry.target === container) {
@@ -73,7 +69,6 @@ export default function usePinch(
         }
       }
     });
-
     observer.observe(container);
 
     return () => {
@@ -81,21 +76,22 @@ export default function usePinch(
     };
   }, [videoRef]);
 
+  // ─────────────────────────────────────────
+  // (1) Touch 이벤트 (Pinch / Pan)
+  // ─────────────────────────────────────────
   useEffect(() => {
     const container = videoRef.current;
     if (!container) return;
 
     function handleTouchStart(e: TouchEvent) {
       console.log('handleTouchStart', e.touches.length);
-      // (1) 두 손가락 → pinch
       if (e.touches.length === 2) {
+        // pinch 시작
         const dist = getDistance(e.touches[0], e.touches[1]);
         setInitialPinchDistance(dist);
         setInitialScale(currentScale);
-      }
-      // (2) 한 손가락 → pan
-      else if (e.touches.length === 1) {
-        console.log('handleTouchStart (pan)', offset);
+      } else if (e.touches.length === 1) {
+        // pan 시작
         setOffset((prev) => ({
           ...prev,
           lastX: e.touches[0].clientX,
@@ -107,65 +103,88 @@ export default function usePinch(
 
     function handleTouchMove(e: TouchEvent) {
       console.log('handleTouchMove', e.touches.length);
-      // (1) 두 손가락: pinch
-      if (e.touches.length === 2) {
-        e.preventDefault();
 
+      if (e.touches.length === 2) {
+        // pinch 중
+        e.preventDefault();
         const dist = getDistance(e.touches[0], e.touches[1]);
         if (initialPinchDistance === 0) return;
 
-        const scaleFactor = dist / initialPinchDistance;
-        let newScale = initialScale * scaleFactor;
+        const oldScale = currentScale;
+        let newScale = (dist / initialPinchDistance) * initialScale;
 
-        // 최소 배율을 1로 고정
+        // 최소/최대 배율
         if (newScale < 1) {
           newScale = 1;
-
-          // 배율이 1이 되었다면 offset도 (0,0)으로 조정
-          setOffset((prev) => ({
-            ...prev,
-            offsetX: 0,
-            offsetY: 0,
-          }));
-        } else {
-          // 최대 배율은 5
-          if (newScale > 5) {
-            newScale = 5;
-          }
+        } else if (newScale > 5) {
+          newScale = 5;
         }
 
-        setCurrentScale(newScale);
+        // scale 변경이 있으면 offset도 비율에 따라 보정 + clamp
+        if (newScale !== oldScale) {
+          const ratio = newScale / oldScale;
+          setOffset((prev) => {
+            let nextOffsetX = prev.offsetX * ratio;
+            let nextOffsetY = prev.offsetY * ratio;
+
+            // 이동 범위(clamp) 계산
+            const maxOffsetX = (size.width * newScale) / 2 - size.width / 2;
+            const maxOffsetY = (size.height * newScale) / 2 - size.height / 2;
+
+            if (maxOffsetX > 0) {
+              nextOffsetX = Math.max(-maxOffsetX, Math.min(nextOffsetX, maxOffsetX));
+            } else {
+              nextOffsetX = 0;
+            }
+            if (maxOffsetY > 0) {
+              nextOffsetY = Math.max(-maxOffsetY, Math.min(nextOffsetY, maxOffsetY));
+            } else {
+              nextOffsetY = 0;
+            }
+
+            return {
+              ...prev,
+              offsetX: nextOffsetX,
+              offsetY: nextOffsetY,
+            };
+          });
+          setCurrentScale(newScale);
+        }
       }
-      // (2) 한 손가락: move (누적 이동)
       else if (e.touches.length === 1) {
+        // pan 중
         e.preventDefault();
-
-        if (currentScale <= 1) {
-          return;
-        }
 
         setOffset((prev) => {
           if (!prev.isPanning) return prev;
-          // 이번 move 이벤트에서 터치 이동량
+
           const deltaX = e.touches[0].clientX - prev.lastX;
           const deltaY = e.touches[0].clientY - prev.lastY;
 
-          // 새 누적 좌표
           let nextOffsetX = prev.offsetX + deltaX;
           let nextOffsetY = prev.offsetY + deltaY;
 
-          // 컨테이너 범위를 초과할 수 없음
-          const maxOffsetX = (size.width * currentScale) / 2 - (size.width / 2);
-          const maxOffsetY = (size.height * currentScale) / 2 - (size.height / 2);
-          if (Math.abs(nextOffsetX) > maxOffsetX) {
-            return prev;
-          }
-          if (Math.abs(nextOffsetY) > maxOffsetY) {
-            return prev;
+          // 이동 가능 범위(clamp)
+          const maxOffsetX = (size.width * currentScale) / 2 - size.width / 2;
+          const maxOffsetY = (size.height * currentScale) / 2 - size.height / 2;
+
+          if (maxOffsetX > 0) {
+            nextOffsetX = Math.max(-maxOffsetX, Math.min(nextOffsetX, maxOffsetX));
+          } else {
+            nextOffsetX = 0;
           }
 
-          // 절대 좌표로 이동
-          console.log('handleTouchMove (move)', nextOffsetX, nextOffsetY, currentScale);
+          if (maxOffsetY > 0) {
+            nextOffsetY = Math.max(-maxOffsetY, Math.min(nextOffsetY, maxOffsetY));
+          } else {
+            nextOffsetY = 0;
+          }
+
+          console.log('handleTouchMove (move)', {
+            nextOffsetX,
+            nextOffsetY,
+            currentScale,
+          });
 
           return {
             offsetX: nextOffsetX,
@@ -180,15 +199,15 @@ export default function usePinch(
 
     function handleTouchEnd(e: TouchEvent) {
       console.log('handleTouchEnd', e.touches.length);
-      // pinch 종료
       if (e.touches.length < 2) {
+        // pinch 종료
         setInitialPinchDistance(0);
       }
-      // pan 종료
       if (e.touches.length === 0) {
-        setOffset((prev) => ({ 
-          ...prev, 
-          isPanning: false 
+        // pan 종료
+        setOffset((prev) => ({
+          ...prev,
+          isPanning: false,
         }));
       }
     }
@@ -204,53 +223,72 @@ export default function usePinch(
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [
-    videoRef,
-    initialPinchDistance,
-    initialScale,
-  ]);
+  }, [videoRef, initialPinchDistance, initialScale, currentScale, size.width, size.height]);
 
+  // ─────────────────────────────────────────
+  // (2) 휠 이벤트 (Wheel Zoom)
+  // ─────────────────────────────────────────
   useEffect(() => {
     const container = videoRef.current;
     if (!container) return;
 
     function handleWheel(e: WheelEvent) {
       e.preventDefault();
-      console.log('handleWheel', e.deltaY);
 
-      // deltaY (+) -> 스크롤 내림 -> 보통 배율 축소
-      // deltaY (-) -> 스크롤 올림 -> 보통 배율 확대
-      // 원하는 로직에 따라 반대 설정 가능
-      const deltaScale = -e.deltaY * 0.001; 
-      // 값이 너무 크거나 작다면 상수 조정 (예: 0.001 -> 0.005 등)
+      const oldScale = currentScale;
+      const deltaScale = -e.deltaY * 0.001;
+      let newScale = oldScale + deltaScale;
 
-      let newScale = currentScale + deltaScale;
-
-      // 최소 배율 1
+      // 최소/최대 배율
       if (newScale < 1) {
         newScale = 1;
-        // 배율이 1이 되면 위치도 (0,0)으로 리셋
-        setOffset((prev) => ({
-          ...prev,
-          offsetX: 0,
-          offsetY: 0,
-        }));
+      } else if (newScale > 5) {
+        newScale = 5;
       }
 
-      setCurrentScale(newScale);
+      // 배율 변경 시 offset 재조정 (비율 곱 + clamp)
+      if (newScale !== oldScale) {
+        const ratio = newScale / oldScale;
+        setOffset((prev) => {
+          let nextOffsetX = prev.offsetX * ratio;
+          let nextOffsetY = prev.offsetY * ratio;
+
+          const maxOffsetX = (size.width * newScale) / 2 - size.width / 2;
+          const maxOffsetY = (size.height * newScale) / 2 - size.height / 2;
+
+          if (maxOffsetX > 0) {
+            nextOffsetX = Math.max(-maxOffsetX, Math.min(nextOffsetX, maxOffsetX));
+          } else {
+            nextOffsetX = 0;
+          }
+          if (maxOffsetY > 0) {
+            nextOffsetY = Math.max(-maxOffsetY, Math.min(nextOffsetY, maxOffsetY));
+          } else {
+            nextOffsetY = 0;
+          }
+
+          return {
+            ...prev,
+            offsetX: nextOffsetX,
+            offsetY: nextOffsetY,
+          };
+        });
+        setCurrentScale(newScale);
+      }
     }
 
     container.addEventListener('wheel', handleWheel, { passive: false });
-
     return () => {
       container.removeEventListener('wheel', handleWheel);
     };
-  }, [videoRef, currentScale]);
+  }, [videoRef, currentScale, size.width, size.height]);
 
+  // 직접 배율 지정
   function setScale(scale: number) {
     setCurrentScale(scale);
   }
 
+  // 직접 offset 지정
   function setCurrentOffset(x: number, y: number) {
     setOffset((prev) => ({
       ...prev,
@@ -259,5 +297,5 @@ export default function usePinch(
     }));
   }
 
-  return { offset, size, currentScale, setScale, setCurrentOffset }; 
+  return { offset, size, currentScale, setScale, setCurrentOffset };
 }

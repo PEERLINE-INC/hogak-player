@@ -35,8 +35,7 @@ import '@theonlyducks/videojs-zoom';
 import '@theonlyducks/videojs-zoom/styles';
 import { TagSaveViewPopover } from '../TagSaveViewPopover';
 import useLiveStore from '../../store/liveStore';
-// import usePinch from '../../hooks/usePinch';
-import usePinchZoomAndMove from '../../hooks/usePinchZoomMove';
+import usePinch from '../../hooks/usePinch';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -150,8 +149,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
-  const { setScale, setCurrentOffset } = usePinchZoomAndMove(playerContainerRef, zoomPluginRef);
-  // const { setScale, setCurrentOffset } = usePinch(videoRef);
+  const { setScale, setCurrentOffset } = usePinch(playerContainerRef);
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -333,8 +331,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       // // 화면 회전 이벤트 리스너 추가
       // window.addEventListener("resize", adjustContainerSize);
 
-      // 오버레이 플러그인 초기화
-        // @ts-ignore
+      // // 오버레이 플러그인 초기화
+      //   // @ts-ignore
       // const overlay = player.overlay({
       //   debug: true,
       //   content: `<img class="overlay-logo" src="${logo}" />`,
@@ -519,7 +517,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.5.11","color:red;font-weight:bold;");
+    console.log("%c Version : 0.5.12","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
