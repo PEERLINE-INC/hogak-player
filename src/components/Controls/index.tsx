@@ -212,6 +212,7 @@ export function Controls(props: ControlsProps) {
   const handleSeekChange = ([value]: number[]) => {
     // 광고 중에는 seek 불가
     if (isPlayAd) return;
+    if (!isOverlayVisible) return;
     setIsSeek(true);
     setTimeSliderValue(value);
   };
@@ -219,7 +220,7 @@ export function Controls(props: ControlsProps) {
   const handleSeekCommit = ([value]: number[]) => {
     // 광고 중에는 seek 불가
     if (isPlayAd) return;
-    
+    if (!isOverlayVisible) return;
     const fraction = value / 100;
     seekTo(fraction, 'fraction');
     requestAnimationFrame(() => {
@@ -352,8 +353,8 @@ export function Controls(props: ControlsProps) {
               value={[isSeek ? timeSliderValue : played * 100]}
               max={100}
               step={0.1}
-              onMouseDown={handleSeekMouseDown}
-              onMouseUp={handleSeekMouseUp}
+              onPointerDown={handleSeekMouseDown}
+              onPointerUp={handleSeekMouseUp}
               onValueChange={handleSeekChange}
               onValueCommit={handleSeekCommit}
             >
