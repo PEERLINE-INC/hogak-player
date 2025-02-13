@@ -60,4 +60,8 @@ export type HogakPlayerProps = {
 
   enablePrerollAd?: boolean;
   prerollAdUrl?: string;
+
+  // 오버레이
+  enableScoreBoardOverlay?: boolean;
+  scoreBoardOverlayUrl?: string;
 }

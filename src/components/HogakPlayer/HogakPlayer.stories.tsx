@@ -324,6 +324,8 @@ const meta = {
     backIconType: 'arrowLeft',
     enablePrerollAd: false,
     prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
+    enableScoreBoardOverlay: true,
+    scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
   },
 } satisfies Meta<typeof HogakPlayer>
 

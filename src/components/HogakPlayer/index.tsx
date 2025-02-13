@@ -126,6 +126,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setEnablePrerollAd = useAdStore((state) => state.setEnablePrerollAd);
   const prerollAdUrl = useAdStore((state) => state.prerollAdUrl);
   const setPrerollAdUrl = useAdStore((state) => state.setPrerollAdUrl);
+  const enableScoreBoardOverlay = usePlayerStore((state) => state.enableScoreBoardOverlay);
+  const setEnableScoreBoardOverlay = usePlayerStore((state) => state.setEnableScoreBoardOverlay);
+  const scoreBoardOverlayUrl = usePlayerStore((state) => state.scoreBoardOverlayUrl);
+  const setScoreBoardOverlayUrl = usePlayerStore((state) => state.setScoreBoardOverlayUrl);
 
   const setAtLive = useLiveStore((state) => state.setAtLive);
   const pendingSeek = useMultiViewStore((state) => state.pendingSeek);
@@ -238,98 +242,101 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange);
       }
 
-      // // 오버레이 플러그인 선언
-      // videojs.registerPlugin("addUrlOverlay", function (options: any) {
-      //   // 기본 옵션 설정
-      //   options = videojs.mergeOptions(
-      //     {
-      //       url: "",
-      //       opacity: 0.8,
-      //     },
-      //     options
-      //   );
+      if (enableScoreBoardOverlay) {
+        // 오버레이 플러그인 선언
+        videojs.registerPlugin("addUrlOverlay", function (options: any) {
+          // 기본 옵션 설정
+          options = videojs.mergeOptions(
+            {
+              url: "",
+              opacity: 0.8,
+            },
+            options
+          );
 
-      //   // 오버레이 요소 생성
-      //   var overlayElement = document.createElement("div");
-      //   overlayElement.id = "vjs-overlay-iframe";
-      //   overlayElement.className = "vjs-url-overlay";
-      //   overlayElement.style.position = "absolute";
-      //   overlayElement.style.top = "0";
-      //   overlayElement.style.left = "0";
-      //   overlayElement.style.width = "100%";
-      //   overlayElement.style.height = "100%";
-      //   // overlayElement.style.pointerEvents = "none";
-      //   overlayElement.style.display = "none";
+          // 오버레이 요소 생성
+          var overlayElement = document.createElement("div");
+          overlayElement.id = "vjs-overlay-iframe";
+          overlayElement.className = "vjs-url-overlay";
+          overlayElement.style.position = "absolute";
+          overlayElement.style.top = "0";
+          overlayElement.style.left = "0";
+          overlayElement.style.width = "100%";
+          overlayElement.style.height = "100%";
+          // overlayElement.style.pointerEvents = "none";
 
-      //   // iframe 추가
-      //   var iframe = document.createElement("iframe");
-      //   iframe.src = options.url;
-      //   iframe.style.width = "100%";
-      //   iframe.style.height = "100%";
-      //   iframe.style.border = "none";
-      //   iframe.style.opacity = options.opacity;
-      //   iframe.style.display = "none";
+          // iframe 추가
+          var iframe = document.createElement("iframe");
+          iframe.src = options.url;
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
+          iframe.style.border = "none";
+          iframe.style.opacity = options.opacity;
 
-      //   overlayElement.appendChild(iframe);
+          overlayElement.appendChild(iframe);
 
-      //   // 비디오 컨테이너에 오버레이 추가
-      //   player.el().appendChild(overlayElement);
+          // 비디오 컨테이너에 오버레이 추가
+          player.el().appendChild(overlayElement);
 
-      //   // 비디오 플레이어의 이벤트 처리
-      //   player.on("play", function () {
-      //     overlayElement.style.display = "block";
-      //   });
+          // 비디오 플레이어의 이벤트 처리
+          player.on("play", function () {
+            overlayElement.style.display = "block";
+          });
 
-      //   player.on("pause", function () {
-      //     overlayElement.style.display = "block";
-      //   });
+          player.on("pause", function () {
+            overlayElement.style.display = "block";
+          });
 
-      //   player.on("ended", function () {
-      //     overlayElement.style.display = "none";
-      //   });
-      // });
+          player.on("ended", function () {
+            overlayElement.style.display = "none";
+          });
+        });
 
-      // // 오버레이 플러그인 사용
-      // // @ts-ignore
-      // player.addUrlOverlay({
-      //   url: "https://scorebug.peerline.net:24200/output/v5VaeOG",
-      //   opacity: 0.8,
-      // });
+        // 오버레이 플러그인 사용
+        if (scoreBoardOverlayUrl) {
+          // @ts-ignore
+          player.addUrlOverlay({
+            url: scoreBoardOverlayUrl,
+            opacity: 0.8,
+          });
+        }
+        
+        function adjustContainerSize() {
+          console.log('adjustContainerSize');
+          // iframe 크기 조정
+          const iframe = document.getElementById("vjs-overlay-iframe");
+          if (!iframe) return;
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
+          // iframe.style.transform = "scale(0.75)";
+          // iframe.style.transformOrigin = "bottom right";
+
+          // const container = document.getElementById("container");
+          // if (!container) return;
+          // const width = window.innerWidth;
+          // const height = window.innerHeight;
+
+          // if (width > height) {
+          //   console.log("가로 모드");
+          //   // 가로 모드일 때
+          //   container.style.width = "100%";
+          //   container.style.height = "100%";
+          // } else {
+          //   console.log("세로 모드");
+          //   // 세로 모드일 때
+          //   container.style.width = "100%";
+          //   container.style.height = "100%";
+          //   // container.style.height = width * 0.5625 + "px";
+          // }
+        }
+
+        // 초기 크기 설정
+        adjustContainerSize();
+
+        // 화면 회전 이벤트 리스너 추가
+        window.addEventListener("resize", adjustContainerSize);
+      }
       
-      // function adjustContainerSize() {
-      //   console.log('adjustContainerSize');
-      //   // iframe 크기 조정
-      //   const iframe = document.getElementById("vjs-overlay-iframe");
-      //   if (!iframe) return;
-      //   iframe.style.width = "100%";
-      //   iframe.style.height = "100%";
-      //   // iframe.style.transform = "scale(0.75)";
-      //   // iframe.style.transformOrigin = "bottom right";
-
-      //   // const container = document.getElementById("container");
-      //   // if (!container) return;
-      //   // const width = window.innerWidth;
-      //   // const height = window.innerHeight;
-
-      //   // if (width > height) {
-      //   //   console.log("가로 모드");
-      //   //   // 가로 모드일 때
-      //   //   container.style.width = "100%";
-      //   //   container.style.height = "100%";
-      //   // } else {
-      //   //   console.log("세로 모드");
-      //   //   // 세로 모드일 때
-      //   //   container.style.width = "100%";
-      //   //   container.style.height = "100%";
-      //   //   // container.style.height = width * 0.5625 + "px";
-      //   // }
-      // }
-
-      // // 초기 크기 설정
-      // adjustContainerSize();
-
-      // // 화면 회전 이벤트 리스너 추가
-      // window.addEventListener("resize", adjustContainerSize);
 
       // // 오버레이 플러그인 초기화
       //   // @ts-ignore
@@ -367,7 +374,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         type: 'application/x-mpegurl'
       });
     }
-  }, [url, isLive]); // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl]); // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current;
@@ -474,6 +481,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   useEffect(() => {
     setPrerollAdUrl(props.prerollAdUrl ?? '');
   }, [props.prerollAdUrl]);
+
+  useEffect(() => {
+    setEnableScoreBoardOverlay(props.enableScoreBoardOverlay ?? false);
+  }, [props.enableScoreBoardOverlay]);
+
+  useEffect(() => {
+    setScoreBoardOverlayUrl(props.scoreBoardOverlayUrl ?? '');
+  }, [props.scoreBoardOverlayUrl]);
 
   // 풀스크린 로직 (screenfull → Video.js 자체 fullscreen or 별도 라이브러리)
   useEffect(() => {

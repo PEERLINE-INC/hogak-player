@@ -49,6 +49,10 @@ interface PlayerState {
   setIsDisableTag: (isDisableTag: boolean) => void;
   isDisableMultiView: boolean;
   setIsDisableMultiView: (isDisableMultiView: boolean) => void;
+  enableScoreBoardOverlay: boolean;
+  setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => void;
+  scoreBoardOverlayUrl: string;
+  setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -101,6 +105,10 @@ const usePlayerStore = create<PlayerState>()(
     setIsDisableTag: (isDisableTag: boolean) => set({ isDisableTag }),
     isDisableMultiView: false,
     setIsDisableMultiView: (isDisableMultiView: boolean) => set({ isDisableMultiView }),
+    enableScoreBoardOverlay: false,
+    setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => set({ enableScoreBoardOverlay }),
+    scoreBoardOverlayUrl: '',
+    setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => set({ scoreBoardOverlayUrl }),
   }),
 )
 
