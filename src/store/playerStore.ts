@@ -3,6 +3,8 @@ import { create } from 'zustand'
 interface PlayerState {
   url: string;
   setUrl: (url: string) => void;
+  isLive: boolean;
+  setIsLive: (isLive: boolean) => void;
   title: string;
   setTitle: (title: string) => void;
   pip: boolean;
@@ -37,12 +39,28 @@ interface PlayerState {
   setSkipDirection: (skipDirection: 'left' | 'right' | null) => void;
   isViewThumbMarker: boolean;
   setIsViewThumbMarker: (isViewThumbMarker: boolean) => void;
+  isShowTagSaveView: boolean;
+  setIsShowTagSaveView: (isShowTagSaveView: boolean) => void;
+  isPanoramaMode: boolean;
+  setIsPanoramaMode: (isPanoramaMode: boolean) => void;
+  isDisableClip: boolean;
+  setIsDisableClip: (isDisableClip: boolean) => void;
+  isDisableTag: boolean;
+  setIsDisableTag: (isDisableTag: boolean) => void;
+  isDisableMultiView: boolean;
+  setIsDisableMultiView: (isDisableMultiView: boolean) => void;
+  enableScoreBoardOverlay: boolean;
+  setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => void;
+  scoreBoardOverlayUrl: string;
+  setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
   (set) => ({
     url: '',
     setUrl: (url: string) => set({ url }),
+    isLive: false,
+    setIsLive: (isLive: boolean) => set({ isLive }),
     title: '',
     setTitle: (title: string) => set({ title }),
     pip: false,
@@ -73,10 +91,24 @@ const usePlayerStore = create<PlayerState>()(
     setSkipDirection: (skipDirection: 'left' | 'right' | null) => set({ skipDirection }),
     isViewThumbMarker: false,
     setIsViewThumbMarker: (isViewThumbMarker: boolean) => set({ isViewThumbMarker }),
+    isShowTagSaveView: false,
+    setIsShowTagSaveView: (isShowTagSaveView: boolean) => set({ isShowTagSaveView }),
     speed: 1,
     setSpeed: (speed: number) => set({ speed }),
     quality: 720,
     setQuality: (quality: number) => set({ quality }),
+    isPanoramaMode: false,
+    setIsPanoramaMode: (isPanoramaMode: boolean) => set({ isPanoramaMode }),
+    isDisableClip: false,
+    setIsDisableClip: (isDisableClip: boolean) => set({ isDisableClip }),
+    isDisableTag: false,
+    setIsDisableTag: (isDisableTag: boolean) => set({ isDisableTag }),
+    isDisableMultiView: false,
+    setIsDisableMultiView: (isDisableMultiView: boolean) => set({ isDisableMultiView }),
+    enableScoreBoardOverlay: false,
+    setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => set({ enableScoreBoardOverlay }),
+    scoreBoardOverlayUrl: '',
+    setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => set({ scoreBoardOverlayUrl }),
   }),
 )
 

@@ -12,7 +12,7 @@ import './styles.css';
 import { useEffect, useState } from "react";
 
 interface ClipViewPopoverProps {
-    seekTo: (seconds: number) => void;
+    seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
     onChangeClipDuration: (data: number[]) => void;
     isShow: boolean;
     setValuesRef?: React.MutableRefObject<((values: number[]) => void) | null>;
@@ -69,6 +69,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
     const isFullScreen = usePlayerStore((state) => state.isFullScreen);
     const currentSeconds = useClipStore((state) => state.currentSeconds);
+    const isLive = usePlayerStore((state) => state.isLive);
 
     const [values, setValues] = useState<number[]>([0, 30]);
     const [min, setMin] = useState<number>(0);
@@ -92,7 +93,18 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         setMin(start);
         setMax(end);
         setValues([middleValue - 30, middleValue + 30]);
-    }, [currentSeconds, duration]);
+    }, [currentSeconds]);
+    useEffect(() => {
+        if (isLive) return;
+        console.log('useEffect', { currentSeconds, duration });
+        // currentSeconds 중심으로 3분 범위 설정
+        const { start, end } = calculateClipRange(currentSeconds, duration);
+        const middleValue = (start + end) / 2;
+
+        setMin(start);
+        setMax(end);
+        setValues([middleValue - 30, middleValue + 30]);
+    }, [duration]);
 
     useEffect(() => {
         if (isShow) {
@@ -117,7 +129,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         console.log('handleAfterChange', value);
         onChangeClipDuration([Math.floor(value[0]), Math.floor(value[1])]);
         setValues([...value]);
-        seekTo(value[0] / duration);
+        seekTo(value[0], 'seconds');
         setIsPlay(true);
     };
     const handleCancel = () => {
@@ -133,7 +145,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     };
 
     return (
-        <PopoverContainer isShow={isShow}>
+        <PopoverContainer isShow={isShow} className="hogak-popover">
             <TopContainer>
                 {/* 250113 클래스 네임 추가 */}
                 <FlexRow style={{ width: 'calc(100% - 10em' }} className="icon_box">

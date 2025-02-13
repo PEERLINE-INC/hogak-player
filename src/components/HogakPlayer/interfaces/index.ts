@@ -4,6 +4,7 @@ export class MultiViewSource {
     public title: string,
     public description: string,
     public url: string,
+    public isPanorama?: boolean,
   ) {}
 }
 
@@ -33,10 +34,12 @@ export type OnClickAddTagEventObject = {
 export type HogakPlayerProps = {
   title?: string;
   isPlay?: boolean;
+  isLive?: boolean;
   setIsPlay?: (isPlay: boolean) => void;
   onBack?: () => void;
   backIconType?: 'close' | 'arrowLeft';
   url: string;
+  isPanorama?: boolean;
   width?: number | undefined;
   height?: number | undefined;
   multiViewSources?: MultiViewSource[];
@@ -48,4 +51,17 @@ export type HogakPlayerProps = {
   onChangeFullScreen?: (isFullScreen: boolean) => void;
   onClickTagButton?: () => void;
   onClickClipSave?: () => void;
+  onClickTagSave?: () => void;
+  onClickTagCancel?: () => void;
+
+  disableClip?: boolean;
+  disableTag?: boolean;
+  disableMultiView?: boolean;
+
+  enablePrerollAd?: boolean;
+  prerollAdUrl?: string;
+
+  // 오버레이
+  enableScoreBoardOverlay?: boolean;
+  scoreBoardOverlayUrl?: string;
 }

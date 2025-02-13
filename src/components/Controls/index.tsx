@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import ReactPlayer from 'react-player';
 import styled from 'styled-components';
 import * as Slider from "@radix-ui/react-slider";
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
@@ -21,12 +20,17 @@ import ClipIcon from '../../assets/icons/icon_clip_white.svg?react';
 //import PlayControlIcon from '../../assets/icons/icon_play_control.svg?react';
 //import SpeedControlIcon from '../../assets/icons/icon_speed_control.svg?react';
 import useClipStore from '../../store/clipViewStore';
+import Player from 'video.js/dist/types/player';
 import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
+import useLiveStore from '../../store/liveStore';
+import useAdStore from '../../store/adStore';
 
 interface ControlsProps {
-  playerRef: React.RefObject<ReactPlayer | null>;
+  playerRef: React.RefObject<Player | null>;
   onBack?: () => void;
   onClickTagButton?: () => void;
+  seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
+  seekToLive: () => void;
 }
 
 export function Controls(props: ControlsProps) {
@@ -34,6 +38,8 @@ export function Controls(props: ControlsProps) {
     playerRef,
     onBack,
     onClickTagButton,
+    seekTo,
+    seekToLive,
   } = props;
 
   //const url = usePlayerStore((state) => state.url); 241224 PIP 버튼 주석
@@ -46,23 +52,32 @@ export function Controls(props: ControlsProps) {
   const setIsSeek = usePlayerStore((state) => state.setIsSeek);
   const duration = usePlayerStore((state) => state.duration);
   const played = usePlayerStore((state) => state.played);
-  const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
   const setVolume = usePlayerStore((state) => state.setVolume);
   const isFullScreen = usePlayerStore((state) => state.isFullScreen);
   const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
-  const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
   const tags = useTagStore((state) => state.tags);
   const isShowClipView = usePlayerStore((state) => state.isShowClipView);
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView);
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds);
   const backIconType = usePlayerStore((state) => state.backIconType);
   const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker);
+  const speed = usePlayerStore((state) => state.speed);
   const setSpeed = usePlayerStore((state) => state.setSpeed);
+  const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
+  const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView);
+  const isDisableClip = usePlayerStore((state) => state.isDisableClip);
+  const isDisableTag = usePlayerStore((state) => state.isDisableTag);
+  const isDisableMultiView = usePlayerStore((state) => state.isDisableMultiView);
+  const isLive = usePlayerStore((state) => state.isLive);
+  const isPlayAd = useAdStore((state) => state.isPlayAd);
+  const atLive = useLiveStore((state) => state.atLive);
   
   const [mute] = useState(false);
+  // 드래그 중 임시로 써 줄 로컬 state
+  const [timeSliderValue, setTimeSliderValue] = useState(played * 100);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [lastTapTime, setLastTapTime] = useState<number | null>(null);
@@ -113,6 +128,13 @@ export function Controls(props: ControlsProps) {
     };
   }, [isOverlayVisible, isTouchDevice, isSeek]);
 
+  // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
+  useEffect(() => {
+    if (atLive) {
+      setSpeed(1);
+    }
+  }, [atLive]);
+
   const handleMouseEnter = () => {
     if (!isTouchDevice) setOverlayVisible(true);
   };
@@ -130,6 +152,9 @@ export function Controls(props: ControlsProps) {
     const isDoubleTap = lastTapTime && now - lastTapTime < 300; // 300ms 안에 다시 탭하면 더블 탭으로 판단
 
     if (isDoubleTap) {
+      // 광고 중 스킵 방지
+      if (isPlayAd) return;
+
       // 더블 탭이면 1) 단일 탭 타이머 해제
       if (tapTimerRef.current) {
         clearTimeout(tapTimerRef.current);
@@ -145,15 +170,15 @@ export function Controls(props: ControlsProps) {
       if (offsetX < clientWidth / 2) {
         // 왼쪽 영역 -> 10초 뒤로
         if (playerRef.current) {
-          const currentTime = playerRef.current.getCurrentTime();
-          playerRef.current.seekTo(currentTime - 10, "seconds");
+          const currentTime = playerRef.current.currentTime() ?? 0;
+          seekTo(currentTime - 10, "seconds");
           setSkipDirection('left');
         }
       } else {
         // 오른쪽 영역 -> 10초 앞으로
         if (playerRef.current) {
-          const currentTime = playerRef.current.getCurrentTime();
-          playerRef.current.seekTo(currentTime + 10, "seconds");
+          const currentTime = playerRef.current.currentTime() ?? 0;
+          seekTo(currentTime + 10, "seconds");
           setSkipDirection('right');
         }
       }
@@ -185,19 +210,23 @@ export function Controls(props: ControlsProps) {
   };
 
   const handleSeekChange = ([value]: number[]) => {
-    // console.log('handleSeekChange', value);
+    // 광고 중에는 seek 불가
+    if (isPlayAd) return;
     setIsSeek(true);
-    setPlayed(value / 100);
+    setTimeSliderValue(value);
   };
+
   const handleSeekCommit = ([value]: number[]) => {
-    console.log('handleSeekCommit', value);
-    setIsSeek(false);
-    if (playerRef.current) {
-      playerRef.current.seekTo(played);
-    } else {
-      console.warn('playerRef is null, cannot seek');
-    }
+    // 광고 중에는 seek 불가
+    if (isPlayAd) return;
+    
+    const fraction = value / 100;
+    seekTo(fraction, 'fraction');
+    requestAnimationFrame(() => {
+      setIsSeek(false);
+    });
   };
+
   const handleSeekMouseUp = () => {
     console.log('handleSeekMouseUp');
     setIsSeek(false);
@@ -208,7 +237,7 @@ export function Controls(props: ControlsProps) {
   };
   const handleTagClick = (seconds: number) => {
     if (playerRef.current) {
-      playerRef.current.seekTo(seconds);
+      seekTo(seconds, 'seconds');
     } else {
       console.warn('playerRef is null, cannot seek');
     }
@@ -216,13 +245,13 @@ export function Controls(props: ControlsProps) {
 
   const handleClickClip = () => {
     setIsPlay(false);
-    setCurrentSeconds(playerRef.current?.getCurrentTime() ?? 0);
+    setCurrentSeconds(playerRef.current?.currentTime() ?? 0);
     setIsShowClipView(true);
   };
 
   const handleClickTag = () => {
-    if (!isFullScreen) {
-      setIsShowTagView(true);
+    if (isFullScreen) {
+      setIsShowTagSaveView(true);
     }
 
     onClickTagButton?.();
@@ -262,50 +291,50 @@ export function Controls(props: ControlsProps) {
 
           {/* 241224 아이콘 추가 및 클래스네임 설정, 250113 간격 수정 및 클래스네임 추가 */}
           <FlexRow gap={16} className='icon_box'>
-            {!isFullScreen && <IconButton className='tag_btn' onClick={handleClickTag}>
-              <TagViewIcon/>
+            {!isFullScreen && !isDisableTag && <IconButton className='tag_btn' onClick={handleClickTag}>
+              <TagViewIcon />
             </IconButton>}
             <IconButton className='screencast_btn'>
-              <ScreenCastIcon/>
+              <ScreenCastIcon />
             </IconButton>
-            { multiViewSources.length && <IconButton onClick={() => setIsShowMultiView(true)} className='multiview_btn'>
+            { multiViewSources.length && !isDisableMultiView && <IconButton onClick={() => setIsShowMultiView(true)} className='multiview_btn'>
               <MultiViewIcon/>
             </IconButton>}
           </FlexRow>
         </TopContainer>
-
-        {/* 241224 플레이 버튼 구조 변경 */}
-        <PlayBtnContainer>
-          <FlexRow>
-              <IconButton onClick={(_) => setIsPlay(!isPlay)} className='play_btn'>
-                {isPlay ? (
-                  <PauseIcon />
-                ) : (
-                  <PlayIcon />
-                )}{" "}
-              </IconButton>
-          </FlexRow>
-        </PlayBtnContainer>
-        {/* //241224 플레이 버튼 구조 변경 */}
-
         
         <MiddleContainer className='controls-wrapper'>
+          <PlayBtnContainer>
+            <FlexRow>
+              {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
+              <IconButton 
+                onClick={isPlayAd ? undefined : () => setIsPlay(!isPlay)} 
+                className='play_btn'
+                style={{ opacity: isPlayAd ? 0.5 : 1 }}
+              >
+                {isPlay ? <PauseIcon /> : <PlayIcon />}
+              </IconButton>
+            </FlexRow>
+          </PlayBtnContainer>
+          {/* //241224 플레이 버튼 구조 변경 */}
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가, 250113 클래스 추가 및 간격 수정 */}
           <FlexCol style={{paddingRight: '1em', gap: '1.3em'}} className='icon_box'>
-            { isFullScreen && !isShowClipView && (
+            { isFullScreen && !isShowClipView && !isShowTagSaveView && (
               <>
-                <FlexCol>
-                  <IconButton className='side_icon side_clip' onClick={handleClickClip}>
-                    <ClipIcon/>
-                    <p className='side_icon_name'>클립</p>
-                  </IconButton>
-                </FlexCol>
-                <FlexCol>
-                  <IconButton className='side_icon side_tag' onClick={handleClickTag}>
-                    <TagViewIcon/>
-                    <p className='side_icon_name'>태그</p>
-                  </IconButton>
-                </FlexCol>
+                {!isDisableClip && <FlexCol>
+                    <IconButton className='side_icon side_clip' onClick={handleClickClip}>
+                      <ClipIcon/>
+                      <p className='side_icon_name'>클립</p>
+                    </IconButton>
+                  </FlexCol>
+                }
+                {!isDisableTag && <FlexCol>
+                    <IconButton className='side_icon side_tag' onClick={handleClickTag}>
+                      <TagViewIcon/>
+                      <p className='side_icon_name'>태그</p>
+                    </IconButton>
+                  </FlexCol>
+                }
               </>
             )}
           </FlexCol>
@@ -313,9 +342,14 @@ export function Controls(props: ControlsProps) {
 
         <BottomContainer isFullScreen={isFullScreen}>
           <SliderContainer>
-            <Slider.Root className="SliderRoot"
-              style={{ width: '100%' }}
-              value={[played * 100]}
+            <Slider.Root 
+              className="SliderRoot"
+              style={{ 
+                width: '100%',
+                opacity: isPlayAd ? 0.5 : 1,
+                pointerEvents: isPlayAd ? 'none' : 'auto'
+              }}
+              value={[isSeek ? timeSliderValue : played * 100]}
               max={100}
               step={0.1}
               onMouseDown={handleSeekMouseDown}
@@ -348,10 +382,21 @@ export function Controls(props: ControlsProps) {
           </SliderContainer>
           <ControlBox>
             <FlexRow>
-              <PlayTime seconds={duration * played} />
-              {/* 241224 fontSize, padding 수정 */}
-              <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
-              <PlayTime seconds={duration} />
+              {isLive ? (
+                <LiveContainer 
+                  isAtLive={atLive} 
+                  onClick={atLive ? undefined : () => seekToLive()} 
+                >
+                  <LiveDot isAtLive={atLive} />
+                  <span>LIVE</span>
+                </LiveContainer>
+              ) : (
+                <>
+                  <PlayTime seconds={isSeek ? duration * timeSliderValue / 100 : duration * played} />
+                  <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
+                  <PlayTime seconds={duration} />
+                </>
+              )}
             </FlexRow>
             <FlexRow gap={16} className='icon_box'>{/* 250113 간격수정 및 클래스 추가 */}
               {/* <IconButton className='play_control_btn'>
@@ -362,11 +407,35 @@ export function Controls(props: ControlsProps) {
               </IconButton> */}
               {/* 250113 드롭다운 추가 */}
               <Dropdown 
-                onChangeValue={(option) => setSpeed(Number(option.value))} 
-                options={[{label: '2x', value: 2}, {label : '1.75x', value: 1.75}, {label : '1.5x', value: 1.5}, {label : '1.25x', value: 1.25}, {label : '1x', value: 1}, {label : '0.5x', value: 0.5}]} 
-                defaultValue={1}
+                onChangeValue={(option) => {
+                  if (!isPlayAd) {
+                    setSpeed(Number(option.value));
+                  }
+                }} 
+                options={[
+                  {label: '2x', value: 2}, 
+                  {label: '1.75x', value: 1.75}, 
+                  {label: '1.5x', value: 1.5}, 
+                  {label: '1.25x', value: 1.25}, 
+                  {label: '1x', value: 1}, 
+                  {label: '0.5x', value: 0.5}
+                ]} 
+                defaultValue={speed}
+                disabled={isPlayAd}
               />
-              <Dropdown onChangeValue={(option) => console.log(option)} options={[{label : '1080p', tag: 'HD', value: 1080}, {label : '720p', value: 720},{label : '480p', value: 480}, {label : '360p', value: 360}, {label : '240p', value: 240}, {label : '144p', value: 144}]} defaultValue={720}></Dropdown>
+              <Dropdown 
+                onChangeValue={(option) => console.log(option)} 
+                options={[
+                  {label: '1080p', tag: 'HD', value: 1080}, 
+                  {label: '720p', value: 720},
+                  {label: '480p', value: 480}, 
+                  {label: '360p', value: 360}, 
+                  {label: '240p', value: 240}, 
+                  {label: '144p', value: 144}
+                ]} 
+                defaultValue={720}
+                disabled={isPlayAd}
+              />
               <FlexRow>
                 <VolumeControlWrap>
                   <IconButton className='volume_control_btn'>
@@ -415,21 +484,19 @@ const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   background-color: ${({ isOverlayVisible }) =>
     isOverlayVisible ? "rgba(0, 0, 0, 0.6)" : "transparent"};
   transition: background-color 0.3s ease;
 `;
 
 const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* 부모(ControlsWrapper)의 높이를 전부 차지 */
+  flex: 1;
+  height: 100%;
+
   opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
   pointer-events: ${({ isOverlayVisible }) => (isOverlayVisible ? "auto" : "none")};
@@ -439,7 +506,7 @@ const TopContainer = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 1.2em 1.6em 0 1.6em;/* 241224 수정 */
+  padding: 1.2em 1.6em 0 1.6em;
 
   /* 241224 추가 */
   .video_title {
@@ -455,16 +522,14 @@ const TopContainer = styled.div`
 
 const MiddleContainer = styled.div`
   display: flex;
-  justify-content: flex-end; /* 241224 수정 */
+  justify-content: flex-end;
   align-items: center;
-  height: 100%;
 `;
 
 const BottomContainer = styled.div<{ isFullScreen: boolean }>`
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  
   margin-bottom: 0;
 
   /* iOS Safari 전용 스타일 */
@@ -620,12 +685,15 @@ const FlexCol = styled.div<{ gap?: number }>`
     }
 `;
 
-const TagMarker = styled.div<{ left: string }>`
+const TagMarker = styled.div.attrs<{ left: string }>((props) => ({
+  style: {
+    left: props.left,
+  },
+}))`
   width: 2.4em;
   height: 1.8em;
   position: absolute;
   top: -1.6em;
-  left: ${props => props.left};
   transform: translateX(-50%);
   cursor: pointer;
 `;
@@ -665,5 +733,26 @@ const VolumeControlWrap = styled.div`
     .SliderThumb {
       width: 1.2em;
     }
+  }
+`;
+
+const LiveDot = styled.div<{ isAtLive: boolean }>`
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  margin-right: 0.5em;
+  background-color: ${({ isAtLive }) => isAtLive ? '#FF0000' : '#666666'};
+  transition: background-color 0.2s ease;
+`;
+
+const LiveContainer = styled.div<{ isAtLive: boolean }>`
+  display: flex;
+  align-items: center;
+  cursor: ${({ isAtLive }) => isAtLive ? 'default' : 'pointer'};
+  
+  span {
+    color: white;
+    font-size: 1.4em;
+    padding-right: 0.5em;
   }
 `;

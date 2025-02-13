@@ -21,10 +21,20 @@ const meta = {
       description: '표시할 영상 제목입니다.',
       type: 'string',
     },
+    isLive: {
+      defaultValue: false,
+      description: '라이브 영상인지 여부입니다.',
+      type: 'boolean',
+    },
     url: {
       defaultValue: '',
       description: '재생할 영상의 URL입니다.',
       type: 'string',
+    },
+    isPanorama: {
+      defaultValue: false,
+      description: '파노라마 모드의 초기값을 설정합니다. (영상 소스가 변경되면 해당 소스의 파노라마 모드 여부를 따릅니다)',
+      type: 'boolean',
     },
     width: {
       defaultValue: 640,
@@ -52,6 +62,7 @@ const meta = {
             thumbnailUrl: { name: 'string' },
             title: { name: 'string' },
             url: { name: 'string' },
+            isPanorama: { name: 'boolean' },
           },
         },
       }
@@ -87,6 +98,21 @@ const meta = {
         },
       }
     },
+    disableClip: {
+      defaultValue: false,
+      description: '클립 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
+    disableTag: {
+      defaultValue: false,
+      description: '태그 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
+    disableMultiView: {
+      defaultValue: false,
+      description: '멀티뷰 기능을 비활성화할지 여부입니다.',
+      type: 'boolean',
+    },
     onBack: {
       description: '뒤로가기 버튼을 클릭했을 때 호출되는 콜백입니다.',
       action: 'onBack',
@@ -121,10 +147,30 @@ const meta = {
       description: `클립 저장 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickClipSave',
     },
+    onClickTagSave: {
+      description: `태그 저장 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickTagSave',
+    },
+    onClickTagCancel: {
+      description: `태그 취소 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickTagCancel',
+    },
+    enablePrerollAd: {
+      defaultValue: false,
+      description: `프리롤 광고 기능을 사용할지 여부입니다.`,
+      type: 'boolean',
+    },
+    prerollAdUrl: {
+      defaultValue: '',
+      description: `프리롤 광고 영상의 URL입니다.`,
+      type: 'string',
+    },
   },
   args: {
     title: '',
-    url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+    isLive: false,
+    url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+    // url: 'https://d258gifgiy8x7f.cloudfront.net/3b288404b399ad46a4cf019a61f08071/0_hd_hls.m3u8?hlsid=HTTP_ID_1',
     width: undefined,
     height: undefined,
     isPlay: false,
@@ -148,18 +194,26 @@ const meta = {
     onClickClipSave: () => {
       console.log('onClickClipSave');
     },
+    onClickTagSave: () => {
+      console.log('onClickTagSave');
+    },
+    onClickTagCancel: () => {
+      console.log('onClickTagCancel');
+    },
     multiViewSources: [
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum/300/200',
         title: '[멀티VIEW] 1번 카메라',
         description: '1번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+        isPanorama: false,
       },
       {
         thumbnailUrl: 'https://picsum.photos/seed/picsum2/300/200',
-        title: '[멀티VIEW] 2번 카메라',
+        title: '[멀티VIEW] 2번 카메라(파노라마)',
         description: '2번 카메라 설명',
         url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+        isPanorama: true,
       },
     ],
     tags: [
@@ -187,9 +241,91 @@ const meta = {
         id: '1',
         title: '홈런',
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
-      }
+      },
+      {
+        id: '1',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '2',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '3',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '4',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '5',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '6',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '7',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '8',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '9',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '10',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '11',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '12',
+        title: '홈런',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '13',
+        title: '홈런13',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '14',
+        title: '홈런14',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
+      {
+        id: '15',
+        title: '홈런15',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606078.png',
+      },
     ],
+    disableClip: false,
+    disableTag: false,
+    disableMultiView: false,
     backIconType: 'arrowLeft',
+    enablePrerollAd: false,
+    prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
+    enableScoreBoardOverlay: true,
+    scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
   },
 } satisfies Meta<typeof HogakPlayer>
 

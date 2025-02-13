@@ -4,46 +4,30 @@ import usePlayerStore from "../../store/playerStore";
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
 import { MultiViewSource } from "../HogakPlayer/interfaces";
-import { useEffect, useState } from "react";
 
 interface MultiViewPopoverProps {
   isShow: boolean;
-  seekTo: (seconds: number) => void;
   getCurrentSeconds: () => number;
 }
 
-export const MultiViewPopover = ({ isShow, seekTo, getCurrentSeconds }: MultiViewPopoverProps) => {
+export const MultiViewPopover = ({ isShow, getCurrentSeconds }: MultiViewPopoverProps) => {
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
-  const isReady = usePlayerStore((state) => state.isReady);
-  const setIsReady = usePlayerStore((state) => state.setIsReady);
+  const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
-  const [pendingSeek, setPendingSeek] = useState<number | null>(null);
+  const setPendingSeek = useMultiViewStore((state) => state.setPendingSeek);
 
   const handleChangeMultiView = (source: MultiViewSource) => {
     const seconds = getCurrentSeconds();
     setPendingSeek(seconds);
-    setIsReady(false);
     console.log('handleChangeMultiView', source, seconds);
+    setIsPanoramaMode(source.isPanorama ?? false);
     setUrl(source.url);
   };
 
-  const handlePlayerReady = () => {
-    if (pendingSeek !== null) {
-      seekTo(pendingSeek);
-      setPendingSeek(null);
-    }
-  };
-  
-  useEffect(() => {
-    if (isReady) {
-      handlePlayerReady();
-    }
-  }, [isReady]);
-
   return (
-    <PopoverContainer isShow={isShow}>
+    <PopoverContainer isShow={isShow} className="hogak-popover">
       <IconButton onClick={() => setIsShowMultiView(false)} className="back_btn">
         <ArrowLeftIcon style={{ transform: 'scaleX(-1)' }} />
       </IconButton>

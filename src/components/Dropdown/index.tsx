@@ -11,9 +11,10 @@ interface DropdownProps {
   options: Option[]; // 옵션 배열
   defaultValue?: string | number; // 초기 값
   onChangeValue?: (value: Option) => void; // 값 변경 핸들러
+  disabled?: boolean; // 비활성화 여부
 }
 
-const Dropdown = ({ options, defaultValue, onChangeValue }: DropdownProps) => {
+const Dropdown = ({ options, defaultValue, onChangeValue, disabled }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | number>(defaultValue || "");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -53,7 +54,7 @@ const Dropdown = ({ options, defaultValue, onChangeValue }: DropdownProps) => {
 
   return (
     <DropdownContainer ref={dropdownRef}>
-      <DropdownButton onClick={toggleDropdown}>
+      <DropdownButton onClick={toggleDropdown} disabled={disabled}>
         {selectedLabel}
       </DropdownButton>
 
