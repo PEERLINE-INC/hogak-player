@@ -47,7 +47,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
 
               {/* 241224 스타일 수정 */}{/* 250214 스타일 수정 및 구조변경 */}
               <FlexCol gap={4}>
-                <div style={{ fontSize: '0.8em', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', position: 'absolute', bottom: '0', background: 'rgba(0,0,0,0.5)', padding: '0.4em 0.6em'  }}>
+                <div style={{ fontSize: '1.2em', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', position: 'absolute', bottom: '0', background: 'rgba(0,0,0,0.5)', padding: '0.4em 0.6em'  }}>
                   {source.title}
                 </div>
                 {/* <div style={{ fontSize: '0.8em', color: '#999' }}>
@@ -66,7 +66,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
                     justifyContent: 'center',
                     alignItems: 'center',
                     color: 'white',
-                    fontSize: '1em', /* 241224 수정 */
+                    fontSize: '1.4em', /* 250214 수정 */
                     flexDirection: 'column',
                     background: 'rgba(0,0,0,0.7)'
                   }}
