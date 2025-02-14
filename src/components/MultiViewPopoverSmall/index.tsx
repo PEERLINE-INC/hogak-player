@@ -32,24 +32,28 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
 
       {/* 241224 클래스 추가 */}
       <FlexRow gap={12} className='popover_list'>
+        {/* 250214 스타일 수정 */}
         {multiViewSources.map((source, index) => (
-            <FlexCol gap={8} key={index} onClick={() => handleChangeMultiView(source)} style={{ cursor: 'pointer', width: '20%', height: 'calc(100% - 1em)' }}>
+            <FlexCol gap={8} key={index} onClick={() => handleChangeMultiView(source)} style={{ cursor: 'pointer', width: 'auto', height: '100%' }}>
 
-              {/* 241224 스타일 수정 */}
+              
+              {/* 250214 높이 수정, 비율 수정 */}
+              <div style={{ position: 'relative', aspectRatio: '4 / 3', height: '100%' }}>
+              <img
+                src={source.thumbnailUrl}
+                alt="image"
+                style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
+              />
+
+              {/* 241224 스타일 수정 */}{/* 250214 스타일 수정 및 구조변경 */}
               <FlexCol gap={4}>
-                <div style={{ fontSize: '1em', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'  }}>
+                <div style={{ fontSize: '0.8em', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', position: 'absolute', bottom: '0', background: 'rgba(0,0,0,0.5)', padding: '0.4em 0.6em'  }}>
                   {source.title}
                 </div>
                 {/* <div style={{ fontSize: '0.8em', color: '#999' }}>
                   {source.description}
                 </div> */}
               </FlexCol>
-              <div style={{ position: 'relative', aspectRatio: '5 / 3', height: 'calc(100% - 1em)' }}>
-              <img
-                src={source.thumbnailUrl}
-                alt="image"
-                style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
-              />
               {url === source.url && (
                 <div
                   style={{
@@ -90,18 +94,19 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
   );
 };
 
+// 250214 스타일 수정
 const PopoverContainer = styled.div<{ isShow: boolean }>`
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 100%; 
+  width: 100%;
   min-width: 18em;
-  height: 30%;
+  height: 38%;
   min-height: 6.8em;
   background-color: rgba(0, 0, 0, 0.66);
   display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
   z-index: 2;
-  padding: 1em 4em 0.4em 1.8em;
+  padding: 0.8em 4em 0.8em 0.8em;
   flex-direction: row;
   justify-content: flex-start;
   align-items: stretch;
@@ -110,7 +115,7 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   gap: 0.9em;
-`;
+`
 
 const FlexRow = styled.div<{ gap?: number }>`
   display: flex;
@@ -122,7 +127,7 @@ const FlexRow = styled.div<{ gap?: number }>`
   &.popover_list {
     overflow: hidden;
     overflow-x: auto;
-    padding-bottom: 1em;
+    /* padding-bottom: 1em; 250214 삭제 */
     align-items: stretch;
     gap: 0.9em;
     width: 100%;
