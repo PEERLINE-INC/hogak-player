@@ -238,7 +238,9 @@ export function Controls(props: ControlsProps) {
   };
   const handleTagClick = (seconds: number) => {
     if (playerRef.current) {
-      seekTo(seconds, 'seconds');
+      if (isOverlayVisible) {
+        seekTo(seconds, 'seconds');
+      }
     } else {
       console.warn('playerRef is null, cannot seek');
     }
