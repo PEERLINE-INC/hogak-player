@@ -6,6 +6,7 @@ import CloseIcon from "../../assets/icons/icon_close.svg?react";
 import PlayIcon from "../../assets/icons/vod_play.svg?react";
 import PauseIcon from "../../assets/icons/vod_pause.svg?react";
 import VolumeIcon from "../../assets/icons/icon_volume.svg?react";
+import VolumeMuteIcon from "../../assets/icons/icon_volume_mute.svg?react";
 import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
@@ -74,8 +75,9 @@ export function Controls(props: ControlsProps) {
   const isLive = usePlayerStore((state) => state.isLive);
   const isPlayAd = useAdStore((state) => state.isPlayAd);
   const atLive = useLiveStore((state) => state.atLive);
+  const isMute = usePlayerStore((state) => state.isMute);
+  const setIsMute = usePlayerStore((state) => state.setIsMute);
   
-  const [mute] = useState(false);
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
@@ -441,11 +443,11 @@ export function Controls(props: ControlsProps) {
               />
               <FlexRow>
                 <VolumeControlWrap>
-                  <IconButton className='volume_control_btn'>
-                    {mute ? (
-                      <VolumeIcon/>
+                  <IconButton className='volume_control_btn' onClick={() => setIsMute(!isMute)}>
+                    {isMute ? (
+                      <VolumeMuteIcon />
                     ) : (
-                      <VolumeIcon/>
+                      <VolumeIcon />
                     )}
                   </IconButton>
                   <Slider.Root className="SliderRoot"

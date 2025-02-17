@@ -165,6 +165,11 @@ const meta = {
       description: `프리롤 광고 영상의 URL입니다.`,
       type: 'string',
     },
+    isAutoplay: {
+      defaultValue: false,
+      description: `자동 재생 기능을 사용할지 여부입니다.`,
+      type: 'boolean',
+    },
   },
   args: {
     title: '',
@@ -174,7 +179,7 @@ const meta = {
     width: undefined,
     height: undefined,
     isPlay: false,
-    setIsPlay: () => {},
+    isAutoplay: false,
     onBack: () => {
       console.log('onBack');
     },

@@ -91,6 +91,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setDuration = usePlayerStore((state) => state.setDuration);
   const setPlayed = usePlayerStore((state) => state.setPlayed);
   const volume = usePlayerStore((state) => state.volume);
+  const isMute = usePlayerStore((state) => state.isMute);
 
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView);
   const setMultiViewSources = useMultiViewStore(
@@ -166,7 +167,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
         liveTracker: isLive,
-        autoplay: false,
+        autoplay: props.isAutoplay ?? false,
+        muted: false,
         enableSmoothSeeking: true,
         playsinline: true,
         controls: false,
@@ -374,7 +376,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         type: 'application/x-mpegurl'
       });
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl]); // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay]); // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current;
@@ -409,6 +411,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       playerRef.current.volume(volume);
     }
   }, [volume]);
+
+  useEffect(() => {
+    if (!playerRef.current) return;
+    playerRef.current.muted(isMute);
+  }, [isMute]);
 
   // Video.js는 기본적으로 PIP를 직접 지원하지 않으므로,
   // 필요하다면 별도 플러그인을 사용하거나 브라우저 Picture-in-Picture API를 래핑해야 함.
@@ -532,7 +539,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.0","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.1","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -542,7 +549,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   const handleOnPlay = () => {
     console.log('onPlay (video.js)');
-    setIsReady(true);
+    setIsPlay(true);
   };
 
   const handleOnTimeUpdate = () => {

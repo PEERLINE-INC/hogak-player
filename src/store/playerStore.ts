@@ -19,6 +19,8 @@ interface PlayerState {
   setDuration: (duration: number) => void;
   played: number;
   setPlayed: (played: number) => void;
+  isMute: boolean;
+  setIsMute: (isMute: boolean) => void;
   volume: number;
   setVolume: (volume: number) => void;
   speed: number;
@@ -77,6 +79,8 @@ const usePlayerStore = create<PlayerState>()(
     setPlayed: (played: number) => set({ played }),
     volume: 1.0,
     setVolume: (volume: number) => set({ volume }),
+    isMute: false,
+    setIsMute: (isMute: boolean) => set({ isMute }),
     isFullScreen: false,
     setIsFullScreen: (isFullScreen: boolean) => set({ isFullScreen }),
     isShowMultiView: false,
