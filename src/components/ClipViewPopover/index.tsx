@@ -109,7 +109,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     useEffect(() => {
         if (isShow) {
             const clipEndPlayed = values[1] / duration;
-            console.log('played', { played, clipEndPlayed });
+            // console.log('played', { played, clipEndPlayed });
             if (played >= clipEndPlayed) {
                 setIsPlay(false);
             }

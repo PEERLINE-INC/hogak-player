@@ -135,6 +135,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setAtLive = useLiveStore((state) => state.setAtLive);
   const pendingSeek = useMultiViewStore((state) => state.pendingSeek);
 
+  const offsetStart = usePlayerStore((state) => state.offsetStart);
+  const setOffsetStart = usePlayerStore((state) => state.setOffsetStart);
+  const offsetEnd = usePlayerStore((state) => state.offsetEnd);
+  const setOffsetEnd = usePlayerStore((state) => state.setOffsetEnd);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -352,12 +357,17 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       
 
     } else {
+      // url 변경할 때 로드 이벤트 처리
       playerRef.current.one('loadedmetadata', () => {
         console.log('loadedmetadata');
         if (!playerRef.current) return;
 
         if (pendingSeek) {
           playerRef.current.currentTime(pendingSeek);
+        } else {
+          if (offsetStart > 0) {
+            playerRef.current.currentTime(offsetStart);
+          }
         }
         
         const playPromise = playerRef.current.play();
@@ -524,6 +534,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     setIsDisableMultiView(props.disableMultiView ?? false);
   }, [props.disableClip, props.disableTag, props.disableMultiView]);
 
+  useEffect(() => {
+    setOffsetStart(props.offsetStart ?? 0);
+  }, [props.offsetStart]);
+
+  useEffect(() => { 
+    setOffsetEnd(props.offsetEnd ?? 0);
+  }, [props.offsetEnd]);
+
   /**
    * ----------------------------------------------------------------
    * 5. Video.js 이벤트 핸들러들
@@ -539,17 +557,30 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.1","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.3","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
     console.log('onReady (video.js)');
+    console.log('offsetStart', offsetStart);
+    if (offsetStart > 0) {
+      if (!playerRef.current) return;
+      playerRef.current.currentTime(offsetStart);
+    }
     setIsReady(true);
   };
 
   const handleOnPlay = () => {
     console.log('onPlay (video.js)');
     setIsPlay(true);
+
+    // 오프셋 초과 시, 영상 중단
+    if (!playerRef.current) return;
+    let current = playerRef.current.currentTime() ?? 0;
+    console.log('handleOnPlay', current, duration);
+    if (current > duration) {
+      setIsPlay(false);
+    }
   };
 
   const handleOnTimeUpdate = () => {
@@ -566,8 +597,19 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       setAtLive(atLive);
     } else {
       // played = (현재시간 / 전체길이)
-      const current = playerRef.current.currentTime() ?? 0;
-      const duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
+      let current = playerRef.current.currentTime() ?? 0;
+      if (offsetStart > 0) {
+        current = current - offsetStart;
+      }
+      let duration = playerRef.current.duration() ?? 1; // 0일 경우 대비
+      if (offsetEnd > 0) {
+        duration = offsetEnd - offsetStart;
+        // 오프셋 초과 시, 영상 중단
+        if (current > duration) {
+          setIsPlay(false);
+        }
+      }
+      
       const playedFraction = current / duration;
       // console.log('handleOnTimeUpdate (video.js)', playedFraction);
       setPlayed(playedFraction);
@@ -581,7 +623,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   const handleOnDuration = () => {
     if (!playerRef.current) return;
-    const duration = playerRef.current.duration() || 0;
+    let duration = playerRef.current.duration() || 0;
+    if (offsetEnd > 0) {
+      duration = offsetEnd - offsetStart;
+    }
     console.log('onDuration (video.js)', duration);
     setDuration(duration);
   };
@@ -608,9 +653,20 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       if (value < 0 || value > 1) {
         throw new Error('Invalid seek value');
       }
-      playerRef.current.currentTime(duration * value);
+      let time = duration * value;
+      if (offsetStart > 0) {
+        time = time + offsetStart;
+      }
+      playerRef.current.currentTime(time);
     } else {
       // seconds
+      if (value > duration + offsetStart) {
+        value = duration + offsetStart;
+      } else {
+        if (offsetStart > 0 && offsetStart > value) {
+          value = offsetStart;
+        }
+      }
       playerRef.current.currentTime(value);
     }
   };

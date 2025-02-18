@@ -55,6 +55,10 @@ interface PlayerState {
   setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => void;
   scoreBoardOverlayUrl: string;
   setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => void;
+  offsetStart: number;
+  setOffsetStart: (offsetStart: number) => void;
+  offsetEnd: number;
+  setOffsetEnd: (offsetEnd: number) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -113,6 +117,10 @@ const usePlayerStore = create<PlayerState>()(
     setEnableScoreBoardOverlay: (enableScoreBoardOverlay: boolean) => set({ enableScoreBoardOverlay }),
     scoreBoardOverlayUrl: '',
     setScoreBoardOverlayUrl: (scoreBoardOverlayUrl: string) => set({ scoreBoardOverlayUrl }),
+    offsetStart: 0,
+    setOffsetStart: (offsetStart: number) => set({ offsetStart }),
+    offsetEnd: 0,
+    setOffsetEnd: (offsetEnd: number) => set({ offsetEnd }),
   }),
 )
 

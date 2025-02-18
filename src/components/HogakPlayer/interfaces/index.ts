@@ -65,4 +65,8 @@ export type HogakPlayerProps = {
   // 오버레이
   enableScoreBoardOverlay?: boolean;
   scoreBoardOverlayUrl?: string;
+
+  // 오프셋
+  offsetStart?: number;
+  offsetEnd?: number;
 }

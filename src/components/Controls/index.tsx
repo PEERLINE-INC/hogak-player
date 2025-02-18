@@ -88,6 +88,10 @@ export function Controls(props: ControlsProps) {
   // 자동 숨김 타이머를 제어하기 위한 ref
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const getCurrentTime = () => {
+    return isSeek ? duration * timeSliderValue / 100 : duration * played;
+  };
+
   useEffect(() => {
     const checkPointerType = () => {
       if (window.matchMedia("(pointer: coarse)").matches) {
@@ -103,6 +107,11 @@ export function Controls(props: ControlsProps) {
       window.removeEventListener("resize", checkPointerType);
     };
   }, []);
+
+  useEffect(() => {
+    if (isSeek) return;
+    setTimeSliderValue(played * 100);
+  }, [played]);
 
   // === 자동 숨김 타이머 설정 로직 ===
   // isOverlayVisible가 true일 때 일정 시간(예: 3초) 후 자동으로 숨김
@@ -397,7 +406,7 @@ export function Controls(props: ControlsProps) {
                 </LiveContainer>
               ) : (
                 <>
-                  <PlayTime seconds={isSeek ? duration * timeSliderValue / 100 : duration * played} />
+                  <PlayTime seconds={getCurrentTime()} />
                   <span style={{ color: 'white', fontSize: '1.4em', paddingLeft: '0.5em', paddingRight: '0.5em' }}> / </span>
                   <PlayTime seconds={duration} />
                 </>

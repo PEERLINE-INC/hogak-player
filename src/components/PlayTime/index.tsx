@@ -1,3 +1,4 @@
+
 interface HogakPlayerPlayTimeProps {
   seconds: number;
 }

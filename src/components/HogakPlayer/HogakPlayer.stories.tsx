@@ -170,6 +170,16 @@ const meta = {
       description: `자동 재생 기능을 사용할지 여부입니다.`,
       type: 'boolean',
     },
+    offsetStart: {
+      defaultValue: 0,
+      description: `영상의 길이와 관계 없이 해당 시간부터 시작합니다.`,
+      type: 'number',
+    },
+    offsetEnd: {  
+      defaultValue: 0,
+      description: `영상의 길이와 관계 없이 해당 시간까지만 재생합니다.`,
+      type: 'number',
+    },
   },
   args: {
     title: '',
@@ -331,6 +341,8 @@ const meta = {
     prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
     enableScoreBoardOverlay: true,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
+    offsetStart: 10,
+    offsetEnd: 60,
   },
 } satisfies Meta<typeof HogakPlayer>
 
