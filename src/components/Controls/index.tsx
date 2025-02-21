@@ -11,6 +11,7 @@ import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import FullScreenIcon from "../../assets/icons/icon_zoom.svg?react";
 import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
 import RedMarkerIcon from "../../assets/icons/mark_red.svg?react";
+import AirPlayIcon from "../../assets/icons/icon_airplay.svg?react";
 import usePlayerStore from '../../store/playerStore';
 import { PlayTime } from '../PlayTime';
 import './styles.css';
@@ -25,9 +26,17 @@ import Player from 'video.js/dist/types/player';
 import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
 import useLiveStore from '../../store/liveStore';
 import useAdStore from '../../store/adStore';
+import useQualityStore from '../../store/qualityStore';
+import { isSafari } from '../../util/common';
 
 interface ControlsProps {
   playerRef: React.RefObject<Player | null>;
+  airplayRef: React.RefObject<{
+    start: () => void;
+  } | null>;
+  chromecastRef: React.RefObject<{
+    start: () => void;
+  } | null>;
   onBack?: () => void;
   onClickTagButton?: () => void;
   seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
@@ -37,6 +46,8 @@ interface ControlsProps {
 export function Controls(props: ControlsProps) {
   const {
     playerRef,
+    airplayRef,
+    chromecastRef,
     onBack,
     onClickTagButton,
     seekTo,
@@ -87,6 +98,10 @@ export function Controls(props: ControlsProps) {
   const setSkipDirection = usePlayerStore((state) => state.setSkipDirection);
   // 자동 숨김 타이머를 제어하기 위한 ref
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Quality
+  const qualityLevels = useQualityStore((state) => state.qualityLevels);
+  const currentQuality = useQualityStore((state) => state.currentQuality);
 
   const getCurrentTime = () => {
     return isSeek ? duration * timeSliderValue / 100 : duration * played;
@@ -269,7 +284,39 @@ export function Controls(props: ControlsProps) {
     }
 
     onClickTagButton?.();
-  }
+  };
+
+  const handleChangeQuality = (option: any) => {
+    console.log('handleChangeQuality', option);
+    if (isSafari()) {
+      return;
+    }
+    const quality = option.value;
+    // @ts-ignore
+    const qualityList = playerRef.current?.qualityLevels();
+    for (let i = 0; i < qualityList.length; ++i) {
+      const { height } = qualityList[i];
+      qualityList[i].enabled = (height === quality);
+    }    
+  };
+
+  const handleClickScreencast = () => {
+    if (chromecastRef.current) {
+      chromecastRef.current.start();
+    }
+  };
+  
+  const handleClickAirplay = () => {
+    if (airplayRef.current) {
+      airplayRef.current.start();
+    }
+  };
+
+  const isSupportAirplay = () => {
+    // @ts-ignore
+    return !!window.WebKitPlaybackTargetAvailabilityEvent;
+  };
+  const isShowScreencastButton = isSupportAirplay();
 
   return (
     <ControlsWrapper
@@ -308,9 +355,12 @@ export function Controls(props: ControlsProps) {
             {!isFullScreen && !isDisableTag && <IconButton className='tag_btn' onClick={handleClickTag}>
               <TagViewIcon />
             </IconButton>}
-            <IconButton className='screencast_btn'>
+            <IconButton className='screencast_btn' onClick={handleClickScreencast}>
               <ScreenCastIcon />
             </IconButton>
+            {isShowScreencastButton && <IconButton className='airplay_btn' onClick={handleClickAirplay}>
+              <AirPlayIcon />
+            </IconButton>}
             { multiViewSources.length && !isDisableMultiView && <IconButton onClick={() => setIsShowMultiView(true)} className='multiview_btn'>
               <MultiViewIcon/>
             </IconButton>}
@@ -438,16 +488,16 @@ export function Controls(props: ControlsProps) {
                 disabled={isPlayAd}
               />
               <Dropdown 
-                onChangeValue={(option) => console.log(option)} 
-                options={[
-                  {label: '1080p', tag: 'HD', value: 1080}, 
-                  {label: '720p', value: 720},
-                  {label: '480p', value: 480}, 
-                  {label: '360p', value: 360}, 
-                  {label: '240p', value: 240}, 
-                  {label: '144p', value: 144}
-                ]} 
-                defaultValue={720}
+                onChangeValue={(option) => handleChangeQuality(option)} 
+                options={isSafari() ? [
+                  {value: 720, label: '720p'},
+                  {value: 1080, label: '1080p', tag: 'HD'},
+                ] : qualityLevels.map((level) => ({
+                  value: level.height,
+                  label: `${level.height}p`,
+                  tag: level.height >= 1080 ? 'HD' : '',
+                }))} 
+                defaultValue={currentQuality}
                 disabled={isPlayAd}
               />
               <FlexRow>
@@ -576,6 +626,10 @@ const IconButton = styled.div`
     width: 1.7em;
     height: 1.5em;
   }
+  &.airplay_btn {
+    width: 2.1em;
+    height: 1.9em;
+  }
   &.multiview_btn {
     width: 2em;
     height: 1.5em;
@@ -609,12 +663,12 @@ const IconButton = styled.div`
     height: 1.7em;
   }
   &.volume_control_btn {
-    width: 2.2em;
-    height: 2.2em;
+    width: 1.8em;
+    height: 1.8em;
   }
   &.full_screen_btn {
-    width: 1.7em;
-    height: 1.8em;
+    width: 1.4em;
+    height: 1.5em;
   }
 
 
@@ -638,9 +692,9 @@ const IconButton = styled.div`
   /* iphone 12 Pro Max */
   @media screen and (min-width: 428px){font-size:11.8889px;}
   @media screen and (min-width: 432px){font-size:12px;}
-  @media screen and (min-width: 468px){font-size:13px;}
-  @media screen and (min-width: 504px){font-size:14px;}
-  @media screen and (min-width: 540px){font-size:15px;} 
+  @media screen and (min-width: 468px){font-size:12.4px;}
+  @media screen and (min-width: 504px){font-size:12.6px;}
+  @media screen and (min-width: 540px){font-size:12.8px;} 
 `;
 
 const SliderContainer = styled.div`
@@ -672,9 +726,9 @@ const FlexRow = styled.div<{ gap?: number }>`
         /* iphone 12 Pro Max */
         @media screen and (min-width: 428px){font-size:11.8889px;}
         @media screen and (min-width: 432px){font-size:12px;}
-        @media screen and (min-width: 468px){font-size:13px;}
-        @media screen and (min-width: 504px){font-size:14px;}
-        @media screen and (min-width: 540px){font-size:15px;} 
+        @media screen and (min-width: 468px){font-size:12.4px;}
+        @media screen and (min-width: 504px){font-size:12.6px;}
+        @media screen and (min-width: 540px){font-size:12.8px;} 
     }
 `;
 
@@ -693,9 +747,9 @@ const FlexCol = styled.div<{ gap?: number }>`
         /* iphone 12 Pro Max */
         @media screen and (min-width: 428px){font-size:11.8889px;}
         @media screen and (min-width: 432px){font-size:12px;}
-        @media screen and (min-width: 468px){font-size:13px;}
-        @media screen and (min-width: 504px){font-size:14px;}
-        @media screen and (min-width: 540px){font-size:15px;} 
+        @media screen and (min-width: 468px){font-size:12.4px;}
+        @media screen and (min-width: 504px){font-size:12.6px;}
+        @media screen and (min-width: 540px){font-size:12.8px;} 
     }
 `;
 

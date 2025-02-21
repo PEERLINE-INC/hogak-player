@@ -184,7 +184,7 @@ const meta = {
   args: {
     title: '',
     isLive: false,
-    url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+    url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
     // url: 'https://d258gifgiy8x7f.cloudfront.net/3b288404b399ad46a4cf019a61f08071/0_hd_hls.m3u8?hlsid=HTTP_ID_1',
     width: undefined,
     height: undefined,
@@ -341,8 +341,8 @@ const meta = {
     prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
     enableScoreBoardOverlay: true,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
-    offsetStart: 10,
-    offsetEnd: 60,
+    offsetStart: 0,
+    offsetEnd: 0,
   },
 } satisfies Meta<typeof HogakPlayer>
 

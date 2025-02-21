@@ -88,7 +88,7 @@ const DropdownButton = styled.button`
   color: #fff;
   cursor: pointer;
   text-align: center;
-  font-size: 1.4em;
+  font-size: 1.2em;
   line-height: 1.6em;
   white-space: nowrap;
 `;
@@ -119,8 +119,8 @@ const DropdownList = styled.ul<{ isOpen: boolean }>`
 
 const DropdownItem = styled.li<{ isActive: boolean }>`
   padding: 0.2em 0.4em;
-  font-size: 1.2em;
-  line-height: 1.2em;
+  font-size: 1em;
+  line-height: 1em;
   cursor: pointer;
   text-align: center;
   background-color: ${(props) => (props.isActive ? "#fff" : "transparent")};

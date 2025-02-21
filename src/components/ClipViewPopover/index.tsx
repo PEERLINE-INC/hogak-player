@@ -337,9 +337,9 @@ const FlexRow = styled.div<{ gap?: number }>`
             /* iphone 12 Pro Max */
             @media screen and (min-width: 428px){font-size:11.8889px;}
             @media screen and (min-width: 432px){font-size:12px;}
-            @media screen and (min-width: 468px){font-size:13px;}
-            @media screen and (min-width: 504px){font-size:14px;}
-            @media screen and (min-width: 540px){font-size:15px;} 
+            @media screen and (min-width: 468px){font-size:12.4px;}
+            @media screen and (min-width: 504px){font-size:12.6px;}
+            @media screen and (min-width: 540px){font-size:12.8px;} 
         }
 `;
 
@@ -358,9 +358,9 @@ const FlexCol = styled.div<{ gap?: number }>`
             /* iphone 12 Pro Max */
             @media screen and (min-width: 428px){font-size:11.8889px;}
             @media screen and (min-width: 432px){font-size:12px;}
-            @media screen and (min-width: 468px){font-size:13px;}
-            @media screen and (min-width: 504px){font-size:14px;}
-            @media screen and (min-width: 540px){font-size:15px;} 
+            @media screen and (min-width: 468px){font-size:12.4px;}
+            @media screen and (min-width: 504px){font-size:12.6px;}
+            @media screen and (min-width: 540px){font-size:12.8px;} 
         }
 `;
 

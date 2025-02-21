@@ -8,6 +8,9 @@ import videojs from 'video.js';
 import 'videojs-contrib-ads';
 import 'videojs-overlay';
 import 'video.js/dist/video-js.css';
+// @ts-ignore
+import chromecast from "@silvermine/videojs-chromecast";
+import "@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css";
 import styled, { createGlobalStyle } from 'styled-components';
 import './font.css';
 
@@ -36,6 +39,8 @@ import '@theonlyducks/videojs-zoom/styles';
 import { TagSaveViewPopover } from '../TagSaveViewPopover';
 import useLiveStore from '../../store/liveStore';
 import usePinch from '../../hooks/usePinch';
+import useQualityStore from '../../store/qualityStore';
+import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -140,6 +145,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const offsetEnd = usePlayerStore((state) => state.offsetEnd);
   const setOffsetEnd = usePlayerStore((state) => state.setOffsetEnd);
 
+  // Quality
+  const setQualityLevels = useQualityStore((state) => state.setQualityLevels);
+  const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -147,6 +156,22 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickClipSave = props.onClickClipSave ?? (() => {});
   const onClickTagSave = props.onClickTagSave ?? (() => {});
   const onClickTagCancel = props.onClickTagCancel ?? (() => {});
+
+  const isSupportAirplay = () => {
+    // @ts-ignore
+    return !!window.WebKitPlaybackTargetAvailabilityEvent;
+  };
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   /**
    * ----------------------------------------------------------------
@@ -156,6 +181,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<Player | null>(null);
+  const airplayRef = useRef<{
+    start: () => void;
+  } | null>(null);
+  const chromecastRef = useRef<{
+    start: () => void;
+  } | null>(null);
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null);
   const zoomPluginRef = useRef<any>(null);
@@ -168,9 +199,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js');
       videoRef.current?.appendChild(videoElement);
-      
+
+      // 플러그인 선언
+      chromecast(videojs);
+
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
+        techOrder: ['chromecast', 'html5'],
         liveTracker: isLive,
         autoplay: props.isAutoplay ?? false,
         muted: false,
@@ -181,10 +216,67 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         sources: [{
           src: url,
           type: 'application/x-mpegurl'
-        }]
+        }],
+        html5: {
+          vhs: {
+            overrideNative: true,
+          },
+        },
+        chromecast: {
+          modifyLoadRequestFn: function (loadRequest: any) { // HLS support
+            loadRequest.media.hlsSegmentFormat = 'ts';
+            loadRequest.media.hlsVideoSegmentFormat = 'ts';
+            return loadRequest;
+          }
+        },
+        plugins: {
+          chromecast: {
+            addButtonToControlBar: true,
+          }
+        },
       });
+      setTimeout(() => {
+        // @ts-ignore
+        player.chromecast();
+      }, 3000);
+      chromecastRef.current = {
+        start: () => {
+          console.log('chromecastRef');
+          player.trigger('chromecastRequested');
+        },
+      };
 
       playerRef.current = player;
+
+      // Quality 플러그인
+      // @ts-ignore
+      let qualityLevels = player.qualityLevels();
+      qualityLevels.on('change', function() {
+        // console.log('New level:', qualityLevels[qualityLevels.selectedIndex].height);
+        setCurrentQuality(qualityLevels[qualityLevels.selectedIndex].height);
+      });
+      qualityLevels.on('addqualitylevel', (event: any) => {
+        const newLevel = event.qualityLevel;
+        // console.log('New QualityLevel', newLevel);
+        if (newLevel.height >= 1080) {
+          newLevel.enabled = true;
+        } else {
+          newLevel.enabled = false;
+        }
+
+        // zustand 상태에 추가할 때, 중복 height가 있는지 검사 후 추가
+        setQualityLevels((prev: QualityLevel[]) => {
+          // 이미 해당 height가 있으면 그대로 반환(중복 추가 방지)
+          if (prev.some((lvl: QualityLevel) => lvl.height === newLevel.height)) {
+            return prev;
+          }
+          // 그렇지 않다면 새 배열로 반환
+          return [
+            ...prev,
+            newLevel,
+          ];
+        });
+      });
 
       // 광고 활성화 로직
       if (enablePrerollAd) {
@@ -236,11 +328,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       zoomPluginRef.current = zoomPlugin;
 
       // 이벤트 리스너 등록
+      player.on('loadedmetadata', handleOnDuration);
       player.on('ready', handleOnReady);
       player.on('play', handleOnPlay);
       player.on('timeupdate', handleOnTimeUpdate);
       player.on('ended', handleOnEnded);
-      player.on('loadedmetadata', handleOnDuration);
       player.on('error', handleOnError);
       if (isLive) {
         // @ts-ignore
@@ -315,26 +407,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           if (!iframe) return;
           iframe.style.width = "100%";
           iframe.style.height = "100%";
-          // iframe.style.transform = "scale(0.75)";
-          // iframe.style.transformOrigin = "bottom right";
-
-          // const container = document.getElementById("container");
-          // if (!container) return;
-          // const width = window.innerWidth;
-          // const height = window.innerHeight;
-
-          // if (width > height) {
-          //   console.log("가로 모드");
-          //   // 가로 모드일 때
-          //   container.style.width = "100%";
-          //   container.style.height = "100%";
-          // } else {
-          //   console.log("세로 모드");
-          //   // 세로 모드일 때
-          //   container.style.width = "100%";
-          //   container.style.height = "100%";
-          //   // container.style.height = width * 0.5625 + "px";
-          // }
         }
 
         // 초기 크기 설정
@@ -344,7 +416,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         window.addEventListener("resize", adjustContainerSize);
       }
       
-
       // // 오버레이 플러그인 초기화
       //   // @ts-ignore
       // const overlay = player.overlay({
@@ -355,7 +426,25 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       //   showBackground: false,
       // });
       
+      // airplay 이벤트
+      if (isSupportAirplay()) {
+        airplayRef.current = {
+          start: () => {
+            console.log('airplayRef');
+            player.trigger('airPlayRequested');
+          },
+        };
 
+        player.on('airPlayRequested', () => {
+          console.log('airPlayRequested');
+          const mediaEl = player.el().querySelector('video, audio');
+          // @ts-ignore
+          if (mediaEl && mediaEl.webkitShowPlaybackTargetPicker) {
+            // @ts-ignore
+            mediaEl.webkitShowPlaybackTargetPicker();
+          }
+        });
+      }
     } else {
       // url 변경할 때 로드 이벤트 처리
       playerRef.current.one('loadedmetadata', () => {
@@ -557,7 +646,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.3","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.4","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -577,8 +666,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     // 오프셋 초과 시, 영상 중단
     if (!playerRef.current) return;
     let current = playerRef.current.currentTime() ?? 0;
-    console.log('handleOnPlay', current, duration);
-    if (current > duration) {
+    let currentDuration = usePlayerStore.getState().duration;
+    console.log('handleOnPlay', current, currentDuration);
+    if (current > currentDuration) {
       setIsPlay(false);
     }
   };
@@ -774,7 +864,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           }
           <TagSaveViewPopover isShow={isShowTagSaveView} onCancel={onClickTagCancel} onSave={onClickTagSave} />
           <TagViewPopover isShow={isShowTagView} onAddTagClick={props.onClickAddTag} />
-          <Controls playerRef={playerRef} seekTo={seekTo} seekToLive={seekToLive} onBack={onBack} onClickTagButton={onClickTagButton} />
+          <Controls playerRef={playerRef} seekTo={seekTo} seekToLive={seekToLive} onBack={onBack} onClickTagButton={onClickTagButton} airplayRef={airplayRef} chromecastRef={chromecastRef} />
           <ClipViewPopover
             seekTo={seekTo}
             onChangeClipDuration={onChangeClipDuration}
