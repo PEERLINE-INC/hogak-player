@@ -41,7 +41,7 @@ import useLiveStore from '../../store/liveStore';
 import usePinch from '../../hooks/usePinch';
 import useQualityStore from '../../store/qualityStore';
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
-import { isSafari } from '../../util/common';
+import { isSafari, isSupportAirplay } from '../../util/common';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -158,11 +158,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickTagSave = props.onClickTagSave ?? (() => {});
   const onClickTagCancel = props.onClickTagCancel ?? (() => {});
   const onPlayCallback = props.onPlay ?? (() => {});
-
-  const isSupportAirplay = () => {
-    // @ts-ignore
-    return !!window.WebKitPlaybackTargetAvailabilityEvent;
-  };
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -343,56 +338,56 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange);
       }
 
-      if (enableScoreBoardOverlay) {
-        // 오버레이 플러그인 선언
-        videojs.registerPlugin("addUrlOverlay", function (options: any) {
-          // 기본 옵션 설정
-          options = videojs.mergeOptions(
-            {
-              url: "",
-              opacity: 0.8,
-            },
-            options
-          );
+      // 오버레이 플러그인 선언
+      videojs.registerPlugin("addUrlOverlay", function (options: any) {
+        // 기본 옵션 설정
+        options = videojs.mergeOptions(
+          {
+            url: "",
+            opacity: 0.8,
+          },
+          options
+        );
 
-          // 오버레이 요소 생성
-          var overlayElement = document.createElement("div");
-          overlayElement.id = "vjs-overlay-iframe";
-          overlayElement.className = "vjs-url-overlay";
-          overlayElement.style.position = "absolute";
-          overlayElement.style.top = "0";
-          overlayElement.style.left = "0";
-          overlayElement.style.width = "100%";
-          overlayElement.style.height = "100%";
-          // overlayElement.style.pointerEvents = "none";
+        // 오버레이 요소 생성
+        var overlayElement = document.createElement("div");
+        overlayElement.id = "vjs-overlay-iframe";
+        overlayElement.className = "vjs-url-overlay";
+        overlayElement.style.position = "absolute";
+        overlayElement.style.top = "0";
+        overlayElement.style.left = "0";
+        overlayElement.style.width = "100%";
+        overlayElement.style.height = "100%";
+        // overlayElement.style.pointerEvents = "none";
 
-          // iframe 추가
-          var iframe = document.createElement("iframe");
-          iframe.src = options.url;
-          iframe.style.width = "100%";
-          iframe.style.height = "100%";
-          iframe.style.border = "none";
-          iframe.style.opacity = options.opacity;
+        // iframe 추가
+        var iframe = document.createElement("iframe");
+        iframe.src = options.url;
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.style.opacity = options.opacity;
 
-          overlayElement.appendChild(iframe);
+        overlayElement.appendChild(iframe);
 
-          // 비디오 컨테이너에 오버레이 추가
-          player.el().appendChild(overlayElement);
+        // 비디오 컨테이너에 오버레이 추가
+        player.el().appendChild(overlayElement);
 
-          // 비디오 플레이어의 이벤트 처리
-          player.on("play", function () {
-            overlayElement.style.display = "block";
-          });
-
-          player.on("pause", function () {
-            overlayElement.style.display = "block";
-          });
-
-          player.on("ended", function () {
-            overlayElement.style.display = "none";
-          });
+        // 비디오 플레이어의 이벤트 처리
+        player.on("play", function () {
+          overlayElement.style.display = "block";
         });
 
+        player.on("pause", function () {
+          overlayElement.style.display = "block";
+        });
+
+        player.on("ended", function () {
+          overlayElement.style.display = "none";
+        });
+      });
+
+      if (enableScoreBoardOverlay) {
         // 오버레이 플러그인 사용
         if (scoreBoardOverlayUrl) {
           // @ts-ignore
@@ -532,6 +527,28 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     if (!playerRef.current) return;
     playerRef.current.playbackRate(speed);
   }, [speed]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+  
+    if (!enableScoreBoardOverlay) {
+      // overlay 비활성화: overlay 요소가 존재하면 제거
+      const overlayElement = player.el().querySelector('#vjs-overlay-iframe');
+      if (overlayElement && overlayElement.parentElement) {
+        overlayElement.parentElement.removeChild(overlayElement);
+      }
+    } else {
+      // overlay 활성화: scoreBoardOverlayUrl이 존재하고, overlay 요소가 없으면 추가
+      if (scoreBoardOverlayUrl && !player.el().querySelector('#vjs-overlay-iframe')) {
+        // @ts-ignore
+        player.addUrlOverlay({
+          url: scoreBoardOverlayUrl,
+          opacity: 0.8,
+        });
+      }
+    }
+  }, [enableScoreBoardOverlay, scoreBoardOverlayUrl]);
 
   /**
    * ----------------------------------------------------------------

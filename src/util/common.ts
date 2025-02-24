@@ -5,3 +5,8 @@ export function isSafari() {
 
     return isSafari;
 };
+
+export function isSupportAirplay() {
+    // @ts-ignore
+    return !!window.WebKitPlaybackTargetAvailabilityEvent;
+};

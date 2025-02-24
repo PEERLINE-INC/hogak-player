@@ -27,7 +27,7 @@ import Dropdown from '../Dropdown'; /* 250113 드롭다운 추가 */
 import useLiveStore from '../../store/liveStore';
 import useAdStore from '../../store/adStore';
 import useQualityStore from '../../store/qualityStore';
-import { isSafari } from '../../util/common';
+import { isSafari, isSupportAirplay } from '../../util/common';
 
 interface ControlsProps {
   playerRef: React.RefObject<Player | null>;
@@ -312,10 +312,6 @@ export function Controls(props: ControlsProps) {
     }
   };
 
-  const isSupportAirplay = () => {
-    // @ts-ignore
-    return !!window.WebKitPlaybackTargetAvailabilityEvent;
-  };
   const isShowScreencastButton = isSupportAirplay();
 
   return (
