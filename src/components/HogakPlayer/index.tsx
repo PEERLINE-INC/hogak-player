@@ -41,6 +41,7 @@ import useLiveStore from '../../store/liveStore';
 import usePinch from '../../hooks/usePinch';
 import useQualityStore from '../../store/qualityStore';
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
+import { isSafari } from '../../util/common';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -156,6 +157,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickClipSave = props.onClickClipSave ?? (() => {});
   const onClickTagSave = props.onClickTagSave ?? (() => {});
   const onClickTagCancel = props.onClickTagCancel ?? (() => {});
+  const onPlayCallback = props.onPlay ?? (() => {});
 
   const isSupportAirplay = () => {
     // @ts-ignore
@@ -219,7 +221,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         }],
         html5: {
           vhs: {
-            overrideNative: true,
+            overrideNative: !isSafari(),
           },
         },
         chromecast: {
@@ -646,7 +648,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.4","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.6","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
@@ -669,6 +671,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     let currentDuration = usePlayerStore.getState().duration;
     console.log('handleOnPlay', current, currentDuration);
     if (current > currentDuration) {
+      setIsPlay(false);
+    }
+
+    // 외부 콜백 호출
+    // onPlayCallback 호출 및 반환값 확인
+    const result = onPlayCallback?.();
+    if (result === false) {
       setIsPlay(false);
     }
   };

@@ -155,6 +155,10 @@ const meta = {
       description: `태그 취소 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickTagCancel',
     },
+    onPlay: {
+      description: `재생 시 호출되는 콜백입니다. false를 반환하면 재생이 중단됩니다.`,
+      action: 'onPlay',
+    },
     enablePrerollAd: {
       defaultValue: false,
       description: `프리롤 광고 기능을 사용할지 여부입니다.`,
@@ -214,6 +218,10 @@ const meta = {
     },
     onClickTagCancel: () => {
       console.log('onClickTagCancel');
+    },
+    onPlay: () => {
+      console.log('onPlay');
+      return true;
     },
     multiViewSources: [
       {

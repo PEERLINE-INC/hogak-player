@@ -54,6 +54,7 @@ export type HogakPlayerProps = {
   onClickClipSave?: () => void;
   onClickTagSave?: () => void;
   onClickTagCancel?: () => void;
+  onPlay?: () => void | boolean;
 
   disableClip?: boolean;
   disableTag?: boolean;
