@@ -364,8 +364,13 @@ export function Controls(props: ControlsProps) {
         </TopContainer>
         
         <MiddleContainer className='controls-wrapper'>
-          <PlayBtnContainer>
-            <FlexRow>
+          {/* 250225 좌우 버튼 추가 */}
+          <PlayBtnContainer style={{width: '100%'}}>
+            <FlexRow style={{justifyContent: 'center'}}>
+              <IconButton style={{marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em'}}>
+                <ArrowLeftIcon width={'100%'} height={'100%'}/>
+              </IconButton>
+              
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
               <IconButton 
                 onClick={isPlayAd ? undefined : () => setIsPlay(!isPlay)} 
@@ -373,6 +378,10 @@ export function Controls(props: ControlsProps) {
                 style={{ opacity: isPlayAd ? 0.5 : 1 }}
               >
                 {isPlay ? <PauseIcon /> : <PlayIcon />}
+              </IconButton>
+
+              <IconButton style={{marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em'}}>
+                <ArrowLeftIcon width={'100%'} height={'100%'} style={{transform: 'rotate(180deg)'}}/>
               </IconButton>
             </FlexRow>
           </PlayBtnContainer>
