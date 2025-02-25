@@ -367,9 +367,9 @@ export function Controls(props: ControlsProps) {
           {/* 250225 좌우 버튼 추가 */}
           <PlayBtnContainer style={{width: '100%'}}>
             <FlexRow style={{justifyContent: 'center'}}>
-              <IconButton style={{marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em'}}>
+              {/* <IconButton style={{marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em'}}>
                 <ArrowLeftIcon width={'100%'} height={'100%'}/>
-              </IconButton>
+              </IconButton> */}
               
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
               <IconButton 
@@ -380,9 +380,9 @@ export function Controls(props: ControlsProps) {
                 {isPlay ? <PauseIcon /> : <PlayIcon />}
               </IconButton>
 
-              <IconButton style={{marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em'}}>
+              {/* <IconButton style={{marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em'}}>
                 <ArrowLeftIcon width={'100%'} height={'100%'} style={{transform: 'rotate(180deg)'}}/>
-              </IconButton>
+              </IconButton> */}
             </FlexRow>
           </PlayBtnContainer>
           {/* //241224 플레이 버튼 구조 변경 */}
@@ -597,18 +597,16 @@ const MiddleContainer = styled.div`
 
 const BottomContainer = styled.div<{ isFullScreen: boolean }>`
   display: flex;
-  justify-content: flex-end;
   flex-direction: column;
-  margin-bottom: 0;
+  justify-content: flex-end; 
+  margin-bottom: 0px !important;
 
-  /* iOS Safari 전용 스타일 */
-  @supports (-webkit-touch-callout: none) {
-    ${({ isFullScreen }) =>
-      isFullScreen &&
-      `
-      margin-bottom: 42px;
+  ${({ isFullScreen }) =>
+    isFullScreen &&
+    `
+      /* 안전 영역 */
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) / 2) !important;
     `}
-  }
 `;
 
 const IconButton = styled.div`

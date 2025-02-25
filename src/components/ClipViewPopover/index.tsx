@@ -94,6 +94,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         setMax(end);
         setValues([middleValue - 30, middleValue + 30]);
     }, [currentSeconds]);
+    
     useEffect(() => {
         if (isLive) return;
         console.log('useEffect', { currentSeconds, duration });
@@ -115,6 +116,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             }
         }
     }, [played]);
+
     useEffect(() => {
         if (isShow) {
             onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
@@ -143,6 +145,27 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
         onSave?.();
     };
+
+    // const images = [
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-3.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-4.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-5.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-6.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-7.jpg",
+    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
+    // ];
+    const images = [
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+        "https://picsum.photos/seed/picsum/200/300",
+    ];
 
     return (
         <PopoverContainer isShow={isShow} className="hogak-popover">
@@ -197,8 +220,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             <ClipRangeWrap isFullScreen={isFullScreen}>
                 <ClipRangeWrapper>{/* 241227 추가 */}
                     <ThumbnailTrack>
-                        {[...Array(8)].map((_, index) => (
-                            <Thumbnail key={index} url="https://picsum.photos/seed/picsum/200/300" />
+                        {images.map((image, index) => (
+                            <Thumbnail key={index} url={image} />
                         ))}
 
                         {/* 241227 구조변경 */}
