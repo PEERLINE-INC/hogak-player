@@ -10,6 +10,7 @@ import ReactSlider from "react-slider";
 import useClipStore from "../../store/clipViewStore";
 import './styles.css';
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface ClipViewPopoverProps {
     seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
@@ -53,6 +54,19 @@ function calculateClipRange(currentSeconds: number, duration: number) {
     return { start, end };
 };
 
+type ClipThumbnailApiResponse = {
+    result: {
+        code: number;
+        message: string;
+    };
+    thumbnailList: string[];
+    echo: {
+        eventID: string;
+        start: number;
+        end: number;
+    };
+};
+
 export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const {
         seekTo,
@@ -70,10 +84,37 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const isFullScreen = usePlayerStore((state) => state.isFullScreen);
     const currentSeconds = useClipStore((state) => state.currentSeconds);
     const isLive = usePlayerStore((state) => state.isLive);
+    const eventId = useClipStore((state) => state.eventId);
+    const clipApiHost = useClipStore((state) => state.clipApiHost);
 
     const [values, setValues] = useState<number[]>([0, 30]);
     const [min, setMin] = useState<number>(0);
     const [max, setMax] = useState<number>(180);
+    const [images, setImages] = useState<string[]>([]);
+
+    const fetchImages = async () => {
+        try {
+            if (!clipApiHost || !eventId) return;
+            const url = `${clipApiHost.endsWith('/') ? clipApiHost.slice(0, -1) : clipApiHost}/media/thumbnail/list`;
+            const response = await axios.post<ClipThumbnailApiResponse>(url, {
+                eventId,
+                start: min,
+                end: max,
+            });
+            const thumbnailList = response.data.thumbnailList;
+
+            // 이미지가 8개 이상이면 8개만 선택
+            const selectedThumbnailList = thumbnailList.slice(0, 8);
+            setImages(selectedThumbnailList);
+        } catch (e) {
+            console.error('클립 썸네일 조회 실패', e);
+        }
+    };
+
+    useEffect(() => {
+        if (!isShow) return;
+        fetchImages();
+    }, [min, max, isShow]);
 
     useEffect(() => {
         if (setValuesRef) {
@@ -94,7 +135,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         setMax(end);
         setValues([middleValue - 30, middleValue + 30]);
     }, [currentSeconds]);
-    
+
     useEffect(() => {
         if (isLive) return;
         console.log('useEffect', { currentSeconds, duration });
@@ -145,27 +186,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
         onSave?.();
     };
-
-    // const images = [
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-3.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-4.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-5.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-6.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-7.jpg",
-    //     "https://hogak-bucket.s3.ap-northeast-2.amazonaws.com/media/thumbnail/1000020/1000020-2.jpg",
-    // ];
-    const images = [
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-        "https://picsum.photos/seed/picsum/200/300",
-    ];
 
     return (
         <PopoverContainer isShow={isShow} className="hogak-popover">

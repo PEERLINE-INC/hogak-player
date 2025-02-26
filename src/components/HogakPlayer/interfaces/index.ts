@@ -70,4 +70,8 @@ export type HogakPlayerProps = {
   // 오프셋
   offsetStart?: number;
   offsetEnd?: number;
+
+  // 클립 썸네일
+  eventId?: string;
+  clipThumbnailApiHost?: string;
 }

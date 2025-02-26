@@ -146,6 +146,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const offsetEnd = usePlayerStore((state) => state.offsetEnd);
   const setOffsetEnd = usePlayerStore((state) => state.setOffsetEnd);
 
+  // 클립 썸네일
+  const setEventId = useClipStore((state) => state.setEventId);
+  const setClipApiHost = useClipStore((state) => state.setClipApiHost);
+
   // Quality
   const setQualityLevels = useQualityStore((state) => state.setQualityLevels);
   const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality);
@@ -650,6 +654,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     setOffsetEnd(props.offsetEnd ?? 0);
   }, [props.offsetEnd]);
 
+  useEffect(() => {
+    setEventId(props.eventId ?? '');
+  }, [props.eventId]);
+
+  useEffect(() => {
+    setClipApiHost(props.clipThumbnailApiHost ?? '');
+  }, [props.clipThumbnailApiHost]);
+
   /**
    * ----------------------------------------------------------------
    * 5. Video.js 이벤트 핸들러들
@@ -665,7 +677,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.7","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.8","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

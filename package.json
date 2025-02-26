@@ -1,6 +1,6 @@
 {
   "name": "@peerline/hogak-player",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "hogak player",
   "type": "module",
   "keywords": [
@@ -77,6 +77,7 @@
     "@radix-ui/react-slider": "^1.2.1",
     "@silvermine/videojs-chromecast": "^1.5.0",
     "@theonlyducks/videojs-zoom": "^1.3.5",
+    "axios": "^1.7.9",
     "react-player": "^2.16.0",
     "react-slider": "^2.0.6",
     "react-zoom-pan-pinch": "^3.6.1",
