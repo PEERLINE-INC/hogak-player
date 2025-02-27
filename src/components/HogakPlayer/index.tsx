@@ -151,6 +151,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setClipApiHost = useClipStore((state) => state.setClipApiHost);
 
   // Quality
+  const qualityLevelArr = useQualityStore((state) => state.qualityLevels);
   const setQualityLevels = useQualityStore((state) => state.setQualityLevels);
   const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality);
 
@@ -206,7 +207,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
-        techOrder: ['chromecast', 'html5'],
+        techOrder: ['html5', 'chromecast'],
         liveTracker: isLive,
         autoplay: props.isAutoplay ?? false,
         muted: false,
@@ -249,6 +250,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       playerRef.current = player;
 
+      // TEST
+      // @ts-ignore
+      console.log('isSafari', isSafari());
+      // TEST
+
       // Quality 플러그인
       // @ts-ignore
       let qualityLevels = player.qualityLevels();
@@ -258,11 +264,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       });
       qualityLevels.on('addqualitylevel', (event: any) => {
         const newLevel = event.qualityLevel;
-        // console.log('New QualityLevel', newLevel);
-        if (newLevel.height >= 1080) {
+        console.log('New QualityLevel', newLevel, qualityLevelArr);
+        // 첫 번째 퀄리티 레벨은 항상 활성화
+        if (qualityLevelArr.length === 0) {
           newLevel.enabled = true;
         } else {
-          newLevel.enabled = false;
+          if (newLevel.height >= 1080) {
+            newLevel.enabled = true;
+          } else {
+            newLevel.enabled = false;
+          }
         }
 
         // zustand 상태에 추가할 때, 중복 height가 있는지 검사 후 추가
@@ -470,10 +481,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         }
       });
 
-      // player가 이미 존재하면 source만 업데이트
-      playerRef.current.src({
-        src: url,
-        type: 'application/x-mpegurl'
+      playerRef.current.one('ready', () => {
+        console.log('once ready');
+        if (!playerRef.current) return;
+        playerRef.current.src({
+          src: url,
+          type: 'application/x-mpegurl'
+        });
       });
     }
   }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay]); // url, isLive 변경될 때만 실행
@@ -677,7 +691,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.8","color:red;font-weight:bold;");
+    console.log("%c Version : 0.6.9","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
