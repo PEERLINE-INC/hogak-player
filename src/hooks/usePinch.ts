@@ -109,9 +109,9 @@ export default function usePinch(
 
     function handleTouchMove(e: TouchEvent) {
       console.log('handleTouchMove', e.touches.length);
-      // popover 떠있는 경우 터치 이벤트 무시
+      // popover, dropdown 떠있는 경우 터치 이벤트 무시
       const targetEl = e.target as HTMLElement;
-      if (targetEl.closest('.hogak-popover')) {
+      if (targetEl.closest('.hogak-popover') || targetEl.closest('.hogak-dropdown')) {
         return;
       }
 
@@ -297,6 +297,77 @@ export default function usePinch(
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
       container.removeEventListener('wheel', handleWheel);
+    };
+  }, [videoRef, currentScale, size.width, size.height]);
+
+  useEffect(() => {
+    const container = videoRef.current;
+    if (!container) return;
+
+    function handleMouseDown(e: MouseEvent) {
+      // 우클릭/휠클릭이 아닌 경우(좌클릭)만 pan 시작
+      if (e.button !== 0) return;
+      // popover 떠있는 경우 터치 이벤트 무시
+      const targetEl = e.target as HTMLElement;
+      if (targetEl.closest('.hogak-popover')) {
+        return;
+      }
+
+      setOffset((prev) => ({
+        ...prev,
+        lastX: e.clientX,
+        lastY: e.clientY,
+        isPanning: true,
+      }));
+    }
+
+    function handleMouseMove(e: MouseEvent) {
+      setOffset((prev) => {
+        if (!prev.isPanning) return prev;
+
+        const deltaX = e.clientX - prev.lastX;
+        const deltaY = e.clientY - prev.lastY;
+
+        let nextOffsetX = prev.offsetX + deltaX;
+        let nextOffsetY = prev.offsetY + deltaY;
+
+        // 이동 범위(clamp)
+        const maxOffsetX = (size.width * currentScale) / 2 - size.width / 2;
+        const maxOffsetY = (size.height * currentScale) / 2 - size.height / 2;
+
+        if (maxOffsetX > 0) {
+          nextOffsetX = Math.max(-maxOffsetX, Math.min(nextOffsetX, maxOffsetX));
+        } else {
+          nextOffsetX = 0;
+        }
+        if (maxOffsetY > 0) {
+          nextOffsetY = Math.max(-maxOffsetY, Math.min(nextOffsetY, maxOffsetY));
+        } else {
+          nextOffsetY = 0;
+        }
+
+        return {
+          offsetX: nextOffsetX,
+          offsetY: nextOffsetY,
+          lastX: e.clientX,
+          lastY: e.clientY,
+          isPanning: true,
+        };
+      });
+    }
+
+    function handleMouseUp() {
+      setOffset((prev) => ({ ...prev, isPanning: false }));
+    }
+
+    container.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [videoRef, currentScale, size.width, size.height]);
 

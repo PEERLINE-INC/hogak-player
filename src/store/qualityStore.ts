@@ -6,6 +6,7 @@ interface QualityState {
   setQualityLevels: (callback: (prev: QualityLevel[]) => QualityLevel[]) => void;
   currentQuality: number;
   setCurrentQuality: (quality: number) => void;
+  clearQualityLevels: () => void;
 }
 
 const useQualityStore = create<QualityState>()(
@@ -20,6 +21,9 @@ const useQualityStore = create<QualityState>()(
     currentQuality: 1080,
     setCurrentQuality: (quality) => {
       set({ currentQuality: quality });
+    },
+    clearQualityLevels: () => {
+      set({ qualityLevels: [] });
     },
   }),
 )

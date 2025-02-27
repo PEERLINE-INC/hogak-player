@@ -54,7 +54,7 @@ export function Controls(props: ControlsProps) {
     seekToLive,
   } = props;
 
-  //const url = usePlayerStore((state) => state.url); 241224 PIP 버튼 주석
+  const url = usePlayerStore((state) => state.url);
   const title = usePlayerStore((state) => state.title);
   //const pip = usePlayerStore((state) => state.pip); 241224 PIP 버튼 주석
   // const setPip = usePlayerStore((state) => state.setPip) 241224 PIP 버튼 주석;
@@ -94,6 +94,8 @@ export function Controls(props: ControlsProps) {
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [lastTapTime, setLastTapTime] = useState<number | null>(null);
+  const [isShowSpeedDropdown, setIsShowSpeedDropdown] = useState(false);
+  const [isShowQualityDropdown, setIsShowQualityDropdown] = useState(false);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setSkipDirection = usePlayerStore((state) => state.setSkipDirection);
   // 자동 숨김 타이머를 제어하기 위한 ref
@@ -135,7 +137,7 @@ export function Controls(props: ControlsProps) {
     if (!isTouchDevice) return;
     if (!isOverlayVisible) return;
     if (isSeek) return;
-
+    if (isShowSpeedDropdown || isShowQualityDropdown) return;
     // 먼저 기존 타이머가 있으면 클리어
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
@@ -152,7 +154,7 @@ export function Controls(props: ControlsProps) {
         hideTimerRef.current = null;
       }
     };
-  }, [isOverlayVisible, isTouchDevice, isSeek]);
+  }, [isOverlayVisible, isTouchDevice, isSeek, isShowSpeedDropdown, isShowQualityDropdown]);
 
   // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
   useEffect(() => {
@@ -313,6 +315,31 @@ export function Controls(props: ControlsProps) {
   };
 
   const isShowScreencastButton = isSupportAirplay();
+  const isPanorama = multiViewSources.some((source) => source.isPanorama && source.url === url);
+  const getOptions = () => {
+    if (isPanorama) {
+      return [
+        {value: 1080, label: 'PANO'},
+      ];
+    }
+
+    if (isSafari()) {
+      return [
+        {value: 720, label: '720p'},
+        {value: 1080, label: '1080p', tag: 'HD'},
+      ];
+    }
+    
+    return qualityLevels.map((level) => {
+      console.log('level', level);
+
+      return {
+        value: level.height,
+        label: `${level.height}p`,
+        tag: level.height >= 1080 ? 'HD' : '',
+      };
+    })
+  }
 
   return (
     <ControlsWrapper
@@ -491,19 +518,18 @@ export function Controls(props: ControlsProps) {
                 ]} 
                 defaultValue={speed}
                 disabled={isPlayAd}
+                onChangeOpen={(isOpen) => {
+                  setIsShowSpeedDropdown(isOpen);
+                }}
               />
               <Dropdown 
                 onChangeValue={(option) => handleChangeQuality(option)} 
-                options={isSafari() ? [
-                  {value: 720, label: '720p'},
-                  {value: 1080, label: '1080p', tag: 'HD'},
-                ] : qualityLevels.map((level) => ({
-                  value: level.height,
-                  label: `${level.height}p`,
-                  tag: level.height >= 1080 ? 'HD' : '',
-                }))} 
-                defaultValue={currentQuality}
+                options={getOptions()} 
+                defaultValue={isPanorama ? 'PANO' : currentQuality}
                 disabled={isPlayAd}
+                onChangeOpen={(isOpen) => {
+                  setIsShowQualityDropdown(isOpen);
+                }}
               />
               <FlexRow>
                 <VolumeControlWrap>

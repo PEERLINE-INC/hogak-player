@@ -245,7 +245,7 @@ const meta = {
         thumbnailUrl: 'https://picsum.photos/seed/picsum2/300/200',
         title: '[멀티VIEW] 2번 카메라(파노라마)',
         description: '2번 카메라 설명',
-        url: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+        url: 'https://dnw98ykn7b9iq.cloudfront.net/yst/67506369e4e1ed593e37e059/venue_hls/pano_hls/pano_hls.m3u8',
         isPanorama: true,
       },
     ],

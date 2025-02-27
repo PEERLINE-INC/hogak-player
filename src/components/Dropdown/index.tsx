@@ -12,9 +12,10 @@ interface DropdownProps {
   defaultValue?: string | number; // 초기 값
   onChangeValue?: (value: Option) => void; // 값 변경 핸들러
   disabled?: boolean; // 비활성화 여부
+  onChangeOpen?: (isOpen: boolean) => void; // 드롭다운 열림/닫힘 핸들러
 }
 
-const Dropdown = ({ options, defaultValue, onChangeValue, disabled }: DropdownProps) => {
+const Dropdown = ({ options, defaultValue, onChangeValue, disabled, onChangeOpen }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | number>(defaultValue || "");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -50,10 +51,16 @@ const Dropdown = ({ options, defaultValue, onChangeValue, disabled }: DropdownPr
     }
   }, [defaultValue]);
 
+  useEffect(() => {
+    if (onChangeOpen) {
+      onChangeOpen(isOpen);
+    }
+  }, [isOpen])
+
   const selectedLabel = options.find(option => option.value === selectedOption)?.label || defaultValue;
 
   return (
-    <DropdownContainer ref={dropdownRef}>
+    <DropdownContainer ref={dropdownRef} className='hogak-dropdown'>
       <DropdownButton onClick={toggleDropdown} disabled={disabled}>
         {selectedLabel}
       </DropdownButton>

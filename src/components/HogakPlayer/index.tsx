@@ -154,6 +154,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const qualityLevelArr = useQualityStore((state) => state.qualityLevels);
   const setQualityLevels = useQualityStore((state) => state.setQualityLevels);
   const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality);
+  const clearQualityLevels = useQualityStore((state) => state.clearQualityLevels);
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
@@ -481,13 +482,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         }
       });
 
-      playerRef.current.one('ready', () => {
-        console.log('once ready');
-        if (!playerRef.current) return;
-        playerRef.current.src({
-          src: url,
-          type: 'application/x-mpegurl'
-        });
+      // 퀄리티 레벨 초기화
+      clearQualityLevels();
+
+      // 영상 소스 변경
+      playerRef.current.src({
+        src: url,
+        type: 'application/x-mpegurl'
       });
     }
   }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay]); // url, isLive 변경될 때만 실행
@@ -691,7 +692,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.6.9","color:red;font-weight:bold;");
+    console.log("%c Version : 0.7.0","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
