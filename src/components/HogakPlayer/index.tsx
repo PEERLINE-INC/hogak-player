@@ -156,6 +156,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality);
   const clearQualityLevels = useQualityStore((state) => state.clearQualityLevels);
 
+  // 좌우 버튼
+  const setEnableLeftRightArrowButton = usePlayerStore((state) => state.setEnableLeftRightArrowButton);
+  const setOnClickLeftArrowButton = usePlayerStore((state) => state.setOnClickLeftArrowButton);
+  const setOnClickRightArrowButton = usePlayerStore((state) => state.setOnClickRightArrowButton);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -164,6 +169,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickTagSave = props.onClickTagSave ?? (() => {});
   const onClickTagCancel = props.onClickTagCancel ?? (() => {});
   const onPlayCallback = props.onPlay ?? (() => {});
+  const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => {});
+  const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {});
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -677,6 +684,18 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
     setClipApiHost(props.clipThumbnailApiHost ?? '');
   }, [props.clipThumbnailApiHost]);
 
+  useEffect(() => {
+    setEnableLeftRightArrowButton(props.enableLeftRightArrowButton ?? false);
+  }, [props.enableLeftRightArrowButton]);
+
+  useEffect(() => {
+    setOnClickLeftArrowButton(onClickLeftArrowButton);
+  }, [props.onClickLeftArrowButton]);
+
+  useEffect(() => {
+    setOnClickRightArrowButton(onClickRightArrowButton);
+  }, [props.onClickRightArrowButton]);
+
   /**
    * ----------------------------------------------------------------
    * 5. Video.js 이벤트 핸들러들
@@ -692,7 +711,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.7.0","color:red;font-weight:bold;");
+    console.log("%c Version : 0.7.2","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

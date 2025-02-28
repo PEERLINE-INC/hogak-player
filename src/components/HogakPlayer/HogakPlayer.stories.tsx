@@ -194,6 +194,19 @@ const meta = {
       description: `클립 썸네일 조회 시 사용할 API 호스트입니다.`,
       type: 'string',
     },
+    enableLeftRightArrowButton: {
+      defaultValue: false,
+      description: `좌우 버튼 활성화 여부입니다.`,
+      type: 'boolean',
+    },
+    onClickLeftArrowButton: {
+      description: `좌측 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickLeftArrowButton',
+    },
+    onClickRightArrowButton: {
+      description: `우측 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickRightArrowButton',
+    },
   },
   args: {
     title: '',
@@ -363,6 +376,13 @@ const meta = {
     offsetEnd: 0,
     eventId: '1000020',
     clipThumbnailApiHost: 'http://hogak-media-service-1061815346.ap-northeast-2.elb.amazonaws.com:7788',
+    enableLeftRightArrowButton: false,
+    onClickLeftArrowButton: () => {
+      console.log('onClickLeftArrowButton');
+    },
+    onClickRightArrowButton: () => {
+      console.log('onClickRightArrowButton');
+    },
   },
 } satisfies Meta<typeof HogakPlayer>
 

@@ -59,6 +59,12 @@ interface PlayerState {
   setOffsetStart: (offsetStart: number) => void;
   offsetEnd: number;
   setOffsetEnd: (offsetEnd: number) => void;
+  enableLeftRightArrowButton: boolean;
+  setEnableLeftRightArrowButton: (enableLeftRightArrowButton: boolean) => void;
+  onClickLeftArrowButton: () => void;
+  setOnClickLeftArrowButton: (onClickLeftArrowButton: () => void) => void;
+  onClickRightArrowButton: () => void;
+  setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -121,6 +127,12 @@ const usePlayerStore = create<PlayerState>()(
     setOffsetStart: (offsetStart: number) => set({ offsetStart }),
     offsetEnd: 0,
     setOffsetEnd: (offsetEnd: number) => set({ offsetEnd }),
+    enableLeftRightArrowButton: false,
+    setEnableLeftRightArrowButton: (enableLeftRightArrowButton: boolean) => set({ enableLeftRightArrowButton }),
+    onClickLeftArrowButton: () => {},
+    setOnClickLeftArrowButton: (onClickLeftArrowButton: () => void) => set({ onClickLeftArrowButton }),
+    onClickRightArrowButton: () => {},
+    setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => set({ onClickRightArrowButton }),
   }),
 )
 

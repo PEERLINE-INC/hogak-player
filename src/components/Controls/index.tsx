@@ -88,6 +88,9 @@ export function Controls(props: ControlsProps) {
   const atLive = useLiveStore((state) => state.atLive);
   const isMute = usePlayerStore((state) => state.isMute);
   const setIsMute = usePlayerStore((state) => state.setIsMute);
+  const enableLeftRightArrowButton = usePlayerStore((state) => state.enableLeftRightArrowButton);
+  const onClickLeftArrowButton = usePlayerStore((state) => state.onClickLeftArrowButton);
+  const onClickRightArrowButton = usePlayerStore((state) => state.onClickRightArrowButton);
   
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100);
@@ -394,9 +397,11 @@ export function Controls(props: ControlsProps) {
           {/* 250225 좌우 버튼 추가 */}
           <PlayBtnContainer style={{width: '100%'}}>
             <FlexRow style={{justifyContent: 'center'}}>
-              {/* <IconButton style={{marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em'}}>
-                <ArrowLeftIcon width={'100%'} height={'100%'}/>
-              </IconButton> */}
+              {enableLeftRightArrowButton && 
+                <IconButton style={{marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em'}} onClick={onClickLeftArrowButton}>
+                  <ArrowLeftIcon width={'100%'} height={'100%'}/>
+                </IconButton>
+              }
               
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
               <IconButton 
@@ -407,9 +412,11 @@ export function Controls(props: ControlsProps) {
                 {isPlay ? <PauseIcon /> : <PlayIcon />}
               </IconButton>
 
-              {/* <IconButton style={{marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em'}}>
-                <ArrowLeftIcon width={'100%'} height={'100%'} style={{transform: 'rotate(180deg)'}}/>
-              </IconButton> */}
+              {enableLeftRightArrowButton && 
+                <IconButton style={{marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em'}} onClick={onClickRightArrowButton}>
+                  <ArrowLeftIcon width={'100%'} height={'100%'} style={{transform: 'rotate(180deg)'}}/>
+                </IconButton>
+              }
             </FlexRow>
           </PlayBtnContainer>
           {/* //241224 플레이 버튼 구조 변경 */}

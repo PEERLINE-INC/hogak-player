@@ -74,4 +74,10 @@ export type HogakPlayerProps = {
   // 클립 썸네일
   eventId?: string;
   clipThumbnailApiHost?: string;
+
+  // 좌우 버튼 활성화
+  enableLeftRightArrowButton?: boolean;
+  // 좌우 버튼 클릭 시 이벤트
+  onClickLeftArrowButton?: () => void;
+  onClickRightArrowButton?: () => void;
 }
