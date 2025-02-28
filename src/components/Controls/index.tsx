@@ -354,7 +354,7 @@ export function Controls(props: ControlsProps) {
         isOverlayVisible={isOverlayVisible}
       >
         <TopContainer className='controls-wrapper'>
-          <FlexRow style={{width: 'calc(100% - 10em'}} className='controls-wrapper'>
+          <FlexRow style={{width: 'calc(100% - 13em'}} className='controls-wrapper'>
             <IconButton onClick={() => {
               if (isFullScreen) {
                 setIsFullScreen(false);
@@ -612,6 +612,7 @@ const TopContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    width: 0;
   }
 `;
 
