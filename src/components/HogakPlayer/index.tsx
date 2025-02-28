@@ -4,6 +4,7 @@ import {
   useImperativeHandle,
   useRef,
 } from 'react';
+import { useScript } from 'usehooks-ts';
 import videojs from 'video.js';
 import 'videojs-contrib-ads';
 import 'videojs-overlay';
@@ -172,16 +173,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => {});
   const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {});
 
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
+    removeOnUnmount: false,
+    id: 'cast_sender',
+  });
 
   /**
    * ----------------------------------------------------------------

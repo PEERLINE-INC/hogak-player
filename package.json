@@ -83,6 +83,7 @@
     "react-zoom-pan-pinch": "^3.6.1",
     "screenfull": "^6.0.2",
     "styled-components": "^6.1.13",
+    "usehooks-ts": "^3.1.1",
     "video.js": "^8.21.0",
     "videojs-contrib-ads": "^7.5.2",
     "videojs-contrib-quality-levels": "^4.1.0",
