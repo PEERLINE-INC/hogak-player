@@ -211,8 +211,8 @@ const meta = {
   args: {
     title: '',
     isLive: false,
-    url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
-    // url: 'https://d258gifgiy8x7f.cloudfront.net/3b288404b399ad46a4cf019a61f08071/0_hd_hls.m3u8?hlsid=HTTP_ID_1',
+    // url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
+    url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     width: undefined,
     height: undefined,
     isPlay: false,

@@ -4,7 +4,7 @@ import {
   useImperativeHandle,
   useRef,
 } from 'react';
-import { useScript } from 'usehooks-ts';
+// import { useScript } from 'usehooks-ts';
 import videojs from 'video.js';
 import 'videojs-contrib-ads';
 import 'videojs-overlay';
@@ -173,10 +173,21 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => {});
   const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {});
 
-  useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
-    removeOnUnmount: false,
-    id: 'cast_sender',
-  });
+  // useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
+  //   removeOnUnmount: false,
+  //   id: 'cast_sender',
+  // });
+
+  // useEffect(() => {
+  //   const script = document.createElement("script");
+  //   script.src = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
+  //   script.async = true;
+  //   document.body.appendChild(script);
+
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
   /**
    * ----------------------------------------------------------------
@@ -210,7 +221,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
-        techOrder: ['html5', 'chromecast'],
+        techOrder: ['chromecast', 'html5'],
         liveTracker: isLive,
         autoplay: props.isAutoplay ?? false,
         muted: false,
@@ -232,7 +243,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
             loadRequest.media.hlsSegmentFormat = 'ts';
             loadRequest.media.hlsVideoSegmentFormat = 'ts';
             return loadRequest;
-          }
+          },
         },
         plugins: {
           chromecast: {
@@ -240,10 +251,23 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           }
         },
       });
-      setTimeout(() => {
-        // @ts-ignore
-        player.chromecast();
-      }, 3000);
+      console.log('chromecast')
+      // @ts-ignore
+      player.chromecast();
+      player.on('chromecastConnected', () => {
+        console.log('chromecastConnected');
+      });
+      player.on('chromecastDisconnected', () => {
+        console.log('chromecastDisconnected');
+      });
+      player.on('chromecastDevicesAvailable', () => {
+        console.log('chromecastDevicesAvailable');
+      });
+      player.on('chromecastDevicesUnavailable', () => {
+        console.log('chromecastDevicesUnavailable');
+      });
+      
+      
       chromecastRef.current = {
         start: () => {
           console.log('chromecastRef');
@@ -706,7 +730,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.7.4","color:red;font-weight:bold;");
+    console.log("%c Version : 0.7.5","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

@@ -334,7 +334,7 @@ export function Controls(props: ControlsProps) {
     }
     
     return qualityLevels.map((level) => {
-      console.log('level', level);
+      // console.log('level', level);
 
       return {
         value: level.height,
