@@ -422,7 +422,7 @@ export function Controls(props: ControlsProps) {
           </PlayBtnContainer>
           {/* //241224 플레이 버튼 구조 변경 */}
           {/* 241224 side 아이콘 구조 변경 및 아이콘 이름 추가, 250113 클래스 추가 및 간격 수정 */}
-          <FlexCol style={{paddingRight: '1em', gap: '1.3em'}} className='icon_box'>
+          <FlexCol style={{paddingRight: '1em', gap: '1.3em', zIndex: 1 }} className='icon_box'>
             { isFullScreen && !isShowClipView && !isShowTagSaveView && (
               <>
                 {!isDisableClip && <FlexCol>
@@ -692,6 +692,12 @@ const IconButton = styled.div`
     width: 2em;
     height: 2em;
   }
+
+  &.side_icon.side_clip, 
+  &.side_icon.side_tag {
+    padding: 0.2em 0.4em;
+  }
+
   &.play_control_btn {
     width: 1.8em;
     height: 1.8em;
