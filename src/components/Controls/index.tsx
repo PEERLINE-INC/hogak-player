@@ -91,6 +91,7 @@ export function Controls(props: ControlsProps) {
   const enableLeftRightArrowButton = usePlayerStore((state) => state.enableLeftRightArrowButton);
   const onClickLeftArrowButton = usePlayerStore((state) => state.onClickLeftArrowButton);
   const onClickRightArrowButton = usePlayerStore((state) => state.onClickRightArrowButton);
+  const isShowChromecastButton = usePlayerStore((state) => state.isShowChromecastButton);
   
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100);
@@ -381,9 +382,9 @@ export function Controls(props: ControlsProps) {
             {!isFullScreen && !isDisableTag && <IconButton className='tag_btn' onClick={handleClickTag}>
               <TagViewIcon />
             </IconButton>}
-            <IconButton className='screencast_btn' onClick={handleClickScreencast}>
+            {isShowChromecastButton && <IconButton className='screencast_btn' onClick={handleClickScreencast}>
               <ScreenCastIcon />
-            </IconButton>
+            </IconButton>}
             {isShowScreencastButton && <IconButton className='airplay_btn' onClick={handleClickAirplay}>
               <AirPlayIcon />
             </IconButton>}

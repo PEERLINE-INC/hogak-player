@@ -162,6 +162,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   const setOnClickLeftArrowButton = usePlayerStore((state) => state.setOnClickLeftArrowButton);
   const setOnClickRightArrowButton = usePlayerStore((state) => state.setOnClickRightArrowButton);
 
+  // chromecast 버튼
+  const setIsShowChromecastButton = usePlayerStore((state) => state.setIsShowChromecastButton);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -262,9 +265,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       });
       player.on('chromecastDevicesAvailable', () => {
         console.log('chromecastDevicesAvailable');
+        setIsShowChromecastButton(true);
       });
       player.on('chromecastDevicesUnavailable', () => {
         console.log('chromecastDevicesUnavailable');
+        setIsShowChromecastButton(true);
       });
       
       
@@ -730,7 +735,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.7.5","color:red;font-weight:bold;");
+    console.log("%c Version : 0.7.6","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
