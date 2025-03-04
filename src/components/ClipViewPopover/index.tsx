@@ -164,17 +164,32 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         }
     }, [isShow]);
 
+    // const handleOnChange = (value: number[]) => {
+    //     console.log('handleOnChange', value);
+    //     let [start, end] = value;
+      
+    //     // 두 숫자의 차이가 60 이상이면, 끝 값을 시작 값 + 60으로 제한
+    //     if (end - start >= 60) {
+    //       end = start + 60;
+    //     }
+        
+    //     let newValues = [start, end];
+    //     setValues([...newValues]);
+    // };
     const handleBeforeChange = () => {
         console.log('handleBeforeChange');
         setIsPlay(false);
     };
     const handleAfterChange = (value: number[]) => {
-        console.log('handleAfterChange', value);
-        onChangeClipDuration([Math.floor(value[0]), Math.floor(value[1])]);
-        setValues([...value]);
-        seekTo(value[0], 'seconds');
+        let [start, end] = value;
+        if (end - start >= 60) {
+            end = start + 60;
+        }
+        onChangeClipDuration([Math.floor(start), Math.floor(end)]);
+        setValues([start, end]);
+        seekTo(start, 'seconds');
         setIsPlay(true);
-    };
+      };
     const handleCancel = () => {
         setIsShowClipView(false);
         if (!isPlay) {
@@ -260,6 +275,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
                                 pearling
                                 minDistance={10}
+                                // onChange={handleOnChange}
                                 onAfterChange={handleAfterChange}
                                 onBeforeChange={handleBeforeChange}
                             />

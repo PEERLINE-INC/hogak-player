@@ -165,6 +165,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
   // chromecast 버튼
   const setIsShowChromecastButton = usePlayerStore((state) => state.setIsShowChromecastButton);
 
+  // 리셋
+  const resetStore = usePlayerStore((state) => state.resetStore);
+
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {});
   const onClickTagButton = props.onClickTagButton ?? (() => {});
@@ -503,19 +506,20 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
           }
         }
         
-        const playPromise = playerRef.current.play();
-        if (playPromise) {
-          playPromise.then(() => {
-            console.log('url changed');
-          }).catch((error) => {
-            console.error('Play error:', error);
-          });
+        if (props.isAutoplay) {
+          const playPromise = playerRef.current.play();
+          if (playPromise) {
+            playPromise.then(() => {
+              console.log('url changed');
+            }).catch((error) => {
+              console.error('Play error:', error);
+            });
+          }
         }
       });
 
       // 퀄리티 레벨 초기화
       clearQualityLevels();
-
       // 영상 소스 변경
       playerRef.current.src({
         src: url,
@@ -532,6 +536,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         player.dispose();
         playerRef.current = null;
       }
+      // 일부 상태 리셋
+      resetStore();
     };
   }, [playerRef]);
 
@@ -735,7 +741,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.7.7","color:red;font-weight:bold;");
+    console.log("%c Version : 0.7.8","color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {

@@ -67,6 +67,7 @@ interface PlayerState {
   setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => void;
   isShowChromecastButton: boolean;
   setIsShowChromecastButton: (isShowChromecastButton: boolean) => void;
+  resetStore: () => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -137,6 +138,9 @@ const usePlayerStore = create<PlayerState>()(
     setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => set({ onClickRightArrowButton }),
     isShowChromecastButton: false,
     setIsShowChromecastButton: (isShowChromecastButton: boolean) => set({ isShowChromecastButton }),
+    resetStore: () => set({
+      isShowMultiView: false,
+    }),
   }),
 )
 
