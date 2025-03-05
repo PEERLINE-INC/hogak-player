@@ -2,15 +2,13 @@ import styled from "styled-components";
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react';
 import SaveIcon from '../../assets/icons/icon_save.svg?react';
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
-import TagViewIcon from "../../assets/icons/icon_tag_white.svg?react";
-import ScreenCastIcon from '../../assets/icons/icon_screencast.svg?react';
-import MultiViewIcon from "../../assets/icons/icon_multiview.svg?react";
 import usePlayerStore from "../../store/playerStore";
 import ReactSlider from "react-slider";
 import useClipStore from "../../store/clipViewStore";
 import './styles.css';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { formatTime } from "../../util/common";
 
 interface ClipViewPopoverProps {
     seekTo: (seconds: number, type: 'seconds' | 'fraction') => void;
@@ -18,21 +16,6 @@ interface ClipViewPopoverProps {
     isShow: boolean;
     setValuesRef?: React.MutableRefObject<((values: number[]) => void) | null>;
     onSave?: () => void;
-}
-
-function format(seconds: number) {
-    const date = new Date(seconds * 1000)
-    const hh = date.getUTCHours()
-    const mm = date.getUTCMinutes()
-    const ss = pad(date.getUTCSeconds())
-    if (hh) {
-        return `${hh}:${pad(mm)}:${ss}`
-    }
-    return `${mm}:${ss}`
-}
-
-function pad(string: string | number) {
-    return ('0' + string).slice(-2)
 }
 
 function calculateClipRange(currentSeconds: number, duration: number) {
@@ -92,6 +75,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     const [max, setMax] = useState<number>(180);
     const [images, setImages] = useState<string[]>([]);
 
+    // 현재 재생 위치를 %로 환산한 값
+    const [playheadPercent, setPlayheadPercent] = useState(0);
+
     const fetchImages = async () => {
         try {
             if (!clipApiHost || !eventId) return;
@@ -110,6 +96,15 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             console.error('클립 썸네일 조회 실패', e);
         }
     };
+
+    useEffect(() => {
+        if (!isShow) return;
+        // played는 0~1 사이의 비율이므로, 현재 재생 시간을 구함
+        const currentTime = played * duration;
+        const fraction = (currentTime - min) / (max - min);
+
+        setPlayheadPercent(fraction * 100);
+    }, [played, duration, min, max, isShow]);
 
     useEffect(() => {
         if (!isShow) return;
@@ -212,21 +207,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                     >
                         <ArrowLeftIcon width={'100%'} height={'100%'} />
                     </IconButton>
-                    {/* 241224 스타일 삭제 및 video_title 클래스 추가 */}
-                    <div className='video_title'/* style={{ color: 'white', marginLeft: 16 }} */>{/* {title} */}</div>
-                </FlexRow>
-
-                {/* 250113 간격 수정 및  클래스 네임 추가 */}
-                <FlexRow gap={16} className="icon_box">
-                    <IconButton className='tag_btn'>
-                        <TagViewIcon />
-                    </IconButton>
-                    <IconButton className='screencast_btn'>
-                        <ScreenCastIcon />
-                    </IconButton>
-                    { /* multiViewSources.length && */ <IconButton /* onClick={() => setIsShowMultiView(true)}  */ className='multiview_btn'>
-                        <MultiViewIcon />
-                    </IconButton>}
+                    <div className='video_title'></div>
                 </FlexRow>
             </TopContainer>
 
@@ -253,6 +234,11 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             </MiddleContainer>
 
             <ClipRangeWrap isFullScreen={isFullScreen}>
+                <TimeLabelsContainer className="time-labels-container">
+                    <TimeLabel className="left">{formatTime(min)}</TimeLabel>
+                    <TimeLabel className="center">{formatTime(played * duration)}</TimeLabel>
+                    <TimeLabel className="right">{formatTime(max)}</TimeLabel>
+                </TimeLabelsContainer>
                 <ClipRangeWrapper>{/* 241227 추가 */}
                     <ThumbnailTrack>
                         {images.map((image, index) => (
@@ -271,8 +257,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 step={0.1}
                                 value={values}
                                 ariaLabel={['클립 시작', '클립 종료']}
-                                ariaValuetext={state => `${format(state.valueNow)}`}
-                                renderThumb={(props, state) => <ClipThumb {...props}>{format(state.valueNow)}</ClipThumb>}
+                                ariaValuetext={state => `${formatTime(state.valueNow)}`}
+                                renderThumb={(props) => <ClipThumb {...props}></ClipThumb>}
                                 pearling
                                 minDistance={10}
                                 // onChange={handleOnChange}
@@ -282,6 +268,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                         </SliderWrap>
                     </ThumbnailTrack>
                 </ClipRangeWrapper>
+                {(played * duration >= min && played * duration <= max) && <PlayheadLine style={{ left: `${playheadPercent}%` }} />}
             </ClipRangeWrap>
 
         </PopoverContainer>
@@ -300,7 +287,7 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
     flex-direction: column;
     justify-content: space-between;
     z-index: 2;
-    background-color: rgba(0,0,0,.6);
+    background-color: rgba(0,0,0,.3);
 `
 const TopContainer = styled.div`
     display: flex;
@@ -429,7 +416,7 @@ const ClipRangeWrap = styled.div<{ isFullScreen: boolean }>`
     height: 26%;
     min-height: 5.9em;
     /* 241227 추가 */
-    overflow: hidden;
+    overflow: visible;
     position: relative;
     box-sizing: border-box;
 
@@ -495,4 +482,51 @@ const SliderWrap = styled.div`
         height: calc(100% + 1.4em);
         top: -0.7em;
     }
-`
+`;
+
+const PlayheadLine = styled.div`
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: white;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0px 0px 5px #444;
+`;
+
+const TimeLabelsContainer = styled.div`
+  position: absolute;
+  width: 100%;
+  bottom: 5.5em; 
+  z-index: 6;
+`;
+
+const TimeLabel = styled.div`
+  position: absolute;
+  transform: translateX(-50%);
+  bottom: 100%;
+  /* margin-bottom: 0.5em; */
+
+  background: transparent;
+  color: #fff;
+  padding: 0px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  white-space: nowrap;
+  pointer-events: none;
+
+  &.left {
+    left: 0;
+    transform: translateX(0) translateY(0); /* 왼쪽 고정 */
+  }
+  &.center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &.right {
+    right: 0;
+    transform: translateX(0) translateY(0); /* 오른쪽 고정 */
+  }
+`;

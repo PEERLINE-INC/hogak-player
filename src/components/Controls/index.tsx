@@ -285,10 +285,11 @@ export function Controls(props: ControlsProps) {
   };
 
   const handleClickTag = () => {
+    setIsPlay(false);
     if (isFullScreen) {
       setIsShowTagSaveView(true);
     }
-
+    
     onClickTagButton?.();
   };
 

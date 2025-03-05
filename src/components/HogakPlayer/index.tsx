@@ -85,6 +85,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
+  const HOGAK_PLAYER_VERSION = '0.7.10';
   const url = usePlayerStore((state) => state.url);
   const setUrl = usePlayerStore((state) => state.setUrl);
   const setTitle = usePlayerStore((state) => state.setTitle);
@@ -498,9 +499,22 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
         console.log('loadedmetadata');
         if (!playerRef.current) return;
 
+        // 멀티뷰 변경이면
         if (pendingSeek) {
           playerRef.current.currentTime(pendingSeek);
+          // 자동 재생이 아니면, 재생
+          if (!props.isAutoplay) {
+            const playPromise = playerRef.current.play();
+            if (playPromise) {
+              playPromise.then(() => {
+                console.log('pendingSeek');
+              }).catch((error) => {
+                console.error('Play error:', error);
+              });
+            }
+          }
         } else {
+          // 오프셋이 있으면
           if (offsetStart > 0) {
             playerRef.current.currentTime(offsetStart);
           }
@@ -521,6 +535,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       // 퀄리티 레벨 초기화
       clearQualityLevels();
       // 영상 소스 변경
+      playerRef.current.autoplay(props.isAutoplay ?? false);
       playerRef.current.src({
         src: url,
         type: 'application/x-mpegurl'
@@ -548,6 +563,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
    */
   useEffect(() => {
     if (!playerRef.current) return;
+    console.log('useEffect [isPlay]', isPlay);
     if (isPlay) {
       playerRef.current.play()?.catch((error) => {
         console.error('Error playing video :', error);
@@ -608,13 +624,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 
   /**
    * ----------------------------------------------------------------
-   * 4. 기존 useEffects: store 업데이트
+   * 4. useEffects: store 업데이트
    * ----------------------------------------------------------------
    */
-  // url, title, multiView, tag 등등은 기존과 동일하게 처리
-  useEffect(() => {
-    setIsPlay(props.isPlay ?? false);
-  }, [props.isPlay]);
+
+  // 임시로 사용하는 쪽의 isPlay 값을 받아오지 않도록 주석 처리
+  // useEffect(() => {
+  //   setIsPlay(props.isPlay ?? false);
+  // }, [props.isPlay]);
 
   useEffect(() => {
     setIsLive(props.isLive ?? false);
@@ -741,7 +758,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
 ██║  ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██╗    ██║     ███████╗██║  ██║   ██║   ███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝                                                                                           
     `)
-    console.log("%c Version : 0.7.8","color:red;font-weight:bold;");
+    console.log(`%c Version : ${HOGAK_PLAYER_VERSION}`, "color:red;font-weight:bold;");
   }, []);
   
   const handleOnReady = () => {
