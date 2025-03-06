@@ -73,7 +73,12 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   const fetchImages = async () => {
     try {
-      if (!clipApiHost || !eventId) return
+      console.log('fetch thumbnail images', { clipApiHost, eventId })
+
+      if (!clipApiHost || !eventId) {
+        console.log('not found clipApiHost or eventId')
+        return
+      }
       const url = `${clipApiHost.endsWith('/') ? clipApiHost.slice(0, -1) : clipApiHost}/media/thumbnail/list`
       const response = await axios.post<ClipThumbnailApiResponse>(url, {
         eventId,
@@ -294,11 +299,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 played={played}
                 duration={duration}
                 step={0.1}
-                value={[values[0], values[1]]}
+                value={values.slice(0,2)}
                 onChange={handleAfterChange}
               />
-
-
             </SliderWrap>
           </ThumbnailTrack>
         </ClipRangeWrapper>
