@@ -1,0 +1,166 @@
+import React, { useState, useRef, useEffect } from "react";
+import "./RangeSlider.css";
+
+interface RangeSliderProps {
+  value: [number, number];
+  onChange?: (value: [number, number]) => void;
+  onDragEnd?: (value: [number, number]) => void;
+  onChangeEnd?: (value: [number, number]) => void;
+  min?: number; // 선택 가능한 최소 range 값
+  max?: number; // 선택 가능한 최대 range 값
+  step?: number;
+}
+
+export const RangeSlider: React.FC<RangeSliderProps> = ({
+  value,
+  onChange,
+  onDragEnd,
+  onChangeEnd,
+  min = 0,
+  max = 100,
+  step = 1,
+}) => {
+  const [dragging, setDragging] = useState<"left" | "right" | "center" | null>(
+    null
+  );
+  const [startX, setStartX] = useState(0);
+  const [startPositions, setStartPositions] = useState([0, 0]);
+  const [currentValue, setCurrentValue] = useState(value);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const snapToStep = (value: number): number => {
+    return Math.round(value / step) * step;
+  };
+
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLDivElement>,
+    handle: "left" | "right" | "center"
+  ) => {
+    setDragging(handle);
+    setStartX(e.clientX);
+    setStartPositions([...currentValue]);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!dragging || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const diff = e.clientX - startX;
+    const percentDiff = (diff / rect.width) * 100;
+    const stepDiff = snapToStep(percentDiff);
+
+    const newValue = [...currentValue] as [number, number];
+    let shouldUpdate = true;
+
+    if (dragging === "left") {
+      const newLeft = snapToStep(startPositions[0] + stepDiff);
+      const range = currentValue[1] - newLeft;
+      if (newLeft >= 0 && newLeft <= 100 && range >= min && range <= max) {
+        newValue[0] = newLeft;
+      } else {
+        shouldUpdate = false;
+      }
+    } else if (dragging === "right") {
+      const newRight = snapToStep(startPositions[1] + stepDiff);
+      const range = newRight - currentValue[0];
+      if (newRight >= 0 && newRight <= 100 && range >= min && range <= max) {
+        newValue[1] = newRight;
+      } else {
+        shouldUpdate = false;
+      }
+    } else if (dragging === "center") {
+      const range = currentValue[1] - currentValue[0];
+      let newLeft = snapToStep(startPositions[0] + stepDiff);
+      let newRight = snapToStep(startPositions[1] + stepDiff);
+      const newRange = newRight - newLeft;
+
+      if (
+        newLeft >= 0 &&
+        newRight <= 100 &&
+        newRange >= min &&
+        newRange <= max
+      ) {
+        newValue[0] = newLeft;
+        newValue[1] = newRight;
+      } else {
+        shouldUpdate = false;
+      }
+    }
+
+    if (shouldUpdate) {
+      setCurrentValue(newValue);
+      onChange?.(newValue);
+    }
+    setStartX(e.clientX);
+  };
+
+  const handleMouseUp = () => {
+    if (dragging) {
+      onDragEnd?.(currentValue);
+      onChangeEnd?.(currentValue);
+    }
+    setDragging(null);
+  };
+
+  useEffect(() => {
+    if (dragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragging]);
+
+  const getPercentage = (value: number): number => {
+    return value;
+  };
+
+  return (
+    <div className="slider-container" ref={containerRef}>
+      {/* 왼쪽 영역 */}
+      <div
+        className="slider-area left"
+        style={{ width: `${getPercentage(currentValue[0])}%` }}
+      />
+
+      {/* 왼쪽 핸들 */}
+      <div
+        className="slider-handle left"
+        style={{ left: `${getPercentage(currentValue[0])}%` }}
+        onMouseDown={(e) => handleMouseDown(e, "left")}
+      />
+
+      {/* 중앙 영역 */}
+      <div
+        className="slider-area center"
+        style={{
+          left: `${getPercentage(currentValue[0])}%`,
+          width: `${
+            getPercentage(currentValue[1]) - getPercentage(currentValue[0])
+          }%`,
+        }}
+        onMouseDown={(e) => handleMouseDown(e, "center")}
+      />
+
+      {/* 오른쪽 핸들 */}
+      <div
+        className="slider-handle right"
+        style={{ left: `${getPercentage(currentValue[1])}%` }}
+        onMouseDown={(e) => handleMouseDown(e, "right")}
+      />
+
+      {/* 오른쪽 영역 */}
+      <div
+        className="slider-area right"
+        style={{
+          left: `${getPercentage(currentValue[1])}%`,
+          width: `${100 - getPercentage(currentValue[1])}%`,
+        }}
+      />
+    </div>
+  );
+};

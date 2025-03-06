@@ -1,0 +1,76 @@
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: calc(100% + 1.4em);
+  margin: 24px auto 0;
+  top: -0.7em;
+  background-color: transparent;
+  overflow: visible;
+}
+
+/* Track 스타일 */
+.slider-container::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 0.3em;
+  background-color: rgba(0, 0, 0, 0.74);
+  transform: translateY(-50%);
+  border-radius: 0.4em;
+}
+
+.slider-area {
+  position: absolute;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.74);
+}
+
+.slider-area.center {
+  background-color: transparent;
+  border: 0.3em solid #81eb47;
+  border-radius: 0.4em;
+  box-sizing: border-box;
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.slider-area.center:hover {
+  background-color: rgba(129, 235, 71, 0.1);
+}
+
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  width: 1.2em;
+  height: 100%;
+  background-color: #81eb47;
+  transform: translate(-50%, -50%);
+  cursor: ew-resize;
+  z-index: 1;
+  transition: transform 0.2s;
+}
+
+.slider-handle::after {
+  width: 0.1em;
+  height: 1.8em;
+  position: absolute;
+  content: "";
+  background-color: #000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.slider-handle.left {
+  border-radius: 0.4em 0 0 0.4em;
+}
+
+.slider-handle.right {
+  border-radius: 0 0.4em 0.4em 0;
+}
+
+.slider-handle:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
