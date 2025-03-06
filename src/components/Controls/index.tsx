@@ -248,18 +248,18 @@ export function Controls(props: ControlsProps) {
     if (!isOverlayVisible) return
     const fraction = value / 100
     seekTo(fraction, 'fraction')
-    requestAnimationFrame(() => {
-      setIsSeek(false)
-    })
+    // requestAnimationFrame(() => {
+    //   setIsSeek(false)
+    // })
   }
 
   const handleSeekMouseUp = () => {
     console.log('handleSeekMouseUp')
-    setIsSeek(false)
+    // setIsSeek(false)
   }
   const handleSeekMouseDown = () => {
     console.log('handleSeekMouseDown')
-    setIsSeek(true)
+    // setIsSeek(true)
   }
   const handleTagClick = (seconds: number) => {
     if (playerRef.current) {

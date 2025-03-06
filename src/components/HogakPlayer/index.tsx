@@ -38,6 +38,7 @@ import usePinch from '../../hooks/usePinch'
 import useQualityStore from '../../store/qualityStore'
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level'
 import { isSafari, isSupportAirplay } from '../../util/common'
+import { log } from 'console'
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -77,7 +78,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.10'
+  const HOGAK_PLAYER_VERSION = '0.7.11'
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
   const setTitle = usePlayerStore((state) => state.setTitle)
@@ -374,6 +375,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('timeupdate', handleOnTimeUpdate)
       player.on('ended', handleOnEnded)
       player.on('error', handleOnError)
+      player.on('waiting', handleOnWaiting)
+      player.on('canplay', handleOnCanPlay)
       if (isLive) {
         // @ts-ignore
         player.liveTracker.on('seekableendchange', handleOnSeekableEndChange)
@@ -427,6 +430,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
         player.on('ended', function () {
           overlayElement.style.display = 'none'
+        })
+
+        player.on('waiting', function () {
+          console.log('waiting');
+        })
+
+        player.on('canplay', function () {
+          console.log('canplay');
         })
       })
 
@@ -803,6 +814,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setPlayed(current / duration)
       setAtLive(atLive)
     } else {
+
+      if ( usePlayerStore.getState().isSeek) {
+        // seek 중 time slider update 금지
+        return;
+      }
       // played = (현재시간 / 전체길이)
       let current = playerRef.current.currentTime() ?? 0
       if (offsetStart > 0) {
@@ -850,6 +866,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     // @ts-ignore
     const liveTracker = playerRef.current.liveTracker
     console.log('onSeekableEndChange (video.js)', liveTracker.seekableEnd())
+  }
+
+  const handleOnWaiting = () => {
+    console.log('handleOnWaiting (video.js)')
+  }
+
+  const handleOnCanPlay = () => {
+    console.log('handleOnCanPlay (video.js)')
+    usePlayerStore.getState().setIsSeek(false);
   }
 
   const seekTo = (value: number, type: 'seconds' | 'fraction') => {
