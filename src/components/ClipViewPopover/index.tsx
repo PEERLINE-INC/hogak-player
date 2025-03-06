@@ -502,6 +502,10 @@ const ClipRangeWrapper = styled.div`
   height: 55%;
   position: relative;
   top: 20%;
+
+  .slider-container {
+    margin: 0;
+  }
 `
 // 클립 슬라이더 선택 바
 const ClipThumb = styled.div`
