@@ -270,6 +270,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             {/* 241227 구조변경 */}
             <SliderWrap>
               {/* <ReactSlider
+
                                 className="hogak-clip-slider"
                                 thumbClassName="clip-thumb"
                                 trackClassName="clip-track"
@@ -286,6 +287,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 // onChange={handleOnChange}
                                 onAfterChange={handleAfterChange}
                                 onBeforeChange={handleBeforeChange}
+
                                 /> */}
               <RangeSlider
                 min={10}

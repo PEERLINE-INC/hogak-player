@@ -392,8 +392,8 @@ export function Controls(props: ControlsProps) {
             </div>
           </FlexRow>
 
-          {/* 250306 윤영민 변경 */}
-          <FlexRow gap={16} className='icon_box' style={{position: 'absolute', right: '25px', top: '25px'}}>
+           {/* 250306 윤영민 변경 */}
+           <FlexRow gap={16} className='icon_box multi_box' >
             {!isFullScreen && !isDisableTag && (
               <IconButton
                 className='tag_btn'
@@ -900,6 +900,18 @@ const FlexRow = styled.div<{ gap?: number }>`
     }
     @media screen and (min-width: 540px) {
       font-size: 12.8px;
+    }
+  }
+
+
+    /* 250306 윤영민 변경 */
+    &.multi_box {
+    position: absolute;
+    top: 23px;
+    right: 23px;
+
+    @media screen and (max-width: 540px) {
+      position: static;
     }
   }
 `
