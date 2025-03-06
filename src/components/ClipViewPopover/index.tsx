@@ -252,11 +252,11 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
       </MiddleContainer>
 
       <ClipRangeWrap isFullScreen={isFullScreen}>
-        <TimeLabelsContainer className='time-labels-container'>
+        {/* <TimeLabelsContainer className='time-labels-container'>
           <TimeLabel className='left'>{formatTime(min)}</TimeLabel>
           <TimeLabel className='center'>{formatTime(played * duration)}</TimeLabel>
           <TimeLabel className='right'>{formatTime(max)}</TimeLabel>
-        </TimeLabelsContainer>
+        </TimeLabelsContainer> */}
         <ClipRangeWrapper>
           {/* 241227 추가 */}
           <ThumbnailTrack>
@@ -286,14 +286,18 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 // onChange={handleOnChange}
                                 onAfterChange={handleAfterChange}
                                 onBeforeChange={handleBeforeChange}
-                            /> */}
+                                /> */}
               <RangeSlider
                 min={10}
                 max={60}
+                played={played}
+                duration={duration}
                 step={0.1}
-                value={values.slice(0, 2)}
+                value={values.slice(0,2)}
                 onChange={handleAfterChange}
               />
+
+
             </SliderWrap>
           </ThumbnailTrack>
         </ClipRangeWrapper>

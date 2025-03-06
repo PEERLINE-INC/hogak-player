@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./RangeSlider.css";
+import { formatTime } from '../../util/common'
+
 
 interface RangeSliderProps {
+  
   value: [number, number];
   onChange?: (value: [number, number]) => void;
   onDragEnd?: (value: [number, number]) => void;
@@ -12,6 +15,8 @@ interface RangeSliderProps {
 }
 
 export const RangeSlider: React.FC<RangeSliderProps> = ({
+
+  
   value,
   onChange,
   onDragEnd,
@@ -19,7 +24,10 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   min = 0,
   max = 100,
   step = 1,
+  played = 0,
+  duration = 0
 }) => {
+
   const [dragging, setDragging] = useState<"left" | "right" | "center" | null>(
     null
   );
@@ -94,6 +102,8 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     }
     setStartX(clientX);
   };
+
+  
 
   const handleEnd = () => {
     if (dragging) {
@@ -179,6 +189,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
       <div
         className="slider-area center"
         style={{
+          position: 'relative',
           left: `${getPercentage(currentValue[0])}%`,
           width: `${
             getPercentage(currentValue[1]) - getPercentage(currentValue[0])
@@ -186,7 +197,16 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         }}
         onMouseDown={(e) => handleMouseDown(e, "center")}
         onTouchStart={(e) => handleTouchStart(e, "center")}
-      />
+      >
+        <div style={{ width: '100%', position: 'absolute', top: '-20px', color: '#fff'}}>
+
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between'}}>
+            <div >{formatTime(min)}</div>
+            <div >{formatTime(played * duration)}</div>
+            <div >{formatTime(max)}</div>
+          </div>
+        </div>
+      </div>
 
       {/* 오른쪽 핸들 */}
       <div
@@ -202,6 +222,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         style={{
           left: `${getPercentage(currentValue[1])}%`,
           width: `${100 - getPercentage(currentValue[1])}%`,
+          top: '0'
         }}
       />
     </div>
