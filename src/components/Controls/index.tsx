@@ -235,6 +235,8 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleSeekChange = ([value]: number[]) => {
+    console.log('handleSeekChange');
+    
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
@@ -243,14 +245,18 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleSeekCommit = ([value]: number[]) => {
+    // console.log('handleSeekCommit');
+    
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
+
+
     const fraction = value / 100
-    seekTo(fraction, 'fraction')
-    // requestAnimationFrame(() => {
-    //   setIsSeek(false)
-    // })
+    
+    usePlayerStore.getState().setPlayed(fraction);
+
+    seekTo(fraction, 'fraction');
   }
 
   const handleSeekMouseUp = () => {

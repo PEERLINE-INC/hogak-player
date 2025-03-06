@@ -835,6 +835,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
       const playedFraction = current / duration
       // console.log('handleOnTimeUpdate (video.js)', playedFraction);
+      // console.log('played (video.js)', usePlayerStore.getState().played);
+      
       setPlayed(playedFraction)
     }
   }
@@ -874,6 +876,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnCanPlay = () => {
     console.log('handleOnCanPlay (video.js)')
+  
     usePlayerStore.getState().setIsSeek(false);
   }
 
