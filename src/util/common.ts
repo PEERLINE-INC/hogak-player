@@ -25,7 +25,7 @@ export function formatTime(seconds: number) {
     if (hh) {
       return `${hh}:${pad(mm)}:${ss}`;
     }
-    return `${pad(mm)}:${ss}`;
+    return `${hh}:${pad(mm)}:${ss}`;
   }
   
   function pad(string: string | number) {
