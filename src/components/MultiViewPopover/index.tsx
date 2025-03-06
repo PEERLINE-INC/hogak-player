@@ -24,6 +24,9 @@ export const MultiViewPopover = ({ isShow, getCurrentSeconds }: MultiViewPopover
     console.log('handleChangeMultiView', source, seconds);
     setIsPanoramaMode(source.isPanorama ?? false);
     setUrl(source.url);
+
+   {/* 250306 윤영민 변경 */}
+    setIsShowMultiView(false)
   };
 
   return (
@@ -83,7 +86,9 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
   position: absolute;
   top: 0;
   right: 0;
-  width: 33.33%; /* 화면의 1/3 크기 */
+  /* width: 33.33%; 화면의 1/3 크기 */
+  /* 250306 윤영민 변경 */
+  width: 27%; /* 화면의 1/3 크기 */
   min-width: 18em;
   background-color: rgba(0, 0, 0, 0.86);
   display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */

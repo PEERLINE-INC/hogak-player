@@ -349,7 +349,8 @@ export function Controls(props: ControlsProps) {
         className='controls-wrapper'
         isOverlayVisible={isOverlayVisible}
       >
-        <TopContainer className='controls-wrapper'>
+         {/* 250306 윤영민 변경 */}
+         <TopContainer className='controls-wrapper' style={{position: 'relative'}}>
           <FlexRow
             style={{ width: 'calc(100% - 13em' }}
             className='controls-wrapper'
@@ -385,11 +386,8 @@ export function Controls(props: ControlsProps) {
             </div>
           </FlexRow>
 
-          {/* 241224 아이콘 추가 및 클래스네임 설정, 250113 간격 수정 및 클래스네임 추가 */}
-          <FlexRow
-            gap={16}
-            className='icon_box'
-          >
+          {/* 250306 윤영민 변경 */}
+          <FlexRow gap={16} className='icon_box' style={{position: 'absolute', right: '25px', top: '25px'}}>
             {!isFullScreen && !isDisableTag && (
               <IconButton
                 className='tag_btn'

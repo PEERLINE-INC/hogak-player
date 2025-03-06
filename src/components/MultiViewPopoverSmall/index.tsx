@@ -25,6 +25,9 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds }: MultiViewPo
     console.log('handleChangeMultiView', source, seconds);
     setIsPanoramaMode(source.isPanorama ?? false);
     setUrl(source.url);
+
+    {/* 250306 윤영민 변경 */}
+    setIsShowMultiView(false)
   };
 
   return (
