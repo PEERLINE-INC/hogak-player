@@ -506,6 +506,9 @@ const ClipRangeWrapper = styled.div`
   .slider-container {
     margin: 0;
   }
+  .slider-area.center {
+    background: transparent !important;
+  }
 `
 // 클립 슬라이더 선택 바
 const ClipThumb = styled.div`
