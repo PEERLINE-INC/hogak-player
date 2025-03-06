@@ -32,21 +32,21 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     return Math.round(value / step) * step;
   };
 
-  const handleMouseDown = (
-    e: React.MouseEvent<HTMLDivElement>,
+  const handleStart = (
+    clientX: number,
     handle: "left" | "right" | "center"
   ) => {
     setDragging(handle);
-    setStartX(e.clientX);
+    setStartX(clientX);
     setStartPositions([...currentValue]);
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMove = (clientX: number) => {
     if (!dragging || !containerRef.current) return;
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
-    const diff = e.clientX - startX;
+    const diff = clientX - startX;
     const percentDiff = (diff / rect.width) * 100;
     const stepDiff = snapToStep(percentDiff);
 
@@ -92,10 +92,10 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
       setCurrentValue(newValue);
       onChange?.(newValue);
     }
-    setStartX(e.clientX);
+    setStartX(clientX);
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     if (dragging) {
       onDragEnd?.(currentValue);
       onChangeEnd?.(currentValue);
@@ -103,15 +103,55 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     setDragging(null);
   };
 
+  // 마우스 이벤트 핸들러
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLDivElement>,
+    handle: "left" | "right" | "center"
+  ) => {
+    e.preventDefault();
+    handleStart(e.clientX, handle);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    e.preventDefault();
+    handleMove(e.clientX);
+  };
+
+  const handleMouseUp = () => {
+    handleEnd();
+  };
+
+  // 터치 이벤트 핸들러
+  const handleTouchStart = (
+    e: React.TouchEvent<HTMLDivElement>,
+    handle: "left" | "right" | "center"
+  ) => {
+    e.preventDefault();
+    handleStart(e.touches[0].clientX, handle);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    e.preventDefault();
+    handleMove(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    handleEnd();
+  };
+
   useEffect(() => {
     if (dragging) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", handleTouchEnd);
     }
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, [dragging]);
 
@@ -132,6 +172,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         className="slider-handle left"
         style={{ left: `${getPercentage(currentValue[0])}%` }}
         onMouseDown={(e) => handleMouseDown(e, "left")}
+        onTouchStart={(e) => handleTouchStart(e, "left")}
       />
 
       {/* 중앙 영역 */}
@@ -144,6 +185,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
           }%`,
         }}
         onMouseDown={(e) => handleMouseDown(e, "center")}
+        onTouchStart={(e) => handleTouchStart(e, "center")}
       />
 
       {/* 오른쪽 핸들 */}
@@ -151,6 +193,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         className="slider-handle right"
         style={{ left: `${getPercentage(currentValue[1])}%` }}
         onMouseDown={(e) => handleMouseDown(e, "right")}
+        onTouchStart={(e) => handleTouchStart(e, "right")}
       />
 
       {/* 오른쪽 영역 */}
