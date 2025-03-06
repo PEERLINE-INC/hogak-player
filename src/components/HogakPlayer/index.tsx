@@ -38,7 +38,6 @@ import usePinch from '../../hooks/usePinch'
 import useQualityStore from '../../store/qualityStore'
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level'
 import { isSafari, isSupportAirplay } from '../../util/common'
-import { log } from 'console'
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -78,7 +77,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.11'
+  const HOGAK_PLAYER_VERSION = '0.7.12'
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
   const setTitle = usePlayerStore((state) => state.setTitle)
