@@ -246,7 +246,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                         ))}
 
                         {/* 241227 구조변경 */}
-                        <SliderWrap>
+                        <SliderWrap >
                             <ReactSlider
                                 className="hogak-clip-slider"
                                 thumbClassName="clip-thumb"
@@ -264,6 +264,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                                 // onChange={handleOnChange}
                                 onAfterChange={handleAfterChange}
                                 onBeforeChange={handleBeforeChange}
+                                
                             />
                         </SliderWrap>
                     </ThumbnailTrack>
@@ -481,7 +482,14 @@ const SliderWrap = styled.div`
         /* 전체화면 아닐 때 */
         height: calc(100% + 1.4em);
         top: -0.7em;
+
+
+        .clip-track-1 {
+            cursor: pointer;
+        }
     }
+
+
 `;
 
 const PlayheadLine = styled.div`
