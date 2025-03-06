@@ -543,6 +543,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // 영상 소스 변경
       // 배속 1로 설정
       setSpeed(1)
+      // 클립 초기화
+      setIsShowClipView(false)
       playerRef.current.autoplay(props.isAutoplay ?? false)
       playerRef.current.src({
         src: url,
