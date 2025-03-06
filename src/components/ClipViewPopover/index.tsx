@@ -303,9 +303,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             </SliderWrap>
           </ThumbnailTrack>
         </ClipRangeWrapper>
-        {played * duration >= min && played * duration <= max && (
+        {/* {played * duration >= min && played * duration <= max && (
           <PlayheadLine style={{ left: `${playheadPercent}%` }} />
-        )}
+        )} */}
       </ClipRangeWrap>
     </PopoverContainer>
   )
