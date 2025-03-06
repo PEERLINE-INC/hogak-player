@@ -400,6 +400,7 @@ export const Basic: Story = {
       setIsViewThumbMarker: (value: boolean) => void,
       setTagView: (value: boolean) => void,
       getIsFullScreen: () => boolean,
+      getCurrentStreamingUrl: () => string,
     } | null>(null);
     const [isShowClipView, setIsShowClipView] = useState(false);
 
@@ -416,6 +417,7 @@ export const Basic: Story = {
         <button onClick={() => playerRef.current?.setIsViewThumbMarker(true)}>setIsViewThumbMarker(true)</button>
         <button onClick={() => playerRef.current?.setTagView(true)}>setTagView(true)</button>
         <button onClick={() => console.log('getIsFullScreen', playerRef.current?.getIsFullScreen())}>getIsFullScreen()</button>
+        <button onClick={() => console.log('getCurrentStreamingUrl', playerRef.current?.getCurrentStreamingUrl())}>getCurrentStreamingUrl()</button>
       </div>
     );
   },

@@ -942,6 +942,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(
       setIsViewThumbMarker(v);
     },
     getIsFullScreen: () => isFullScreen,
+    getCurrentStreamingUrl : () => {
+      return url ?? "";
+    },
   }));
 
   /**
