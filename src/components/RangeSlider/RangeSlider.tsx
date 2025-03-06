@@ -12,6 +12,8 @@ interface RangeSliderProps {
   min?: number; // 선택 가능한 최소 range 값
   max?: number; // 선택 가능한 최대 range 값
   step?: number;
+  played?: number;
+  duration?: number;
 }
 
 export const RangeSlider: React.FC<RangeSliderProps> = ({

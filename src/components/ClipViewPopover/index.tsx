@@ -3,12 +3,10 @@ import CancelIcon from '../../assets/icons/icon_cancel.svg?react'
 import SaveIcon from '../../assets/icons/icon_save.svg?react'
 import ArrowLeftIcon from '../../assets/icons/icon_arrow_left_white.svg?react'
 import usePlayerStore from '../../store/playerStore'
-import ReactSlider from 'react-slider'
 import useClipStore from '../../store/clipViewStore'
 import './styles.css'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { formatTime } from '../../util/common'
 import { RangeSlider } from '../RangeSlider/RangeSlider'
 
 interface ClipViewPopoverProps {
@@ -71,7 +69,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const [images, setImages] = useState<string[]>([])
 
   // 현재 재생 위치를 %로 환산한 값
-  const [playheadPercent, setPlayheadPercent] = useState(0)
+  const [_, setPlayheadPercent] = useState(0)
 
   const fetchImages = async () => {
     try {
@@ -166,10 +164,11 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   //     let newValues = [start, end];
   //     setValues([...newValues]);
   // };
-  const handleBeforeChange = () => {
-    console.log('handleBeforeChange')
-    setIsPlay(false)
-  }
+//   const handleBeforeChange = () => {
+//     console.log('handleBeforeChange')
+//     setIsPlay(false)
+//   }
+
   const handleAfterChange = (value: number[]) => {
     let [start, end] = value
     if (end - start >= 60) {
@@ -192,9 +191,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     onSave?.()
   }
 
-  function handleOnChange(value: [number, number]): void {
-    console.log('handleOnChange', value)
-  }
+//   function handleOnChange(value: [number, number]): void {
+//     console.log('handleOnChange', value)
+//   }
 
   return (
     <PopoverContainer
@@ -295,7 +294,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 played={played}
                 duration={duration}
                 step={0.1}
-                value={values.slice(0,2)}
+                value={[values[0], values[1]]}
                 onChange={handleAfterChange}
               />
 
@@ -520,15 +519,15 @@ const ClipRangeWrapper = styled.div`
   }
 `
 // 클립 슬라이더 선택 바
-const ClipThumb = styled.div`
-  /* 241227 수정 */
-  background-color: #81eb47;
-  width: 1.2em;
-  height: 100%;
-  color: white;
-  cursor: ew-resize;
-  text-indent: -9999px;
-`
+// const ClipThumb = styled.div`
+//   /* 241227 수정 */
+//   background-color: #81eb47;
+//   width: 1.2em;
+//   height: 100%;
+//   color: white;
+//   cursor: ew-resize;
+//   text-indent: -9999px;
+// `
 
 // 썸네일 트랙
 const ThumbnailTrack = styled.div`
@@ -566,49 +565,49 @@ const SliderWrap = styled.div`
   }
 `
 
-const PlayheadLine = styled.div`
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: white;
-  border-radius: 20px;
-  pointer-events: none;
-  z-index: 3;
-  box-shadow: 0px 0px 5px #444;
-`
+// const PlayheadLine = styled.div`
+//   position: absolute;
+//   top: 0;
+//   height: 100%;
+//   width: 2px;
+//   background-color: white;
+//   border-radius: 20px;
+//   pointer-events: none;
+//   z-index: 3;
+//   box-shadow: 0px 0px 5px #444;
+// `
 
-const TimeLabelsContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  bottom: 5.5em;
-  z-index: 6;
-`
+// const TimeLabelsContainer = styled.div`
+//   position: absolute;
+//   width: 100%;
+//   bottom: 5.5em;
+//   z-index: 6;
+// `
 
-const TimeLabel = styled.div`
-  position: absolute;
-  transform: translateX(-50%);
-  bottom: 100%;
-  /* margin-bottom: 0.5em; */
+// const TimeLabel = styled.div`
+//   position: absolute;
+//   transform: translateX(-50%);
+//   bottom: 100%;
+//   /* margin-bottom: 0.5em; */
 
-  background: transparent;
-  color: #fff;
-  padding: 0px 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  white-space: nowrap;
-  pointer-events: none;
+//   background: transparent;
+//   color: #fff;
+//   padding: 0px 8px;
+//   border-radius: 4px;
+//   font-size: 0.9em;
+//   white-space: nowrap;
+//   pointer-events: none;
 
-  &.left {
-    left: 0;
-    transform: translateX(0) translateY(0); /* 왼쪽 고정 */
-  }
-  &.center {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  &.right {
-    right: 0;
-    transform: translateX(0) translateY(0); /* 오른쪽 고정 */
-  }
-`
+//   &.left {
+//     left: 0;
+//     transform: translateX(0) translateY(0); /* 왼쪽 고정 */
+//   }
+//   &.center {
+//     left: 50%;
+//     transform: translateX(-50%);
+//   }
+//   &.right {
+//     right: 0;
+//     transform: translateX(0) translateY(0); /* 오른쪽 고정 */
+//   }
+// `
