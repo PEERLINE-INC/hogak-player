@@ -57,6 +57,7 @@ export function Controls(props: ControlsProps) {
   const setIsSeek = usePlayerStore((state) => state.setIsSeek)
   const duration = usePlayerStore((state) => state.duration)
   const played = usePlayerStore((state) => state.played)
+  const setPlayed = usePlayerStore((state) => state.setPlayed)
   const volume = usePlayerStore((state) => state.volume)
   const setVolume = usePlayerStore((state) => state.setVolume)
   const isFullScreen = usePlayerStore((state) => state.isFullScreen)
@@ -123,9 +124,27 @@ export function Controls(props: ControlsProps) {
   }, [])
 
   useEffect(() => {
+    // 드래그 중이면 store 갱신 무시
     if (isSeek) return
     setTimeSliderValue(played * 100)
-  }, [played])
+  }, [played, isSeek])
+
+  useEffect(() => {
+    const player = playerRef.current
+    if (!player) return
+
+    const handleSeeked = () => {
+      console.log('player has finished seeking')
+      setIsSeek(false);
+    }
+
+    // https://docs.videojs.com/player#event:seeked
+    player.on('seeked', handleSeeked);
+
+    return () => {
+      player.off('seeked', handleSeeked);
+    }
+  }, [playerRef, setIsSeek])
 
   // === 자동 숨김 타이머 설정 로직 ===
   // isOverlayVisible가 true일 때 일정 시간(예: 3초) 후 자동으로 숨김
@@ -227,6 +246,7 @@ export function Controls(props: ControlsProps) {
           targetElement.classList.contains('controls-wrapper') &&
           currentTargetElement.classList.contains('controls-wrapper')
         ) {
+          console.log('overlay toggle')
           // 오버레이 토글
           setOverlayVisible((prev) => !prev)
         }
@@ -253,10 +273,8 @@ export function Controls(props: ControlsProps) {
 
 
     const fraction = value / 100
-    
-    usePlayerStore.getState().setPlayed(fraction);
-
-    seekTo(fraction, 'fraction');
+    seekTo(fraction, 'fraction')
+    setPlayed(fraction);
   }
 
   const handleSeekMouseUp = () => {
@@ -431,8 +449,8 @@ export function Controls(props: ControlsProps) {
 
         <MiddleContainer className='controls-wrapper'>
           {/* 250225 좌우 버튼 추가 */}
-          <PlayBtnContainer style={{ width: '100%' }}>
-            <FlexRow style={{ justifyContent: 'center' }}>
+          <PlayBtnContainer className='controls-wrapper' style={{ width: '100%' }}>
+            <FlexRow className='controls-wrapper' style={{ justifyContent: 'center' }}>
               {enableLeftRightArrowButton && (
                 <IconButton
                   style={{ marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em' }}
