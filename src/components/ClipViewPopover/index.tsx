@@ -509,6 +509,9 @@ const ClipRangeWrapper = styled.div`
   .slider-area.center {
     background: transparent !important;
   }
+  .slider-container::before {
+    background-color: transparent;
+  }
 `
 // 클립 슬라이더 선택 바
 const ClipThumb = styled.div`
