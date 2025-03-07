@@ -343,7 +343,6 @@ export function Controls(props: ControlsProps) {
 
   const handleVolumeChange = (value: number[]) => {
     const [vol] = value;
-    console.log('handleVolumeChange', value)
     setVolume(vol)
   }
 
