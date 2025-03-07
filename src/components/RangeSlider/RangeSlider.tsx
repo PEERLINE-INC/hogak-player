@@ -10,8 +10,6 @@ interface RangeSliderProps {
   min?: number // 선택 가능한 최소 range 값
   max?: number // 선택 가능한 최대 range 값
   step?: number
-  played?: number
-  duration?: number
 }
 
 // Styled Components
@@ -20,22 +18,10 @@ const Container = styled.div`
     position: relative;
     width: 100%;
     height: calc(100% + 1.4em);
-    margin: 24px auto 0;
+    margin: 0px auto 0;
     top: -0.7em;
     background-color: transparent;
     overflow: visible;
-  }
-
-  &.slider-container::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 0.3em;
-    background-color: rgba(0, 0, 0, 0.74);
-    transform: translateY(-50%);
-    border-radius: 0.4em;
   }
 `
 
@@ -118,8 +104,6 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   min = 0,
   max = 100,
   step = 1,
-  played = 0,
-  duration = 0,
 }) => {
   const [dragging, setDragging] = useState<'left' | 'right' | 'center' | null>(null)
   const [startX, setStartX] = useState(0)
@@ -279,9 +263,9 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
       >
         <TimeLabelsWrapper>
           <TimeLabelsContainer>
-            <div>{formatTime(min)}</div>
-            <div>{formatTime(played * duration)}</div>
-            <div>{formatTime(max)}</div>
+            <div>{formatTime(currentValue[0])}</div>
+            <div>{`${Math.min(Math.floor(currentValue[1] - currentValue[0]), 60)} s`}</div>
+            <div>{formatTime(currentValue[1])}</div>
           </TimeLabelsContainer>
         </TimeLabelsWrapper>
       </Area>

@@ -77,7 +77,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.14'
+  const HOGAK_PLAYER_VERSION = '0.7.15'
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
   const setTitle = usePlayerStore((state) => state.setTitle)

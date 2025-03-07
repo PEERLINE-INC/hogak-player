@@ -272,8 +272,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
               <RangeSlider
                 min={10}
                 max={60}
-                played={played}
-                duration={duration}
                 step={0.1}
                 value={[values[0], values[1]]}
                 onChange={handleAfterChange}
