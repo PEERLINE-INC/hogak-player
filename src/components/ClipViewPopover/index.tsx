@@ -68,8 +68,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const [max, setMax] = useState<number>(180)
   const [images, setImages] = useState<string[]>([])
 
-  // 현재 재생 위치를 %로 환산한 값
-  const [_, setPlayheadPercent] = useState(0)
+    // 현재 재생 위치를 %로 환산한 값
+    const [playheadPercent, setPlayheadPercent] = useState(0);
+    const [isPlayheadShow, setIsPlayheadShow] = useState(false);
 
   const fetchImages = async () => {
     try {
@@ -135,70 +136,45 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     // currentSeconds 중심으로 3분 범위 설정
     const { start, end } = calculateClipRange(currentSeconds, duration)
     const middleValue = (start + end) / 2
-
-    setMin(start)
-    setMax(end)
     setValues([middleValue - 30, middleValue + 30])
-  }, [duration])
+  }, [currentSeconds]);
 
-  useEffect(() => {
-    if (isShow) {
-      const clipEndPlayed = values[1] / duration
-      // console.log('played', { played, clipEndPlayed });
-      if (played >= clipEndPlayed) {
-        setIsPlay(false)
-      }
-    }
-  }, [played])
+    useEffect(() => {
+        if (isShow) {
+            const [start, end] = values;
+            const clipEndPlayed = end / duration;
+            // console.log('played', { played, clipEndPlayed });
+            if (played >= clipEndPlayed) {
+                seekTo(start, "seconds");
+            }
+        }
+    }, [played]);
 
-  useEffect(() => {
-    if (isShow) {
-      onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])])
-    }
-  }, [isShow])
+    useEffect(() => {
+        setIsPlayheadShow(isPlay);
+    }, [isPlay]);
 
-  // const handleOnChange = (value: number[]) => {
-  //     console.log('handleOnChange', value);
-  //     let [start, end] = value;
-
-  //     // 두 숫자의 차이가 60 이상이면, 끝 값을 시작 값 + 60으로 제한
-  //     if (end - start >= 60) {
-  //       end = start + 60;
-  //     }
-
-  //     let newValues = [start, end];
-  //     setValues([...newValues]);
-  // };
-//   const handleBeforeChange = () => {
-//     console.log('handleBeforeChange')
-//     setIsPlay(false)
-//   }
-
-  const handleAfterChange = (value: number[]) => {
-    let [start, end] = value
-    if (end - start >= 60) {
-      end = start + 60
-    }
-    onChangeClipDuration([Math.floor(start), Math.floor(end)])
-    setValues([start, end])
-    seekTo(start, 'seconds')
-    setIsPlay(true)
-  }
-  const handleCancel = () => {
-    setIsShowClipView(false)
-    if (!isPlay) {
-      setIsPlay(true)
-    }
-  }
-  const handleSave = () => {
-    handleCancel()
-    onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])])
-    onSave?.()
-  }
-
-//   function handleOnChange(value: [number, number]): void {
-//     console.log('handleOnChange', value)
-//   }
+    const handleAfterChange = (value: number[]) => {
+        let [start, end] = value;
+        if (end - start >= 60) {
+            end = start + 60;
+        }
+        onChangeClipDuration([Math.floor(start), Math.floor(end)]);
+        setValues([start, end]);
+        seekTo(start, 'seconds');
+        setIsPlay(true);
+      };
+    const handleCancel = () => {
+        setIsShowClipView(false);
+        if (!isPlay) {
+            setIsPlay(true);
+        }
+    };
+    const handleSave = () => {
+        handleCancel();
+        onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
+        onSave?.();
+    };
 
   return (
     <PopoverContainer
@@ -299,15 +275,13 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 played={played}
                 duration={duration}
                 step={0.1}
-                value={values.slice(0,2)}
+                value={[values[0], values[1]]}
                 onChange={handleAfterChange}
               />
             </SliderWrap>
           </ThumbnailTrack>
         </ClipRangeWrapper>
-        {/* {played * duration >= min && played * duration <= max && (
-          <PlayheadLine style={{ left: `${playheadPercent}%` }} />
-        )} */}
+        {isPlayheadShow && <PlayheadLine style={{ left: `${playheadPercent}%` }} />}
       </ClipRangeWrap>
     </PopoverContainer>
   )
@@ -568,17 +542,17 @@ const SliderWrap = styled.div`
   }
 `
 
-// const PlayheadLine = styled.div`
-//   position: absolute;
-//   top: 0;
-//   height: 100%;
-//   width: 2px;
-//   background-color: white;
-//   border-radius: 20px;
-//   pointer-events: none;
-//   z-index: 3;
-//   box-shadow: 0px 0px 5px #444;
-// `
+const PlayheadLine = styled.div`
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: white;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0px 0px 5px #444;
+`
 
 // const TimeLabelsContainer = styled.div`
 //   position: absolute;
