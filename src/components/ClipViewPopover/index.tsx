@@ -68,9 +68,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const [max, setMax] = useState<number>(180)
   const [images, setImages] = useState<string[]>([])
 
-    // 현재 재생 위치를 %로 환산한 값
-    const [playheadPercent, setPlayheadPercent] = useState(0);
-    const [isPlayheadShow, setIsPlayheadShow] = useState(false);
+  // 현재 재생 위치를 %로 환산한 값
+  // const [playheadPercent, setPlayheadPercent] = useState(0)
+  // const [isPlayheadShow, setIsPlayheadShow] = useState(false)
 
   const fetchImages = async () => {
     try {
@@ -96,14 +96,14 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     }
   }
 
-  useEffect(() => {
-    if (!isShow) return
-    // played는 0~1 사이의 비율이므로, 현재 재생 시간을 구함
-    const currentTime = played * duration
-    const fraction = (currentTime - min) / (max - min)
+  // useEffect(() => {
+  //   if (!isShow) return
+  //   // played는 0~1 사이의 비율이므로, 현재 재생 시간을 구함
+  //   const currentTime = played * duration
+  //   const fraction = (currentTime - min) / (max - min)
 
-    setPlayheadPercent(fraction * 100)
-  }, [played, duration, min, max, isShow])
+  //   setPlayheadPercent(fraction * 100)
+  // }, [played, duration, min, max, isShow])
 
   useEffect(() => {
     if (!isShow) return
@@ -150,9 +150,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         }
     }, [played]);
 
-    useEffect(() => {
-        setIsPlayheadShow(isPlay);
-    }, [isPlay]);
+    // useEffect(() => {
+    //   setIsPlayheadShow(isPlay);
+    // }, [isPlay]);
 
     const handleAfterChange = (value: number[]) => {
         let [start, end] = value;
@@ -281,7 +281,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             </SliderWrap>
           </ThumbnailTrack>
         </ClipRangeWrapper>
-        {isPlayheadShow && <PlayheadLine style={{ left: `${playheadPercent}%` }} />}
+        {/* {isPlayheadShow && <PlayheadLine style={{ left: `${playheadPercent}%` }} />} */}
       </ClipRangeWrap>
     </PopoverContainer>
   )
@@ -542,17 +542,17 @@ const SliderWrap = styled.div`
   }
 `
 
-const PlayheadLine = styled.div`
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: white;
-  border-radius: 20px;
-  pointer-events: none;
-  z-index: 3;
-  box-shadow: 0px 0px 5px #444;
-`
+// const PlayheadLine = styled.div`
+//   position: absolute;
+//   top: 0;
+//   height: 100%;
+//   width: 2px;
+//   background-color: white;
+//   border-radius: 20px;
+//   pointer-events: none;
+//   z-index: 3;
+//   box-shadow: 0px 0px 5px #444;
+// `
 
 // const TimeLabelsContainer = styled.div`
 //   position: absolute;
