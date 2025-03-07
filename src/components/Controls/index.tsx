@@ -136,14 +136,14 @@ export function Controls(props: ControlsProps) {
 
     const handleSeeked = () => {
       console.log('player has finished seeking')
-      setIsSeek(false);
+      setIsSeek(false)
     }
 
     // https://docs.videojs.com/player#event:seeked
-    player.on('seeked', handleSeeked);
+    player.on('seeked', handleSeeked)
 
     return () => {
-      player.off('seeked', handleSeeked);
+      player.off('seeked', handleSeeked)
     }
   }, [playerRef, setIsSeek])
 
@@ -173,7 +173,14 @@ export function Controls(props: ControlsProps) {
         hideTimerRef.current = null
       }
     }
-  }, [isOverlayVisible, isTouchDevice, isSeek, isShowSpeedDropdown, isShowQualityDropdown, hasFirstUserInteraction])
+  }, [
+    isOverlayVisible,
+    isTouchDevice,
+    isSeek,
+    isShowSpeedDropdown,
+    isShowQualityDropdown,
+    hasFirstUserInteraction,
+  ])
 
   // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
   useEffect(() => {
@@ -259,8 +266,8 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleSeekChange = ([value]: number[]) => {
-    console.log('handleSeekChange');
-    
+    console.log('handleSeekChange')
+
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
@@ -270,15 +277,14 @@ export function Controls(props: ControlsProps) {
 
   const handleSeekCommit = ([value]: number[]) => {
     // console.log('handleSeekCommit');
-    
+
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
 
-
     const fraction = value / 100
     seekTo(fraction, 'fraction')
-    setPlayed(fraction);
+    setPlayed(fraction)
   }
 
   const handleSeekMouseUp = () => {
@@ -346,7 +352,7 @@ export function Controls(props: ControlsProps) {
     if (isPanorama) {
       return [{ value: 1080, label: 'PANO' }]
     }
-
+    
     if (isSafari()) {
       return [
         { value: 720, label: '720p' },
@@ -377,8 +383,11 @@ export function Controls(props: ControlsProps) {
         className='controls-wrapper'
         isOverlayVisible={isOverlayVisible}
       >
-         {/* 250306 윤영민 변경 */}
-         <TopContainer className='controls-wrapper' style={{position: 'relative'}}>
+        {/* 250306 윤영민 변경 */}
+        <TopContainer
+          className='controls-wrapper'
+          style={{ position: 'relative' }}
+        >
           <FlexRow
             style={{ width: 'calc(100% - 13em' }}
             className='controls-wrapper'
@@ -414,8 +423,11 @@ export function Controls(props: ControlsProps) {
             </div>
           </FlexRow>
 
-           {/* 250306 윤영민 변경 */}
-           <FlexRow gap={16} className='icon_box multi_box' >
+          {/* 250306 윤영민 변경 */}
+          <FlexRow
+            gap={16}
+            className='icon_box multi_box'
+          >
             {!isFullScreen && !isDisableTag && (
               <IconButton
                 className='tag_btn'
@@ -453,8 +465,14 @@ export function Controls(props: ControlsProps) {
 
         <MiddleContainer className='controls-wrapper'>
           {/* 250225 좌우 버튼 추가 */}
-          <PlayBtnContainer className='controls-wrapper' style={{ width: '100%' }}>
-            <FlexRow className='controls-wrapper' style={{ justifyContent: 'center' }}>
+          <PlayBtnContainer
+            className='controls-wrapper'
+            style={{ width: '100%' }}
+          >
+            <FlexRow
+              className='controls-wrapper'
+              style={{ justifyContent: 'center' }}
+            >
               {enableLeftRightArrowButton && (
                 <IconButton
                   style={{ marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em' }}
@@ -925,9 +943,8 @@ const FlexRow = styled.div<{ gap?: number }>`
     }
   }
 
-
-    /* 250306 윤영민 변경 */
-    &.multi_box {
+  /* 250306 윤영민 변경 */
+  &.multi_box {
     position: absolute;
     top: 23px;
     right: 23px;

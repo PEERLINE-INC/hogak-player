@@ -295,8 +295,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // @ts-ignore
       let qualityLevels = player.qualityLevels()
       const enableHighestQuality = () => {
-        if (!qualityLevels || !qualityLevels.length) return;
-      
+        if (!qualityLevels || !qualityLevels.length) return
+
         // 1) 전체 레벨 중 가장 해상도가 큰 index 찾기
         let maxIndex = 0
         let maxHeight = 0
@@ -306,11 +306,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             maxIndex = i
           }
         }
-      
+
         // 2) 해당 index만 enabled = true, 나머지는 false
         for (let i = 0; i < qualityLevels.length; i++) {
-          qualityLevels[i].enabled = (i === maxIndex)
+          qualityLevels[i].enabled = i === maxIndex
         }
+
+        // debugger
+        // setCurrentQuality(qualityLevels[maxIndex].height)
       }
       qualityLevels.on('change', function () {
         // console.log('New level:', qualityLevels[qualityLevels.selectedIndex].height);
@@ -319,7 +322,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       qualityLevels.on('addqualitylevel', (event: any) => {
         const newLevel = event.qualityLevel
         console.log('New QualityLevel', newLevel, qualityLevelArr)
-        enableHighestQuality();
+        enableHighestQuality()
 
         // zustand 상태에 추가할 때, 중복 height가 있는지 검사 후 추가
         setQualityLevels((prev: QualityLevel[]) => {
@@ -385,6 +388,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('loadedmetadata', () => {
         handleOnDuration()
         enableHighestQuality()
+
+        qualityLevels.selectedIndex_ = qualityLevels.length - 1
+        qualityLevels.trigger({ type: 'change', selectedIndex: qualityLevels.length - 1 })
       })
       player.on('ready', handleOnReady)
       player.on('play', handleOnPlay)
@@ -449,11 +455,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         })
 
         player.on('waiting', function () {
-          console.log('waiting');
+          console.log('waiting')
         })
 
         player.on('canplay', function () {
-          console.log('canplay');
+          console.log('canplay')
         })
       })
 
@@ -572,7 +578,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     const player = playerRef.current
 
     return () => {
-      console.log('unmount player');
+      console.log('unmount player')
       if (player && !player.isDisposed()) {
         player.dispose()
         playerRef.current = null
@@ -835,10 +841,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setPlayed(current / duration)
       setAtLive(atLive)
     } else {
-
-      if ( usePlayerStore.getState().isSeek) {
+      if (usePlayerStore.getState().isSeek) {
         // seek 중 time slider update 금지
-        return;
+        return
       }
       // played = (현재시간 / 전체길이)
       let current = playerRef.current.currentTime() ?? 0
@@ -857,7 +862,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       const playedFraction = current / duration
       // console.log('handleOnTimeUpdate (video.js)', playedFraction);
       // console.log('played (video.js)', usePlayerStore.getState().played);
-      
+
       setPlayed(playedFraction)
     }
   }
@@ -897,8 +902,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnCanPlay = () => {
     console.log('handleOnCanPlay (video.js)')
-  
-    usePlayerStore.getState().setIsSeek(false);
+
+    usePlayerStore.getState().setIsSeek(false)
   }
 
   const seekTo = (value: number, type: 'seconds' | 'fraction') => {
@@ -989,10 +994,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setIsViewThumbMarker(v)
     },
     getIsFullScreen: () => isFullScreen,
-    getCurrentStreamingUrl : () => {
-      return url ?? "";
+    getCurrentStreamingUrl: () => {
+      return url ?? ''
     },
-  }));
+  }))
 
   /**
    * ----------------------------------------------------------------
