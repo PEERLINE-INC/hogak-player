@@ -10,6 +10,8 @@ interface RangeSliderProps {
   min?: number // 선택 가능한 최소 range 값
   max?: number // 선택 가능한 최대 range 값
   step?: number
+  isPlayheadShow?: boolean
+  playheadPercent?: number
 }
 
 // Styled Components
@@ -88,12 +90,63 @@ const TimeLabelsWrapper = styled.div`
   position: absolute;
   top: -20px;
   color: #fff;
+  overflow: visible;
 `
 
+// const TimeLabelsContainer = styled.div`
+//   width: 100%;
+//   display: flex;
+//   justify-content: space-between;
+//   white-space: nowrap;
+// `
 const TimeLabelsContainer = styled.div`
+  position: relative;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* 가운데 고정 */
+  align-items: center;
+  padding: 0 1em; /* 가운데 레이블이 너무 붙지 않도록 여유 */
+`;
+
+const DragLabel = styled.div<{ isVisible: boolean }>`
+  position: absolute;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0 5px;
+  white-space: nowrap;
+  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+  font-size: 1.2em;
+`;
+
+const LeftLabel = styled(DragLabel)`
+  left: 0;  /* 슬라이더 컨테이너 기준 왼쪽 고정 */
+  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+`;
+const RightLabel = styled(DragLabel)`
+  right: 0; /* 슬라이더 컨테이너 기준 오른쪽 고정 */
+  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+`;
+const CenterLabel = styled.div`
+  display: flex;
+  position: relative;
+  height: 100%;
+  z-index: 4;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.2em;
+`;
+
+const PlayheadLine = styled.div`
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: white;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0px 0px 5px #444;
 `
 
 export const RangeSlider: React.FC<RangeSliderProps> = ({
@@ -104,6 +157,8 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   min = 0,
   max = 100,
   step = 1,
+  isPlayheadShow = false,
+  playheadPercent = 0,
 }) => {
   const [dragging, setDragging] = useState<'left' | 'right' | 'center' | null>(null)
   const [startX, setStartX] = useState(0)
@@ -261,13 +316,31 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         onMouseDown={(e) => handleMouseDown(e, 'center')}
         onTouchStart={(e) => handleTouchStart(e, 'center')}
       >
+        {isPlayheadShow && !dragging && <PlayheadLine style={{ left: `${playheadPercent}%` }} />}
         <TimeLabelsWrapper>
           <TimeLabelsContainer>
-            <div>{formatTime(currentValue[0])}</div>
+            {/* <div style={{ visibility: dragging === 'left' ? 'visible' : 'hidden', backgroundColor: 'gray', padding: '0 5px' }}>
+              {formatTime(currentValue[0])}
+            </div>
             <div>{`${Math.min(Math.floor(currentValue[1] - currentValue[0]), 60)} s`}</div>
-            <div>{formatTime(currentValue[1])}</div>
+            <div style={{ visibility: dragging === 'right' ? 'visible' : 'hidden', backgroundColor: 'gray', padding: '0 5px' }}>
+              {formatTime(currentValue[1])}
+            </div> */}
+            <LeftLabel isVisible={dragging === 'left'}>
+              {formatTime(currentValue[0])}
+            </LeftLabel>
+            
+            <RightLabel isVisible={dragging === 'right'}>
+              {formatTime(currentValue[1])}
+            </RightLabel>
           </TimeLabelsContainer>
         </TimeLabelsWrapper>
+
+        <CenterLabel>
+          <span style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '0 5px', whiteSpace: 'nowrap' }}>
+            {`${Math.min(Math.floor(currentValue[1] - currentValue[0]), 60)} 초`}
+          </span>
+        </CenterLabel>
       </Area>
 
       <Handle

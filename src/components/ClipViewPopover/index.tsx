@@ -62,6 +62,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const isLive = usePlayerStore((state) => state.isLive)
   const eventId = useClipStore((state) => state.eventId)
   const clipApiHost = useClipStore((state) => state.clipApiHost)
+  const isSeek = usePlayerStore((state) => state.isSeek)
 
   const [values, setValues] = useState<number[]>([0, 30])
   const [min, setMin] = useState<number>(0)
@@ -69,8 +70,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const [images, setImages] = useState<string[]>([])
 
   // 현재 재생 위치를 %로 환산한 값
-  // const [playheadPercent, setPlayheadPercent] = useState(0)
-  // const [isPlayheadShow, setIsPlayheadShow] = useState(false)
+  const [playheadPercent, setPlayheadPercent] = useState(0)
+  const [isPlayheadShow, setIsPlayheadShow] = useState(false)
 
   const fetchImages = async () => {
     try {
@@ -96,14 +97,24 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     }
   }
 
-  // useEffect(() => {
-  //   if (!isShow) return
-  //   // played는 0~1 사이의 비율이므로, 현재 재생 시간을 구함
-  //   const currentTime = played * duration
-  //   const fraction = (currentTime - min) / (max - min)
+  useEffect(() => {
+    if (!isShow) return
+  
+    const currentTime = played * duration
+    const [start, end] = values;
+    let fraction = (currentTime - start) / (end - start)
+    if (fraction < 0) fraction = 0;
+    if (fraction > 1) fraction = 1;
 
-  //   setPlayheadPercent(fraction * 100)
-  // }, [played, duration, min, max, isShow])
+    // 오차 보정
+    const percent = fraction * 100 - 4 * fraction;
+  
+    setPlayheadPercent(percent)
+  }, [played, duration, min, max, values, isShow]);  
+
+  useEffect(() => {
+    setIsPlayheadShow(!isSeek && isPlay);
+  }, [isPlay, isSeek]);
 
   useEffect(() => {
     if (!isShow) return
@@ -149,10 +160,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             }
         }
     }, [played]);
-
-    // useEffect(() => {
-    //   setIsPlayheadShow(isPlay);
-    // }, [isPlay]);
 
     const handleAfterChange = (value: number[]) => {
         let [start, end] = value;
@@ -275,6 +282,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 step={0.1}
                 value={[values[0], values[1]]}
                 onChange={handleAfterChange}
+                isPlayheadShow={isPlayheadShow}
+                playheadPercent={playheadPercent}
               />
             </SliderWrap>
           </ThumbnailTrack>
@@ -540,17 +549,17 @@ const SliderWrap = styled.div`
   }
 `
 
-// const PlayheadLine = styled.div`
-//   position: absolute;
-//   top: 0;
-//   height: 100%;
-//   width: 2px;
-//   background-color: white;
-//   border-radius: 20px;
-//   pointer-events: none;
-//   z-index: 3;
-//   box-shadow: 0px 0px 5px #444;
-// `
+const PlayheadLine = styled.div`
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: white;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0px 0px 5px #444;
+`
 
 // const TimeLabelsContainer = styled.div`
 //   position: absolute;
