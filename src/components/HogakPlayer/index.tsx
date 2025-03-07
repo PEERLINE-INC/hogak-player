@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.19'
+  const HOGAK_PLAYER_VERSION = '0.7.20'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -222,7 +222,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   // Video.js Player 초기화
   useEffect(() => {
-    if (!url) return // URL이 없으면 초기화하지 않음
+    // if (!url) return // URL이 없으면 초기화하지 않음
 
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js')
@@ -239,6 +239,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         poster: props.thumbnailUrl,
         muted: false,
         enableSmoothSeeking: true,
+        suppressNotSupportedError: true,
         playsinline: true,
         controls: false,
         aspectRatio: '16:9',
@@ -895,6 +896,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const handleOnError = () => {
     const error = playerRef.current?.error();
     console.error('onError (video.js)', error);
+
+    // @ts-ignore
+    playerRef.current?.error(null);
   }
 
   const handleOnLiveEdgeChange = () => {
