@@ -341,6 +341,12 @@ export function Controls(props: ControlsProps) {
     setIsPlay(!isPlay)
   }
 
+  const handleVolumeChange = (value: number[]) => {
+    const [vol] = value;
+    console.log('handleVolumeChange', value)
+    setVolume(vol)
+  }
+
   const handleChangeQuality = (option: any) => {
     console.log('handleChangeQuality', option)
     if (isSafari()) {
@@ -707,10 +713,11 @@ export function Controls(props: ControlsProps) {
                   </IconButton>
                   <Slider.Root
                     className='SliderRoot'
-                    value={[volume * 100]}
-                    max={100}
-                    step={1}
-                    onValueChange={([value]) => setVolume(value / 100)}
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={handleVolumeChange}
                   >
                     <Slider.Track className='SliderTrack'>
                       <Slider.Range className='SliderRange' />

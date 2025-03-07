@@ -613,9 +613,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   useEffect(() => {
     if (!playerRef.current) return
-    if (volume !== undefined) {
-      playerRef.current.volume(volume)
-    }
+    playerRef.current.volume(volume)
   }, [volume])
 
   useEffect(() => {
