@@ -564,23 +564,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     }
   }, [playerRef])
 
-
-// 250306 윤영민
-const elementPr = document.querySelector(".sc-ixGGxD"); 
-
-elementPr?.addEventListener('click', () => {
-  const elementPr = document.querySelector(".sc-ghWlax"); 
-  const elementBg = document.querySelector(".sc-ivxoEo")
-  if (elementPr && elementBg) {
-    elementPr.classList.toggle("toggle-bg-style"); // 클래스 추가/삭제
-    elementBg.classList.toggle("toggle-style"); // 클래스 추가/삭제
-  }
-
-
-})
-
-
-
   /**
    * ----------------------------------------------------------------
    * 3. props.isPlay / volume / pip 등의 값 반영
@@ -1144,15 +1127,6 @@ const PlayerContainer = styled.div<{
 const PlayerWrapper = styled.div`
   position: relative;
   height: 100%;
-
-
-  .toggle-style {
-    opacity: 0 !important;
-  }
-  .toggle-bg-style {
-    background: transparent !important; 
-  }
-
 
   &.video_ratio_wrapper {
     padding-top: calc((9 / 16) * 100%);
