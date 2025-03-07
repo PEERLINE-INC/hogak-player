@@ -31,6 +31,11 @@ const meta = {
       description: '재생할 영상의 URL입니다.',
       type: 'string',
     },
+    thumbnailUrl: {
+      defaultValue: '',
+      description: '표시할 썸네일 이미지의 URL입니다.',
+      type: 'string',
+    },
     isPanorama: {
       defaultValue: false,
       description: '파노라마 모드의 초기값을 설정합니다. (영상 소스가 변경되면 해당 소스의 파노라마 모드 여부를 따릅니다)',
@@ -213,6 +218,7 @@ const meta = {
     isLive: false,
     // url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
     url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+    thumbnailUrl: 'https://picsum.photos/seed/picsum/1920/1080',
     width: undefined,
     height: undefined,
     isPlay: false,

@@ -3,6 +3,8 @@ import { create } from 'zustand'
 interface PlayerState {
   url: string;
   setUrl: (url: string) => void;
+  thumbnailUrl: string;
+  setThumbnailUrl: (thumbnailUrl: string) => void;
   isLive: boolean;
   setIsLive: (isLive: boolean) => void;
   title: string;
@@ -74,6 +76,8 @@ const usePlayerStore = create<PlayerState>()(
   (set) => ({
     url: '',
     setUrl: (url: string) => set({ url }),
+    thumbnailUrl: '',
+    setThumbnailUrl: (thumbnailUrl: string) => set({ thumbnailUrl }),
     isLive: false,
     setIsLive: (isLive: boolean) => set({ isLive }),
     title: '',

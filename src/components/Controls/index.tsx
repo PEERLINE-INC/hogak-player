@@ -89,11 +89,12 @@ export function Controls(props: ControlsProps) {
 
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100)
-  const [isOverlayVisible, setOverlayVisible] = useState(false)
+  const [isOverlayVisible, setOverlayVisible] = useState(true)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [lastTapTime, setLastTapTime] = useState<number | null>(null)
   const [isShowSpeedDropdown, setIsShowSpeedDropdown] = useState(false)
   const [isShowQualityDropdown, setIsShowQualityDropdown] = useState(false)
+  const [hasFirstUserInteraction, setHasFirstUserInteraction] = useState(false)
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const setSkipDirection = usePlayerStore((state) => state.setSkipDirection)
   // 자동 숨김 타이머를 제어하기 위한 ref
@@ -154,6 +155,8 @@ export function Controls(props: ControlsProps) {
     if (!isOverlayVisible) return
     if (isSeek) return
     if (isShowSpeedDropdown || isShowQualityDropdown) return
+    if (!hasFirstUserInteraction) return
+
     // 먼저 기존 타이머가 있으면 클리어
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current)
@@ -170,7 +173,7 @@ export function Controls(props: ControlsProps) {
         hideTimerRef.current = null
       }
     }
-  }, [isOverlayVisible, isTouchDevice, isSeek, isShowSpeedDropdown, isShowQualityDropdown])
+  }, [isOverlayVisible, isTouchDevice, isSeek, isShowSpeedDropdown, isShowQualityDropdown, hasFirstUserInteraction])
 
   // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
   useEffect(() => {
@@ -190,6 +193,7 @@ export function Controls(props: ControlsProps) {
   // === 모바일 환경에서 한 번 터치할 때마다 오버레이 토글 ===
   const handleTouchOverlay = (e: React.MouseEvent<HTMLDivElement>) => {
     console.log('handleTouchOverlay', e.target, e.currentTarget)
+    setHasFirstUserInteraction(true)
     const targetElement = e.target as HTMLElement
     const currentTargetElement = e.currentTarget as HTMLElement
     const now = performance.now()

@@ -224,6 +224,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         techOrder: ['chromecast', 'html5'],
         liveTracker: isLive,
         autoplay: props.isAutoplay ?? false,
+        poster: props.thumbnailUrl,
         muted: false,
         enableSmoothSeeking: true,
         playsinline: true,
@@ -289,6 +290,24 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // Quality 플러그인
       // @ts-ignore
       let qualityLevels = player.qualityLevels()
+      const enableHighestQuality = () => {
+        if (!qualityLevels || !qualityLevels.length) return;
+      
+        // 1) 전체 레벨 중 가장 해상도가 큰 index 찾기
+        let maxIndex = 0
+        let maxHeight = 0
+        for (let i = 0; i < qualityLevels.length; i++) {
+          if (qualityLevels[i].height > maxHeight) {
+            maxHeight = qualityLevels[i].height
+            maxIndex = i
+          }
+        }
+      
+        // 2) 해당 index만 enabled = true, 나머지는 false
+        for (let i = 0; i < qualityLevels.length; i++) {
+          qualityLevels[i].enabled = (i === maxIndex)
+        }
+      }
       qualityLevels.on('change', function () {
         // console.log('New level:', qualityLevels[qualityLevels.selectedIndex].height);
         setCurrentQuality(qualityLevels[qualityLevels.selectedIndex].height)
@@ -296,16 +315,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       qualityLevels.on('addqualitylevel', (event: any) => {
         const newLevel = event.qualityLevel
         console.log('New QualityLevel', newLevel, qualityLevelArr)
-        // 첫 번째 퀄리티 레벨은 항상 활성화
-        if (qualityLevelArr.length === 0) {
-          newLevel.enabled = true
-        } else {
-          if (newLevel.height >= 1080) {
-            newLevel.enabled = true
-          } else {
-            newLevel.enabled = false
-          }
-        }
+        enableHighestQuality();
 
         // zustand 상태에 추가할 때, 중복 height가 있는지 검사 후 추가
         setQualityLevels((prev: QualityLevel[]) => {
@@ -368,7 +378,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       zoomPluginRef.current = zoomPlugin
 
       // 이벤트 리스너 등록
-      player.on('loadedmetadata', handleOnDuration)
+      player.on('loadedmetadata', () => {
+        handleOnDuration()
+        enableHighestQuality()
+      })
       player.on('ready', handleOnReady)
       player.on('play', handleOnPlay)
       player.on('timeupdate', handleOnTimeUpdate)

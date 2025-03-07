@@ -548,19 +548,6 @@ const SliderWrap = styled.div`
     top: -0.7em;
   }
 `
-
-const PlayheadLine = styled.div`
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: white;
-  border-radius: 20px;
-  pointer-events: none;
-  z-index: 3;
-  box-shadow: 0px 0px 5px #444;
-`
-
 // const TimeLabelsContainer = styled.div`
 //   position: absolute;
 //   width: 100%;
