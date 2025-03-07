@@ -1,4 +1,4 @@
-.slider-container {
+/* .slider-container {
   position: relative;
   width: 100%;
   height: calc(100% + 1.4em);
@@ -6,10 +6,10 @@
   top: -0.7em;
   background-color: transparent;
   overflow: visible;
-}
+} */
 
 /* Track 스타일 */
-.slider-container::before {
+/* .slider-container::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -73,4 +73,4 @@
 
 .slider-handle:hover {
   transform: translate(-50%, -50%) scale(1.05);
-}
+} */
