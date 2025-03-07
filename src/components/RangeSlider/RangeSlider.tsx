@@ -166,7 +166,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         shouldUpdate = false
       }
     } else if (dragging === 'center') {
-      const range = currentValue[1] - currentValue[0]
+      // const range = currentValue[1] - currentValue[0]
       let newLeft = snapToStep(startPositions[0] + stepDiff)
       let newRight = snapToStep(startPositions[1] + stepDiff)
       const newRange = newRight - newLeft
