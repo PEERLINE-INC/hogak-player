@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 /// <reference types="vite/client" />
 /// <reference types="vitest" />
 import path, { resolve } from 'node:path'
@@ -19,12 +20,17 @@ export default defineConfig({
     svgr({
       include: "**/*.svg?react",
     }),
+    sentryVitePlugin({
+      org: "peerline-im",
+      project: "javascript-react"
+    })
   ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       formats: ['es'],
     },
+
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
       // https://rollupjs.org/configuration-options/#input
@@ -52,6 +58,8 @@ export default defineConfig({
         },
       },
     },
+
+    sourcemap: true
   },
   test: {
     globals: true,

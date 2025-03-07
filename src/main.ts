@@ -1,1 +1,1 @@
-export { HogakPlayer } from './components/HogakPlayer'
+export { HogakPlayer } from './components/HogakPlayer';

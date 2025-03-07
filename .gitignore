@@ -26,3 +26,5 @@ storybook-static
 
 # Test file
 *.tgz
+# Sentry Config File
+.env.sentry-build-plugin

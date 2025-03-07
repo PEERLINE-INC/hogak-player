@@ -77,7 +77,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.16'
+  const HOGAK_PLAYER_VERSION = '0.7.17'
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
   const setTitle = usePlayerStore((state) => state.setTitle)
@@ -887,7 +887,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }
 
   const handleOnError = () => {
-    console.error('onError (video.js)', playerRef.current?.error())
+    const error = playerRef.current?.error();
+    console.error('onError (video.js)', error);
   }
 
   const handleOnLiveEdgeChange = () => {
