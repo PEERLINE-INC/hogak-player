@@ -312,6 +312,7 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleClickClip = () => {
+    console.log('handleClickClip')
     if (isDisablePlayer) return
 
     setIsPlay(false)

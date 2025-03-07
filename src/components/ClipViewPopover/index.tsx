@@ -131,6 +131,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   }, [setValuesRef, onChangeClipDuration])
 
   useEffect(() => {
+    if (isLive) return
     console.log('useEffect', { currentSeconds, duration })
     // currentSeconds 중심으로 3분 범위 설정
     const { start, end } = calculateClipRange(currentSeconds, duration)
@@ -140,15 +141,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     setMax(end)
     setValues([middleValue - 30, middleValue + 30])
   }, [currentSeconds])
-
-  useEffect(() => {
-    if (isLive) return
-    console.log('useEffect', { currentSeconds, duration })
-    // currentSeconds 중심으로 3분 범위 설정
-    const { start, end } = calculateClipRange(currentSeconds, duration)
-    const middleValue = (start + end) / 2
-    setValues([middleValue - 30, middleValue + 30])
-  }, [currentSeconds]);
 
     useEffect(() => {
         if (isShow) {
@@ -277,10 +269,12 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
                                 /> */}
               <RangeSlider
-                min={10}
-                max={60}
+                min={min}
+                max={max}
+                minDistance={10}
+                maxDistance={60}
                 step={0.1}
-                value={[values[0], values[1]]}
+                value={[...values]}
                 onChange={handleAfterChange}
                 isPlayheadShow={isPlayheadShow}
                 playheadPercent={playheadPercent}

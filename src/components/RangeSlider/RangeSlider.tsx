@@ -3,12 +3,14 @@ import styled from 'styled-components'
 import { formatTime } from '../../util/common'
 
 interface RangeSliderProps {
-  value: [number, number]
-  onChange?: (value: [number, number]) => void
-  onDragEnd?: (value: [number, number]) => void
-  onChangeEnd?: (value: [number, number]) => void
-  min?: number // 선택 가능한 최소 range 값
-  max?: number // 선택 가능한 최대 range 값
+  value: number[]
+  min: number
+  max: number
+  onChange?: (value: number[]) => void
+  onDragEnd?: (value: number[]) => void
+  onChangeEnd?: (value: number[]) => void
+  minDistance?: number // 슬라이더 간의 최소 거리
+  maxDistance?: number // 슬라이더 간의 최대 거리
   step?: number
   isPlayheadShow?: boolean
   playheadPercent?: number
@@ -151,11 +153,13 @@ const PlayheadLine = styled.div`
 
 export const RangeSlider: React.FC<RangeSliderProps> = ({
   value,
+  min,
+  max,
   onChange,
   onDragEnd,
   onChangeEnd,
-  min = 0,
-  max = 100,
+  minDistance = 0,
+  maxDistance = 100,
   step = 1,
   isPlayheadShow = false,
   playheadPercent = 0,
@@ -181,17 +185,21 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
     const container = containerRef.current
     const rect = container.getBoundingClientRect()
-    const diff = clientX - startX
-    const percentDiff = (diff / rect.width) * 100
-    const stepDiff = snapToStep(percentDiff)
 
-    const newValue = [...currentValue] as [number, number]
+    // 픽셀 기준 이동량
+    const diffInPixels = clientX - startX
+    // 실제 [min, max] 범위에서의 이동량
+    const diffInValue = (diffInPixels / rect.width) * (max - min)
+    // step에 맞춰 스냅
+    const stepDiff = snapToStep(diffInValue)
+
+    const newValue = [...currentValue]
     let shouldUpdate = true
 
     if (dragging === 'left') {
       const newLeft = snapToStep(startPositions[0] + stepDiff)
       const range = currentValue[1] - newLeft
-      if (newLeft >= 0 && newLeft <= 100 && range >= min && range <= max) {
+      if (newLeft >= min && newLeft <= max && range >= minDistance && range <= maxDistance) {
         newValue[0] = newLeft
       } else {
         shouldUpdate = false
@@ -199,18 +207,28 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     } else if (dragging === 'right') {
       const newRight = snapToStep(startPositions[1] + stepDiff)
       const range = newRight - currentValue[0]
-      if (newRight >= 0 && newRight <= 100 && range >= min && range <= max) {
+      if (newRight >= min && newRight <= max && range >= minDistance && range <= maxDistance) {
         newValue[1] = newRight
       } else {
         shouldUpdate = false
       }
     } else if (dragging === 'center') {
-      // const range = currentValue[1] - currentValue[0]
+      const rangeWidth = startPositions[1] - startPositions[0]
       let newLeft = snapToStep(startPositions[0] + stepDiff)
       let newRight = snapToStep(startPositions[1] + stepDiff)
       const newRange = newRight - newLeft
 
-      if (newLeft >= 0 && newRight <= 100 && newRange >= min && newRange <= max) {
+      // min, max 범위로 클램핑
+      if (newLeft < min) {
+        newLeft = min
+        newRight = min + rangeWidth
+      }
+      if (newRight > max) {
+        newRight = max
+        newLeft = max - rangeWidth
+      }
+
+      if (newLeft >= min && newRight <= max && newRange >= minDistance && newRange <= maxDistance) {
         newValue[0] = newLeft
         newValue[1] = newRight
       } else {
@@ -285,8 +303,13 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     }
   }, [dragging])
 
-  const getPercentage = (value: number): number => {
-    return value
+  useEffect(() => {
+    setCurrentValue([...value])
+  }, [value])
+
+  const getPercentage = (val: number) => {
+    if (max === min) return 0
+    return ((val - min) / (max - min)) * 100
   }
 
   return (
