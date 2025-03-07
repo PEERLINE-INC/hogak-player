@@ -224,7 +224,7 @@ const meta = {
     disablePlayer: false,
     // url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
     url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-    thumbnailUrl: 'https://picsum.photos/seed/picsum/1920/1080',
+    thumbnailUrl: 'https://picsum.photos/seed/picsum/400/300',
     width: undefined,
     height: undefined,
     isPlay: false,
