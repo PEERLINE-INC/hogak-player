@@ -41,14 +41,15 @@ interface ControlsProps {
   onClickTagButton?: () => void
   seekTo: (seconds: number, type: 'seconds' | 'fraction') => void
   seekToLive: () => void
+  onPlayCallback?: () => void
 }
 
 export function Controls(props: ControlsProps) {
-  const { playerRef, airplayRef, chromecastRef, onBack, onClickTagButton, seekTo, seekToLive } =
-    props
+  const { playerRef, airplayRef, chromecastRef, onBack, onClickTagButton, seekTo, seekToLive, onPlayCallback } = props;
 
   const url = usePlayerStore((state) => state.url)
   const title = usePlayerStore((state) => state.title)
+  const isDisablePlayer = usePlayerStore((state) => state.isDisablePlayer)
   //const pip = usePlayerStore((state) => state.pip); 241224 PIP 버튼 주석
   // const setPip = usePlayerStore((state) => state.setPip) 241224 PIP 버튼 주석;
   const isPlay = usePlayerStore((state) => state.isPlay)
@@ -271,6 +272,8 @@ export function Controls(props: ControlsProps) {
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
+    if (isDisablePlayer) return
+
     setIsSeek(true)
     setTimeSliderValue(value)
   }
@@ -281,6 +284,7 @@ export function Controls(props: ControlsProps) {
     // 광고 중에는 seek 불가
     if (isPlayAd) return
     if (!isOverlayVisible) return
+    if (isDisablePlayer) return
 
     const fraction = value / 100
     seekTo(fraction, 'fraction')
@@ -296,6 +300,8 @@ export function Controls(props: ControlsProps) {
     // setIsSeek(true)
   }
   const handleTagClick = (seconds: number) => {
+    if (isDisablePlayer) return
+
     if (playerRef.current) {
       if (isOverlayVisible) {
         seekTo(seconds, 'seconds')
@@ -306,18 +312,32 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleClickClip = () => {
+    if (isDisablePlayer) return
+
     setIsPlay(false)
     setCurrentSeconds(playerRef.current?.currentTime() ?? 0)
     setIsShowClipView(true)
   }
 
   const handleClickTag = () => {
+    if (isDisablePlayer) return
+
     setIsPlay(false)
     if (isFullScreen) {
       setIsShowTagSaveView(true)
     }
 
     onClickTagButton?.()
+  }
+
+  const handleClickPlay = () => {
+    if (isPlayAd) return;
+    if (isDisablePlayer) {
+      onPlayCallback?.();
+      return;
+    }
+
+    setIsPlay(!isPlay)
   }
 
   const handleChangeQuality = (option: any) => {
@@ -335,12 +355,16 @@ export function Controls(props: ControlsProps) {
   }
 
   const handleClickScreencast = () => {
+    if (isDisablePlayer) return
+
     if (chromecastRef.current) {
       chromecastRef.current.start()
     }
   }
 
   const handleClickAirplay = () => {
+    if (isDisablePlayer) return
+
     if (airplayRef.current) {
       airplayRef.current.start()
     }
@@ -454,7 +478,10 @@ export function Controls(props: ControlsProps) {
             )}
             {multiViewSources.length && !isDisableMultiView && (
               <IconButton
-                onClick={() => setIsShowMultiView(true)}
+                onClick={() => {
+                  if (isDisablePlayer) return
+                  setIsShowMultiView(true)
+                }}
                 className='multiview_btn'
               >
                 <MultiViewIcon />
@@ -476,7 +503,10 @@ export function Controls(props: ControlsProps) {
               {enableLeftRightArrowButton && (
                 <IconButton
                   style={{ marginRight: 'auto', marginLeft: '5%', width: '1.4em', height: '2.4em' }}
-                  onClick={onClickLeftArrowButton}
+                  onClick={() => {
+                    if (isDisablePlayer) return
+                    onClickLeftArrowButton()
+                  }}
                 >
                   <ArrowLeftIcon
                     width={'100%'}
@@ -487,7 +517,7 @@ export function Controls(props: ControlsProps) {
 
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
               <IconButton
-                onClick={isPlayAd ? undefined : () => setIsPlay(!isPlay)}
+                onClick={handleClickPlay}
                 className='play_btn'
                 style={{ opacity: isPlayAd ? 0.5 : 1 }}
               >
@@ -497,7 +527,10 @@ export function Controls(props: ControlsProps) {
               {enableLeftRightArrowButton && (
                 <IconButton
                   style={{ marginLeft: 'auto', marginRight: '5%', width: '1.4em', height: '2.4em' }}
-                  onClick={onClickRightArrowButton}
+                  onClick={() => {
+                    if (isDisablePlayer) return
+                    onClickRightArrowButton()
+                  }}
                 >
                   <ArrowLeftIcon
                     width={'100%'}
@@ -552,6 +585,7 @@ export function Controls(props: ControlsProps) {
                 opacity: isPlayAd ? 0.5 : 1,
                 pointerEvents: isPlayAd ? 'none' : 'auto',
               }}
+              disabled={isDisablePlayer}
               value={[isSeek ? timeSliderValue : played * 100]}
               max={100}
               step={0.1}
@@ -648,7 +682,7 @@ export function Controls(props: ControlsProps) {
                   { label: '0.25x', value: 0.25 },
                 ]}
                 defaultValue={speed}
-                disabled={isPlayAd}
+                disabled={isPlayAd || isDisablePlayer}
                 onChangeOpen={(isOpen) => {
                   setIsShowSpeedDropdown(isOpen)
                 }}
@@ -657,7 +691,7 @@ export function Controls(props: ControlsProps) {
                 onChangeValue={(option) => handleChangeQuality(option)}
                 options={getOptions()}
                 defaultValue={isPanorama ? 'PANO' : currentQuality}
-                disabled={isPlayAd}
+                disabled={isPlayAd || isDisablePlayer}
                 onChangeOpen={(isOpen) => {
                   setIsShowQualityDropdown(isOpen)
                 }}
@@ -693,7 +727,10 @@ export function Controls(props: ControlsProps) {
               } */}
               <IconButton
                 className='full_screen_btn'
-                onClick={() => setIsFullScreen(!isFullScreen)}
+                onClick={() => {
+                  if (isDisablePlayer) return
+                  setIsFullScreen(!isFullScreen)
+                }}
               >
                 <FullScreenIcon />
               </IconButton>

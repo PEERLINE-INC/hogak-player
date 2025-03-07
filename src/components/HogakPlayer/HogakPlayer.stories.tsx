@@ -26,6 +26,11 @@ const meta = {
       description: '라이브 영상인지 여부입니다.',
       type: 'boolean',
     },
+    disablePlayer: {
+      defaultValue: false,
+      description: '플레이어 비활성화 여부입니다. onBack, onPlay 콜백은 호출됩니다. 이외의 동작은 무시됩니다. (isAutoplay 보다 우선합니다)',
+      type: 'boolean',
+    },
     url: {
       defaultValue: '',
       description: '재생할 영상의 URL입니다.',
@@ -216,6 +221,7 @@ const meta = {
   args: {
     title: '',
     isLive: false,
+    disablePlayer: false,
     // url: 'https://dmvvk3pybr7s5.cloudfront.net/yst_stage/67b73680ae9d58685f69e3bb/venue_hls/hd_hls/hd_hls.m3u8',
     url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     thumbnailUrl: 'https://picsum.photos/seed/picsum/1920/1080',

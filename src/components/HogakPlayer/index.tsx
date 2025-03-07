@@ -83,6 +83,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setTitle = usePlayerStore((state) => state.setTitle)
   const isLive = usePlayerStore((state) => state.isLive)
   const setIsLive = usePlayerStore((state) => state.setIsLive)
+  const isDisablePlayer = usePlayerStore((state) => state.isDisablePlayer)
+  const setIsDisablePlayer = usePlayerStore((state) => state.setIsDisablePlayer)
 
   const pip = usePlayerStore((state) => state.pip)
   const isPlay = usePlayerStore((state) => state.isPlay)
@@ -227,7 +229,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       const player = videojs(videoElement, {
         techOrder: ['chromecast', 'html5'],
         liveTracker: isLive,
-        autoplay: props.isAutoplay ?? false,
+        autoplay: isDisablePlayer ? false : (props.isAutoplay ?? false),
         poster: props.thumbnailUrl,
         muted: false,
         enableSmoothSeeking: true,
@@ -547,7 +549,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           }
         }
 
-        if (props.isAutoplay) {
+        if (props.isAutoplay && !isDisablePlayer) {
           const playPromise = playerRef.current.play()
           if (playPromise) {
             playPromise
@@ -566,13 +568,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // 영상 소스 변경
       // 배속 1로 설정
       setSpeed(1)
-      playerRef.current.autoplay(props.isAutoplay ?? false)
+      playerRef.current.autoplay(isDisablePlayer ? false : (props.isAutoplay ?? false))
       playerRef.current.src({
         src: url,
         type: 'application/x-mpegurl',
       })
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay]) // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer]) // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current
@@ -687,6 +689,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setCurrentOffset(0, 0)
     }
   }, [props.url])
+
+  useEffect(() => {
+    setIsDisablePlayer(props.disablePlayer ?? false)
+  }, [props.disablePlayer])
 
   useEffect(() => {
     setTitle(props.title ?? '')
@@ -1067,6 +1073,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             onClickTagButton={onClickTagButton}
             airplayRef={airplayRef}
             chromecastRef={chromecastRef}
+            onPlayCallback={onPlayCallback}
           />
           <ClipViewPopover
             seekTo={seekTo}

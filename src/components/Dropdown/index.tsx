@@ -9,7 +9,7 @@ interface Option {
 
 interface DropdownProps {
   options: Option[]; // 옵션 배열
-  defaultValue?: string | number; // 초기 값
+  defaultValue?: string | number | null; // 초기 값
   onChangeValue?: (value: Option) => void; // 값 변경 핸들러
   disabled?: boolean; // 비활성화 여부
   onChangeOpen?: (isOpen: boolean) => void; // 드롭다운 열림/닫힘 핸들러
