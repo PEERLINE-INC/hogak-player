@@ -69,7 +69,7 @@ interface PlayerState {
   setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => void;
   isShowChromecastButton: boolean;
   setIsShowChromecastButton: (isShowChromecastButton: boolean) => void;
-  resetStore: () => void;
+  resetPlayerStore: () => void;
 }
 
 const usePlayerStore = create<PlayerState>()(
@@ -142,8 +142,39 @@ const usePlayerStore = create<PlayerState>()(
     setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => set({ onClickRightArrowButton }),
     isShowChromecastButton: false,
     setIsShowChromecastButton: (isShowChromecastButton: boolean) => set({ isShowChromecastButton }),
-    resetStore: () => set({
+    resetPlayerStore: () => set({
+      url: '',
+      thumbnailUrl: '',
+      isLive: false,
+      title: '',
+      pip: false,
+      isPlay: false,
+      isReady: false,
+      isSeek: false,
+      duration: 0,
+      played: 0,
+      volume: 1.0,
+      isMute: false,
+      isFullScreen: false,
       isShowMultiView: false,
+      isShowTagView: false,
+      isShowClipView: false,
+      backIconType: 'arrowLeft',
+      skipDirection: null,
+      isViewThumbMarker: false,
+      isShowTagSaveView: false,
+      isPanoramaMode: false,
+      isDisableClip: false,
+      isDisableTag: false,
+      isDisableMultiView: false,
+      enableScoreBoardOverlay: false,
+      scoreBoardOverlayUrl: '',
+      offsetStart: 0,
+      offsetEnd: 0,
+      enableLeftRightArrowButton: false,
+      onClickLeftArrowButton: () => {},
+      onClickRightArrowButton: () => {},
+      isShowChromecastButton: false,
     }),
   }),
 )

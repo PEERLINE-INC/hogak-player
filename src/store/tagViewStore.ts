@@ -6,6 +6,7 @@ interface TagState {
   setTags: (tags: TagProps[]) => void;
   tagMenus: TagMenuProps[];
   setTagMenus: (tagMenus: TagMenuProps[]) => void;
+  resetTagStore: () => void;
 }
 
 const useTagStore = create<TagState>()(
@@ -14,6 +15,10 @@ const useTagStore = create<TagState>()(
     setTags: (tags: TagProps[]) => set({ tags }),
     tagMenus: [],
     setTagMenus: (tagMenus: TagMenuProps[]) => set({ tagMenus }),
+    resetTagStore: () => set({
+      tags: [],
+      tagMenus: [],
+    }),
   })
 )
 

@@ -160,7 +160,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setIsShowChromecastButton = usePlayerStore((state) => state.setIsShowChromecastButton)
 
   // 리셋
-  const resetStore = usePlayerStore((state) => state.resetStore)
+  const resetPlayerStore = usePlayerStore((state) => state.resetPlayerStore)
+  const resetMultiViewStore = useMultiViewStore((state) => state.resetMultiViewStore)
+  const resetTagStore = useTagStore((state) => state.resetTagStore)
+  const resetClipStore = useClipStore((state) => state.resetClipViewStore)
+  const resetLiveStore = useLiveStore((state) => state.resetLiveStore)
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {})
@@ -568,12 +572,17 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     const player = playerRef.current
 
     return () => {
+      console.log('unmount player');
       if (player && !player.isDisposed()) {
         player.dispose()
         playerRef.current = null
       }
-      // 일부 상태 리셋
-      resetStore()
+      // Unmount 시 상태 초기화
+      resetPlayerStore()
+      resetMultiViewStore()
+      resetTagStore()
+      resetClipStore()
+      resetLiveStore()
     }
   }, [playerRef])
 

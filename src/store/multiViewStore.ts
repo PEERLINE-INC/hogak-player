@@ -6,6 +6,7 @@ interface MultiViewState {
   setMultiViewSources: (multiViewSources: MultiViewSource[]) => void;
   pendingSeek: number | null;
   setPendingSeek: (pendingSeek: number | null) => void;
+  resetMultiViewStore: () => void;
 }
 
 const useMultiViewStore = create<MultiViewState>()(
@@ -14,6 +15,10 @@ const useMultiViewStore = create<MultiViewState>()(
     setMultiViewSources: (multiViewSources: MultiViewSource[]) => set({ multiViewSources }),
     pendingSeek: null,
     setPendingSeek: (pendingSeek: number | null) => set({ pendingSeek }),
+    resetMultiViewStore: () => set({
+      multiViewSources: [],
+      pendingSeek: null,
+    }),
   })
 )
 

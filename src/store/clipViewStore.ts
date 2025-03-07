@@ -7,6 +7,7 @@ interface ClipState {
   setEventId: (eventId: string) => void;
   clipApiHost: string;
   setClipApiHost: (clipApiHost: string) => void;
+  resetClipViewStore: () => void;
 }
 
 const useClipStore = create<ClipState>()(
@@ -17,6 +18,11 @@ const useClipStore = create<ClipState>()(
     setEventId: (eventId: string) => set({ eventId }),
     clipApiHost: '',
     setClipApiHost: (clipApiHost: string) => set({ clipApiHost }),
+    resetClipViewStore: () => set({
+      currentSeconds: 0,
+      eventId: '',
+      clipApiHost: '',
+    }),
   }),
 )
 
