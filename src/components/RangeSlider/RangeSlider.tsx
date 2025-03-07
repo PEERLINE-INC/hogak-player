@@ -361,7 +361,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
         <CenterLabel>
           <span style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '0 5px', whiteSpace: 'nowrap' }}>
-            {`${Math.min(Math.floor(currentValue[1] - currentValue[0]), 60)} 초`}
+            {`${Math.min(Math.round(currentValue[1] - currentValue[0]), 60)} 초`}
           </span>
         </CenterLabel>
       </Area>
