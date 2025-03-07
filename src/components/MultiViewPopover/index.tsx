@@ -1,20 +1,21 @@
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
-import usePlayerStore from "../../store/playerStore";
+import { createPlayerStore } from "../../store/playerStore";
 
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
 import { MultiViewSource } from "../HogakPlayer/interfaces";
 
 interface MultiViewPopoverProps {
+  playerStore: ReturnType<typeof createPlayerStore>;
   isShow: boolean;
   getCurrentSeconds: () => number;
 }
 
-export const MultiViewPopover = ({ isShow, getCurrentSeconds }: MultiViewPopoverProps) => {
-  const url = usePlayerStore((state) => state.url);
-  const setUrl = usePlayerStore((state) => state.setUrl);
-  const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView);
-  const setIsPanoramaMode = usePlayerStore((state) => state.setIsPanoramaMode);
+export const MultiViewPopover = ({ isShow, getCurrentSeconds, playerStore }: MultiViewPopoverProps) => {
+  const url = playerStore((state) => state.url);
+  const setUrl = playerStore((state) => state.setUrl);
+  const setIsShowMultiView = playerStore((state) => state.setIsShowMultiView);
+  const setIsPanoramaMode = playerStore((state) => state.setIsPanoramaMode);
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources);
   const setPendingSeek = useMultiViewStore((state) => state.setPendingSeek);
 

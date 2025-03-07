@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 // import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
 import 'videojs-contrib-ads'
@@ -11,7 +11,7 @@ import styled, { createGlobalStyle } from 'styled-components'
 import './font.css'
 
 // ✅ store (zustand 등)에서 가져오는 상태 & 액션들
-import usePlayerStore from '../../store/playerStore'
+import { createPlayerStore } from '../../store/playerStore'
 import useMultiViewStore from '../../store/multiViewStore'
 import useTagStore from '../../store/tagViewStore'
 import useClipStore from '../../store/clipViewStore'
@@ -81,7 +81,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.18'
+  const HOGAK_PLAYER_VERSION = '0.7.19'
+
+  const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
   const setTitle = usePlayerStore((state) => state.setTitle)
@@ -1049,26 +1051,31 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen && (
             <MultiViewPopover
+              playerStore={usePlayerStore}
               isShow={isShowMultiView}
               getCurrentSeconds={getCurrentSeconds}
             />
           )}
           {!isFullScreen && (
             <MultiViewPopoverSmall
+              playerStore={usePlayerStore}
               isShow={isShowMultiView}
               getCurrentSeconds={getCurrentSeconds}
             />
           )}
           <TagSaveViewPopover
+            playerStore={usePlayerStore}
             isShow={isShowTagSaveView}
             onCancel={onClickTagCancel}
             onSave={onClickTagSave}
           />
           <TagViewPopover
+            playerStore={usePlayerStore}
             isShow={isShowTagView}
             onAddTagClick={props.onClickAddTag}
           />
           <Controls
+            playerStore={usePlayerStore}
             playerRef={playerRef}
             seekTo={seekTo}
             seekToLive={seekToLive}
@@ -1079,6 +1086,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             onPlayCallback={onPlayCallback}
           />
           <ClipViewPopover
+            playerStore={usePlayerStore}
             seekTo={seekTo}
             onChangeClipDuration={onChangeClipDuration}
             isShow={isShowClipView}

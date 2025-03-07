@@ -228,7 +228,7 @@ const meta = {
     width: undefined,
     height: undefined,
     isPlay: false,
-    isAutoplay: false,
+    isAutoplay: true,
     onBack: () => {
       console.log('onBack');
     },

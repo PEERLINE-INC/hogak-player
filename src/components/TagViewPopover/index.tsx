@@ -1,17 +1,18 @@
 // import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
-import usePlayerStore from "../../store/playerStore";
+import { createPlayerStore } from "../../store/playerStore";
 import styled from 'styled-components';
 import { OnClickAddTagEventObject, TagMenuProps } from "../HogakPlayer/interfaces";
 import CloseIcon from "../../assets/icons/icon_close.svg?react";
 import useTagStore from "../../store/tagViewStore";
 
 interface TagViewPopoverProps {
+  playerStore: ReturnType<typeof createPlayerStore>;
   isShow: boolean;
   onAddTagClick?: (data: OnClickAddTagEventObject) => void;
 }
 
-export const TagViewPopover = ({ isShow, onAddTagClick }: TagViewPopoverProps) => {
-  const setIsShowTagView = usePlayerStore((state) => state.setIsShowTagView);
+export const TagViewPopover = ({ isShow, onAddTagClick, playerStore }: TagViewPopoverProps) => {
+  const setIsShowTagView = playerStore((state) => state.setIsShowTagView);
   const tagMenus = useTagStore((state) => state.tagMenus);
 
   const handleClickTag = (tag: TagMenuProps) => {

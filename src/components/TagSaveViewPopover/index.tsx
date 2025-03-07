@@ -2,9 +2,10 @@ import styled from "styled-components";
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react';
 import SaveIcon from '../../assets/icons/icon_save.svg?react';
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
-import usePlayerStore from "../../store/playerStore";
+import { createPlayerStore } from "../../store/playerStore";
 
 interface TagSaveViewPopoverProps {
+    playerStore: ReturnType<typeof createPlayerStore>;
     isShow: boolean;
     onSave?: () => void;
     onCancel?: () => void;
@@ -17,8 +18,9 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
         onCancel,
     } = props;
 
-    const isFullScreen = usePlayerStore((state) => state.isFullScreen);
-    const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView);
+    const playerStore = props.playerStore;
+    const isFullScreen = playerStore((state) => state.isFullScreen);
+    const setIsShowTagSaveView = playerStore((state) => state.setIsShowTagSaveView);
 
     const handleCancel = () => {
         setIsShowTagSaveView(false);

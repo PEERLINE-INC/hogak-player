@@ -12,7 +12,7 @@ import FullScreenIcon from '../../assets/icons/icon_zoom.svg?react'
 import TagViewIcon from '../../assets/icons/icon_tag_white.svg?react'
 import RedMarkerIcon from '../../assets/icons/mark_red.svg?react'
 import AirPlayIcon from '../../assets/icons/icon_airplay.svg?react'
-import usePlayerStore from '../../store/playerStore'
+import { createPlayerStore } from '../../store/playerStore'
 import { PlayTime } from '../PlayTime'
 import './styles.css'
 import useMultiViewStore from '../../store/multiViewStore'
@@ -30,6 +30,7 @@ import useQualityStore from '../../store/qualityStore'
 import { isSafari, isSupportAirplay } from '../../util/common'
 
 interface ControlsProps {
+  playerStore: ReturnType<typeof createPlayerStore>
   playerRef: React.RefObject<Player | null>
   airplayRef: React.RefObject<{
     start: () => void
@@ -47,46 +48,47 @@ interface ControlsProps {
 export function Controls(props: ControlsProps) {
   const { playerRef, airplayRef, chromecastRef, onBack, onClickTagButton, seekTo, seekToLive, onPlayCallback } = props;
 
-  const url = usePlayerStore((state) => state.url)
-  const title = usePlayerStore((state) => state.title)
-  const isDisablePlayer = usePlayerStore((state) => state.isDisablePlayer)
+  const playerStore = props.playerStore;
+  const url = playerStore((state) => state.url)
+  const title = playerStore((state) => state.title)
+  const isDisablePlayer = playerStore((state) => state.isDisablePlayer)
   //const pip = usePlayerStore((state) => state.pip); 241224 PIP 버튼 주석
   // const setPip = usePlayerStore((state) => state.setPip) 241224 PIP 버튼 주석;
-  const isPlay = usePlayerStore((state) => state.isPlay)
-  const setIsPlay = usePlayerStore((state) => state.setIsPlay)
-  const isSeek = usePlayerStore((state) => state.isSeek)
-  const setIsSeek = usePlayerStore((state) => state.setIsSeek)
-  const duration = usePlayerStore((state) => state.duration)
-  const played = usePlayerStore((state) => state.played)
-  const setPlayed = usePlayerStore((state) => state.setPlayed)
-  const volume = usePlayerStore((state) => state.volume)
-  const setVolume = usePlayerStore((state) => state.setVolume)
-  const isFullScreen = usePlayerStore((state) => state.isFullScreen)
-  const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen)
-  const setIsShowMultiView = usePlayerStore((state) => state.setIsShowMultiView)
+  const isPlay = playerStore((state) => state.isPlay)
+  const setIsPlay = playerStore((state) => state.setIsPlay)
+  const isSeek = playerStore((state) => state.isSeek)
+  const setIsSeek = playerStore((state) => state.setIsSeek)
+  const duration = playerStore((state) => state.duration)
+  const played = playerStore((state) => state.played)
+  const setPlayed = playerStore((state) => state.setPlayed)
+  const volume = playerStore((state) => state.volume)
+  const setVolume = playerStore((state) => state.setVolume)
+  const isFullScreen = playerStore((state) => state.isFullScreen)
+  const setIsFullScreen = playerStore((state) => state.setIsFullScreen)
+  const setIsShowMultiView = playerStore((state) => state.setIsShowMultiView)
   const multiViewSources = useMultiViewStore((state) => state.multiViewSources)
   const tags = useTagStore((state) => state.tags)
-  const isShowClipView = usePlayerStore((state) => state.isShowClipView)
-  const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView)
+  const isShowClipView = playerStore((state) => state.isShowClipView)
+  const setIsShowClipView = playerStore((state) => state.setIsShowClipView)
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds)
-  const backIconType = usePlayerStore((state) => state.backIconType)
-  const isViewThumbMarker = usePlayerStore((state) => state.isViewThumbMarker)
-  const speed = usePlayerStore((state) => state.speed)
-  const setSpeed = usePlayerStore((state) => state.setSpeed)
-  const setIsShowTagSaveView = usePlayerStore((state) => state.setIsShowTagSaveView)
-  const isShowTagSaveView = usePlayerStore((state) => state.isShowTagSaveView)
-  const isDisableClip = usePlayerStore((state) => state.isDisableClip)
-  const isDisableTag = usePlayerStore((state) => state.isDisableTag)
-  const isDisableMultiView = usePlayerStore((state) => state.isDisableMultiView)
-  const isLive = usePlayerStore((state) => state.isLive)
+  const backIconType = playerStore((state) => state.backIconType)
+  const isViewThumbMarker = playerStore((state) => state.isViewThumbMarker)
+  const speed = playerStore((state) => state.speed)
+  const setSpeed = playerStore((state) => state.setSpeed)
+  const setIsShowTagSaveView = playerStore((state) => state.setIsShowTagSaveView)
+  const isShowTagSaveView = playerStore((state) => state.isShowTagSaveView)
+  const isDisableClip = playerStore((state) => state.isDisableClip)
+  const isDisableTag = playerStore((state) => state.isDisableTag)
+  const isDisableMultiView = playerStore((state) => state.isDisableMultiView)
+  const isLive = playerStore((state) => state.isLive)
   const isPlayAd = useAdStore((state) => state.isPlayAd)
   const atLive = useLiveStore((state) => state.atLive)
-  const isMute = usePlayerStore((state) => state.isMute)
-  const setIsMute = usePlayerStore((state) => state.setIsMute)
-  const enableLeftRightArrowButton = usePlayerStore((state) => state.enableLeftRightArrowButton)
-  const onClickLeftArrowButton = usePlayerStore((state) => state.onClickLeftArrowButton)
-  const onClickRightArrowButton = usePlayerStore((state) => state.onClickRightArrowButton)
-  const isShowChromecastButton = usePlayerStore((state) => state.isShowChromecastButton)
+  const isMute = playerStore((state) => state.isMute)
+  const setIsMute = playerStore((state) => state.setIsMute)
+  const enableLeftRightArrowButton = playerStore((state) => state.enableLeftRightArrowButton)
+  const onClickLeftArrowButton = playerStore((state) => state.onClickLeftArrowButton)
+  const onClickRightArrowButton = playerStore((state) => state.onClickRightArrowButton)
+  const isShowChromecastButton = playerStore((state) => state.isShowChromecastButton)
 
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100)
@@ -97,7 +99,7 @@ export function Controls(props: ControlsProps) {
   const [isShowQualityDropdown, setIsShowQualityDropdown] = useState(false)
   const [hasFirstUserInteraction, setHasFirstUserInteraction] = useState(false)
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const setSkipDirection = usePlayerStore((state) => state.setSkipDirection)
+  const setSkipDirection = playerStore((state) => state.setSkipDirection)
   // 자동 숨김 타이머를 제어하기 위한 ref
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -190,12 +192,30 @@ export function Controls(props: ControlsProps) {
     }
   }, [atLive])
 
+  useEffect(() => {
+    if (isPlay) {
+      setHasFirstUserInteraction(true);
+
+      if (!isTouchDevice && !hasFirstUserInteraction) {
+        setTimeout(() => {
+          setOverlayVisible(false)
+        }, 3000);
+      }
+    }
+  }, [isPlay])
+
   const handleMouseEnter = () => {
-    if (!isTouchDevice) setOverlayVisible(true)
+    if (!isTouchDevice) {
+      setOverlayVisible(true)
+      setHasFirstUserInteraction(true);
+    }
   }
 
   const handleMouseLeave = () => {
-    if (!isTouchDevice) setOverlayVisible(false)
+    if (!isTouchDevice) {
+      setOverlayVisible(false)
+      setHasFirstUserInteraction(true);
+    }
   }
 
   // === 모바일 환경에서 한 번 터치할 때마다 오버레이 토글 ===

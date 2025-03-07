@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react'
 import SaveIcon from '../../assets/icons/icon_save.svg?react'
 import ArrowLeftIcon from '../../assets/icons/icon_arrow_left_white.svg?react'
-import usePlayerStore from '../../store/playerStore'
+import { createPlayerStore } from '../../store/playerStore'
 import useClipStore from '../../store/clipViewStore'
 import './styles.css'
 import { useEffect, useState } from 'react'
@@ -10,6 +10,7 @@ import axios from 'axios'
 import { RangeSlider } from '../RangeSlider/RangeSlider'
 
 interface ClipViewPopoverProps {
+  playerStore: ReturnType<typeof createPlayerStore>
   seekTo: (seconds: number, type: 'seconds' | 'fraction') => void
   onChangeClipDuration: (data: number[]) => void
   isShow: boolean
@@ -52,17 +53,18 @@ type ClipThumbnailApiResponse = {
 export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const { seekTo, isShow, onChangeClipDuration, setValuesRef, onSave } = props
 
-  const played = usePlayerStore((state) => state.played)
-  const duration = usePlayerStore((state) => state.duration)
-  const isPlay = usePlayerStore((state) => state.isPlay)
-  const setIsPlay = usePlayerStore((state) => state.setIsPlay)
-  const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView)
-  const isFullScreen = usePlayerStore((state) => state.isFullScreen)
+  const playerStore = props.playerStore;
+  const played = playerStore((state) => state.played)
+  const duration = playerStore((state) => state.duration)
+  const isPlay = playerStore((state) => state.isPlay)
+  const setIsPlay = playerStore((state) => state.setIsPlay)
+  const setIsShowClipView = playerStore((state) => state.setIsShowClipView)
+  const isFullScreen = playerStore((state) => state.isFullScreen)
   const currentSeconds = useClipStore((state) => state.currentSeconds)
-  const isLive = usePlayerStore((state) => state.isLive)
+  const isLive = playerStore((state) => state.isLive)
   const eventId = useClipStore((state) => state.eventId)
   const clipApiHost = useClipStore((state) => state.clipApiHost)
-  const isSeek = usePlayerStore((state) => state.isSeek)
+  const isSeek = playerStore((state) => state.isSeek)
 
   const [values, setValues] = useState<number[]>([0, 30])
   const [min, setMin] = useState<number>(0)
