@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.20'
+  const HOGAK_PLAYER_VERSION = '0.7.21'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -234,7 +234,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
         techOrder: ['chromecast', 'html5'],
-        liveTracker: isLive,
+        liveTracker: true,
         autoplay: isDisablePlayer ? false : (props.isAutoplay ?? false),
         poster: props.thumbnailUrl,
         muted: false,
@@ -408,12 +408,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('error', handleOnError)
       player.on('waiting', handleOnWaiting)
       player.on('canplay', handleOnCanPlay)
-      if (isLive) {
-        // @ts-ignore
-        player.liveTracker.on('seekableendchange', handleOnSeekableEndChange)
-        // @ts-ignore
-        player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange)
-      }
+      
+      // @ts-ignore
+      player.liveTracker.on('seekableendchange', handleOnSeekableEndChange)
+      // @ts-ignore
+      player.liveTracker.on('liveedgechange', handleOnLiveEdgeChange)
 
       // 오버레이 플러그인 선언
       videojs.registerPlugin('addUrlOverlay', function (options: any) {
@@ -678,6 +677,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   useEffect(() => {
     setIsLive(props.isLive ?? false)
+    console.log('useEffect [isLive]', props.isLive)
   }, [props.isLive])
 
   useEffect(() => {
@@ -841,13 +841,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnTimeUpdate = () => {
     if (!playerRef.current) return
-    if (isLive) {
+    // console.log('handleOnTimeUpdate (video.js)', usePlayerStore.getState().isLive)
+    if (usePlayerStore.getState().isLive) {
       // @ts-ignore
       const liveTracker = playerRef.current.liveTracker
       const current = playerRef.current.currentTime() ?? 0
       const duration = liveTracker.liveWindow()
       const atLive = liveTracker.atLiveEdge()
-      // console.log('handleOnTimeUpdate duration (live)', duration);
+      // console.log('handleOnTimeUpdate (video.js)', current, duration, atLive)
       setDuration(duration)
       setPlayed(current / duration)
       setAtLive(atLive)
