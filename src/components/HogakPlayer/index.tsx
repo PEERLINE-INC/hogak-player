@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.21'
+  const HOGAK_PLAYER_VERSION = '0.7.22'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -146,6 +146,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setOffsetStart = usePlayerStore((state) => state.setOffsetStart)
   const offsetEnd = usePlayerStore((state) => state.offsetEnd)
   const setOffsetEnd = usePlayerStore((state) => state.setOffsetEnd)
+  const offsetSeek = usePlayerStore((state) => state.offsetSeek)
+  const setOffsetSeek = usePlayerStore((state) => state.setOffsetSeek)
 
   // 클립 썸네일
   const setEventId = useClipStore((state) => state.setEventId)
@@ -173,6 +175,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const resetTagStore = useTagStore((state) => state.resetTagStore)
   const resetClipStore = useClipStore((state) => state.resetClipViewStore)
   const resetLiveStore = useLiveStore((state) => state.resetLiveStore)
+
+  // 에러 처리
+  const isShowErrorView = usePlayerStore((state) => state.isShowErrorView)
+  const setIsShowErrorView = usePlayerStore((state) => state.setIsShowErrorView)
+  const errorMessage = usePlayerStore((state) => state.errorMessage)
+  const setErrorMessage = usePlayerStore((state) => state.setErrorMessage)
 
   // 외부에서 주어지는 콜백들
   const onBack = props.onBack ?? (() => {})
@@ -550,7 +558,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           }
         } else {
           // 오프셋이 있으면
-          if (offsetStart > 0) {
+          if (offsetSeek > 0) {
+            playerRef.current.currentTime(offsetSeek)
+          } else if (offsetStart > 0) {
             playerRef.current.currentTime(offsetStart)
           }
         }
@@ -580,7 +590,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         type: 'application/x-mpegurl',
       })
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer]) // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart]) // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     const player = playerRef.current
@@ -771,6 +781,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }, [props.offsetEnd])
 
   useEffect(() => {
+    setOffsetSeek(props.offsetSeek ?? 0)
+  }, [props.offsetSeek])
+
+  useEffect(() => {
     setEventId(props.eventId ?? '')
   }, [props.eventId])
 
@@ -811,10 +825,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const handleOnReady = () => {
     console.log('onReady (video.js)')
     console.log('offsetStart', offsetStart)
-    if (offsetStart > 0) {
-      if (!playerRef.current) return
+    if (!playerRef.current) return
+
+    if (offsetSeek > 0) {
+      playerRef.current.currentTime(offsetSeek)
+      setOffsetSeek(0)
+    } else if (offsetStart > 0) {
       playerRef.current.currentTime(offsetStart)
     }
+
     setIsReady(true)
   }
 
@@ -897,6 +916,18 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const handleOnError = () => {
     const error = playerRef.current?.error();
     console.error('onError (video.js)', error);
+
+    switch (error?.code) {
+      case 4:
+        if (usePlayerStore.getState().isLive) {
+          console.log('라이브 시작 전입니다.')
+          setIsShowErrorView(true)
+          setErrorMessage('라이브 시작 전입니다.')
+        }
+        break;
+      default:
+        break;
+    }
 
     // @ts-ignore
     playerRef.current?.error(null);
@@ -1046,6 +1077,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       <GlobalStyles />
       <Container>
         <PlayerWrapper>
+          {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
           {/* Video.js가 제어할 video 엘리먼트 */}
           <div
             ref={videoRef}
@@ -1238,3 +1270,18 @@ const SkipMessage = styled.div`
     font-size: 15px;
   }
 `
+const ErrorDisplay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  font-size: 2em;
+  color: white;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.6);
+`;

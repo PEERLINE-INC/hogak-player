@@ -71,6 +71,13 @@ interface PlayerState {
   setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => void;
   isShowChromecastButton: boolean;
   setIsShowChromecastButton: (isShowChromecastButton: boolean) => void;
+  isShowErrorView: boolean;
+  setIsShowErrorView: (isShowErrorView: boolean) => void;
+  errorMessage: string;
+  setErrorMessage: (errorMessage: string) => void;
+  offsetSeek: number;
+  setOffsetSeek: (offsetSeek: number) => void;
+
   resetPlayerStore: () => void;
 }
 
@@ -147,6 +154,12 @@ export function createPlayerStore() {
       setOnClickRightArrowButton: (onClickRightArrowButton: () => void) => set({ onClickRightArrowButton }),
       isShowChromecastButton: false,
       setIsShowChromecastButton: (isShowChromecastButton: boolean) => set({ isShowChromecastButton }),
+      errorMessage: '',
+      setErrorMessage: (errorMessage: string) => set({ errorMessage }),
+      isShowErrorView: false,
+      setIsShowErrorView: (isShowErrorView: boolean) => set({ isShowErrorView }),
+      offsetSeek: 0,
+      setOffsetSeek: (offsetSeek: number) => set({ offsetSeek }),
       resetPlayerStore: () => set({
         url: '',
         thumbnailUrl: '',
@@ -181,6 +194,9 @@ export function createPlayerStore() {
         onClickLeftArrowButton: () => {},
         onClickRightArrowButton: () => {},
         isShowChromecastButton: false,
+        errorMessage: '',
+        isShowErrorView: false,
+        offsetSeek: 0,
       }),
     }),
   )

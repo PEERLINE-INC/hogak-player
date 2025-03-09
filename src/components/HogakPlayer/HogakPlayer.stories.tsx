@@ -194,6 +194,11 @@ const meta = {
       description: `영상의 길이와 관계 없이 해당 시간까지만 재생합니다.`,
       type: 'number',
     },
+    offsetSeek: {
+      defaultValue: 0,
+      description: `영상 재생 시 해당 시간만큼 건너뛰어 재생합니다.`,
+      type: 'number',
+    },
     eventId: {
       defaultValue: '',
       description: `클립 썸네일 조회 시 사용할 이벤트 ID입니다.`,
@@ -386,6 +391,7 @@ const meta = {
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
     offsetStart: 0,
     offsetEnd: 0,
+    offsetSeek: 30,
     eventId: '1000020',
     clipThumbnailApiHost: 'http://hogak-media-service-1061815346.ap-northeast-2.elb.amazonaws.com:7788',
     enableLeftRightArrowButton: false,

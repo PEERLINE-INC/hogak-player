@@ -89,7 +89,7 @@ export function Controls(props: ControlsProps) {
   const onClickLeftArrowButton = playerStore((state) => state.onClickLeftArrowButton)
   const onClickRightArrowButton = playerStore((state) => state.onClickRightArrowButton)
   const isShowChromecastButton = playerStore((state) => state.isShowChromecastButton)
-
+  const isShowErrorView = playerStore((state) => state.isShowErrorView)
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100)
   const [isOverlayVisible, setOverlayVisible] = useState(true)
@@ -542,13 +542,15 @@ export function Controls(props: ControlsProps) {
               )}
 
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
-              <IconButton
-                onClick={handleClickPlay}
-                className='play_btn'
-                style={{ opacity: isPlayAd ? 0.5 : 1 }}
-              >
-                {isPlay ? <PauseIcon /> : <PlayIcon />}
-              </IconButton>
+              {!isShowErrorView && (
+                <IconButton
+                  onClick={handleClickPlay}
+                  className='play_btn'
+                  style={{ opacity: isPlayAd ? 0.5 : 1 }}
+                >
+                  {isPlay ? <PauseIcon /> : <PlayIcon />}
+                </IconButton>
+              )}
 
               {enableLeftRightArrowButton && (
                 <IconButton
