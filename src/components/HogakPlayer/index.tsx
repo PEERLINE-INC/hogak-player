@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.23'
+  const HOGAK_PLAYER_VERSION = '0.7.24'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -260,6 +260,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         html5: {
           vhs: {
             overrideNative: !isSafari(),
+            customPixelRatio: 4,
+            bandwidth: 10000000,
           },
         },
         chromecast: {
@@ -333,7 +335,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         // setCurrentQuality(qualityLevels[maxIndex].height)
       }
       qualityLevels.on('change', function () {
-        // console.log('New level:', qualityLevels[qualityLevels.selectedIndex].height);
+        console.log('New level:', qualityLevels[qualityLevels.selectedIndex].height);
         setCurrentQuality(qualityLevels[qualityLevels.selectedIndex].height)
       })
       qualityLevels.on('addqualitylevel', (event: any) => {
@@ -405,9 +407,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('loadedmetadata', () => {
         handleOnDuration()
         enableHighestQuality()
-
-        qualityLevels.selectedIndex_ = qualityLevels.length - 1
-        qualityLevels.trigger({ type: 'change', selectedIndex: qualityLevels.length - 1 })
       })
       player.on('ready', handleOnReady)
       player.on('play', handleOnPlay)
