@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.22'
+  const HOGAK_PLAYER_VERSION = '0.7.23'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -579,6 +579,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         }
       })
 
+      // 오류 뷰 표시 초기화
+      setIsShowErrorView(false)
       // 퀄리티 레벨 초기화
       clearQualityLevels()
       // 영상 소스 변경

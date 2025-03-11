@@ -110,23 +110,23 @@ const TimeLabelsContainer = styled.div`
   padding: 0 1em; /* 가운데 레이블이 너무 붙지 않도록 여유 */
 `;
 
-const DragLabel = styled.div<{ isVisible: boolean }>`
+const DragLabel = styled.div<{ $isVisible: boolean }>`
   position: absolute;
   top: 0;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 0 5px;
   white-space: nowrap;
-  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+  visibility: ${({ $isVisible }) => ($isVisible ? 'visible' : 'hidden')};
   font-size: 1.2em;
 `;
 
 const LeftLabel = styled(DragLabel)`
   left: 0;  /* 슬라이더 컨테이너 기준 왼쪽 고정 */
-  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+  visibility: ${({ $isVisible }) => ($isVisible ? 'visible' : 'hidden')};
 `;
 const RightLabel = styled(DragLabel)`
   right: 0; /* 슬라이더 컨테이너 기준 오른쪽 고정 */
-  visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+  visibility: ${({ $isVisible }) => ($isVisible ? 'visible' : 'hidden')};
 `;
 const CenterLabel = styled.div`
   display: flex;
@@ -349,11 +349,11 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             <div style={{ visibility: dragging === 'right' ? 'visible' : 'hidden', backgroundColor: 'gray', padding: '0 5px' }}>
               {formatTime(currentValue[1])}
             </div> */}
-            <LeftLabel isVisible={dragging === 'left'}>
+            <LeftLabel $isVisible={dragging === 'left'}>
               {formatTime(currentValue[0])}
             </LeftLabel>
             
-            <RightLabel isVisible={dragging === 'right'}>
+            <RightLabel $isVisible={dragging === 'right'}>
               {formatTime(currentValue[1])}
             </RightLabel>
           </TimeLabelsContainer>

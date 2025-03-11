@@ -32,7 +32,7 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
     };
 
     return (
-        <PopoverContainer isShow={isShow} className="hogak-popover">
+        <PopoverContainer $isShow={isShow} className="hogak-popover">
             <TopContainer>
                 {/* 250113 클래스 네임 추가 */}
                 <FlexRow style={{ width: 'calc(100% - 10em' }} className="icon_box">
@@ -74,8 +74,8 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
     )
 }
 
-const PopoverContainer = styled.div<{ isShow: boolean }>`
-    display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
+const PopoverContainer = styled.div<{ $isShow: boolean }>`
+    display: ${(props) => (props.$isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
     position: absolute;
     top: 0;
     bottom: 0;

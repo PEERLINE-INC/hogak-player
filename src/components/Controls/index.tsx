@@ -427,11 +427,11 @@ export function Controls(props: ControlsProps) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={isTouchDevice ? handleTouchOverlay : undefined}
-      isOverlayVisible={isOverlayVisible}
+      $isOverlayVisible={isOverlayVisible}
     >
       <ControlsContainer
         className='controls-wrapper'
-        isOverlayVisible={isOverlayVisible}
+        $isOverlayVisible={isOverlayVisible}
       >
         {/* 250306 윤영민 변경 */}
         <TopContainer
@@ -604,7 +604,7 @@ export function Controls(props: ControlsProps) {
           </FlexCol>
         </MiddleContainer>
 
-        <BottomContainer isFullScreen={isFullScreen}>
+        <BottomContainer $isFullScreen={isFullScreen}>
           <SliderContainer>
             <Slider.Root
               className='SliderRoot'
@@ -658,10 +658,10 @@ export function Controls(props: ControlsProps) {
             <FlexRow>
               {isLive ? (
                 <LiveContainer
-                  isAtLive={atLive}
+                  $isAtLive={atLive}
                   onClick={atLive ? undefined : () => seekToLive()}
                 >
-                  <LiveDot isAtLive={atLive} />
+                  <LiveDot $isAtLive={atLive} />
                   <span>LIVE</span>
                 </LiveContainer>
               ) : (
@@ -771,7 +771,7 @@ export function Controls(props: ControlsProps) {
   )
 }
 
-const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
+const ControlsWrapper = styled.div<{ $isOverlayVisible: boolean }>`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -783,21 +783,21 @@ const ControlsWrapper = styled.div<{ isOverlayVisible: boolean }>`
   display: flex;
   flex-direction: column;
   /* justify-content: space-between; */
-  background-color: ${({ isOverlayVisible }) =>
-    isOverlayVisible ? 'rgba(0, 0, 0, 0.6)' : 'transparent'};
+  background-color: ${({ $isOverlayVisible }) =>
+    $isOverlayVisible ? 'rgba(0, 0, 0, 0.6)' : 'transparent'};
   transition: background-color 0.3s ease;
 `
 
-const ControlsContainer = styled.div<{ isOverlayVisible: boolean }>`
+const ControlsContainer = styled.div<{ $isOverlayVisible: boolean }>`
   display: grid;
   grid-template-rows: auto 1fr auto;
   /* 부모(ControlsWrapper)의 높이를 전부 차지 */
   flex: 1;
   height: 100%;
 
-  opacity: ${({ isOverlayVisible }) => (isOverlayVisible ? 1 : 0)};
+  opacity: ${({ $isOverlayVisible }) => ($isOverlayVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
-  pointer-events: ${({ isOverlayVisible }) => (isOverlayVisible ? 'auto' : 'none')};
+  pointer-events: ${({ $isOverlayVisible }) => ($isOverlayVisible ? 'auto' : 'none')};
 `
 
 const TopContainer = styled.div`
@@ -825,14 +825,14 @@ const MiddleContainer = styled.div`
   align-items: center;
 `
 
-const BottomContainer = styled.div<{ isFullScreen: boolean }>`
+const BottomContainer = styled.div<{ $isFullScreen: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   margin-bottom: 0px !important;
 
-  ${({ isFullScreen }) =>
-    isFullScreen &&
+  ${({ $isFullScreen }) =>
+    $isFullScreen &&
     `
       /* 안전 영역 */
       padding-bottom: calc(env(safe-area-inset-bottom, 0px) / 2) !important;
@@ -1126,19 +1126,19 @@ const VolumeControlWrap = styled.div`
   }
 `
 
-const LiveDot = styled.div<{ isAtLive: boolean }>`
+const LiveDot = styled.div<{ $isAtLive: boolean }>`
   width: 0.8em;
   height: 0.8em;
   border-radius: 50%;
   margin-right: 0.5em;
-  background-color: ${({ isAtLive }) => (isAtLive ? '#FF0000' : '#666666')};
+  background-color: ${({ $isAtLive }) => ($isAtLive ? '#FF0000' : '#666666')};
   transition: background-color 0.2s ease;
 `
 
-const LiveContainer = styled.div<{ isAtLive: boolean }>`
+const LiveContainer = styled.div<{ $isAtLive: boolean }>`
   display: flex;
   align-items: center;
-  cursor: ${({ isAtLive }) => (isAtLive ? 'default' : 'pointer')};
+  cursor: ${({ $isAtLive }) => ($isAtLive ? 'default' : 'pointer')};
 
   span {
     color: white;

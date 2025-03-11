@@ -65,11 +65,11 @@ const Dropdown = ({ options, defaultValue, onChangeValue, disabled, onChangeOpen
         {selectedLabel}
       </DropdownButton>
 
-      <DropdownList isOpen={isOpen}>
+      <DropdownList $isOpen={isOpen}>
         {options.map((option, index) => (
           <DropdownItem
             key={index}
-            isActive={option.value === selectedOption}
+            $isActive={option.value === selectedOption}
             onClick={() => handleOptionClick(option)}
           >
             <span>{option.label}</span>
@@ -100,7 +100,7 @@ const DropdownButton = styled.button`
   white-space: nowrap;
 `;
 
-const DropdownList = styled.ul<{ isOpen: boolean }>`
+const DropdownList = styled.ul<{ $isOpen: boolean }>`
   list-style: none;
   padding: 0.4em;
   margin: 0;
@@ -111,7 +111,7 @@ const DropdownList = styled.ul<{ isOpen: boolean }>`
   transform: translateX(-50%);
   z-index: 1000;
   border-radius: 6px;
-  display: ${(props) => (props.isOpen ? "block" : "none")};
+  display: ${(props) => (props.$isOpen ? "block" : "none")};
   min-width: 4em;
   max-height: 10em;
   overflow-y: auto;
@@ -124,22 +124,22 @@ const DropdownList = styled.ul<{ isOpen: boolean }>`
   }
 `;
 
-const DropdownItem = styled.li<{ isActive: boolean }>`
+const DropdownItem = styled.li<{ $isActive: boolean }>`
   padding: 0.2em 0.4em;
   font-size: 1em;
   line-height: 1em;
   cursor: pointer;
   text-align: center;
-  background-color: ${(props) => (props.isActive ? "#fff" : "transparent")};
-  color: ${(props) => (props.isActive ? "#000" : "#fff")};
+  background-color: ${(props) => (props.$isActive ? "#fff" : "transparent")};
+  color: ${(props) => (props.$isActive ? "#000" : "#fff")};
   border-radius: 4px;
   transition: background-color 0.2s, color 0.2s;
   sup {
-    color: ${(props) => (props.isActive ? "#000" : "#fff")};
+    color: ${(props) => (props.$isActive ? "#000" : "#fff")};
   }
   &:hover {
     background-color: ${(props) =>
-      props.isActive ? "#fff" : "rgba(255,255,255,0.7)"};
+      props.$isActive ? "#fff" : "rgba(255,255,255,0.7)"};
     color: #000;
     sup {
       color: #000;

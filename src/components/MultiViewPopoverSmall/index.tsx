@@ -32,7 +32,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds, playerStore }
   };
 
   return (
-    <PopoverContainer isShow={isShow} className="hogak-popover">
+    <PopoverContainer $isShow={isShow} className="hogak-popover">
 
       {/* 241224 클래스 추가 */}
       <FlexRow gap={12} className='popover_list'>
@@ -99,7 +99,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds, playerStore }
 };
 
 // 250214 스타일 수정
-const PopoverContainer = styled.div<{ isShow: boolean }>`
+const PopoverContainer = styled.div<{ $isShow: boolean }>`
   position: absolute;
   bottom: 0;
   right: 0;
@@ -108,7 +108,7 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
   height: 38%;
   min-height: 6.8em;
   background-color: rgba(0, 0, 0, 0.66);
-  display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
+  display: ${(props) => (props.$isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
   z-index: 2;
   padding: 0.8em 4em 0.8em 0.8em;
   flex-direction: row;

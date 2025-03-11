@@ -26,7 +26,7 @@ export const TagViewPopover = ({ isShow, onAddTagClick, playerStore }: TagViewPo
   }
 
   return (
-    <PopoverContainer isShow={isShow} className="hogak-popover">
+    <PopoverContainer $isShow={isShow} className="hogak-popover">
       <FlexCol gap={8} style={{ paddingLeft: '1em', height: '100%' }}>
         <FlexRow style={{justifyContent: 'space-between'}}>
           {/* 241224 아이콘 변경 및 스타일 수정 */}
@@ -60,14 +60,14 @@ export const TagViewPopover = ({ isShow, onAddTagClick, playerStore }: TagViewPo
   );
 };
 
-const PopoverContainer = styled.div<{ isShow: boolean }>`
+const PopoverContainer = styled.div<{ $isShow: boolean }>`
   position: absolute;
   top: 0;
   right: 0;
   width: 33.33%; /* 화면의 1/3 크기 */
   min-width: 14.5em;
   background-color: rgba(0, 0, 0, 0.6);
-  display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
+  display: ${(props) => (props.$isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
   z-index: 2;
   padding: 0.8em;
   flex-direction: column;

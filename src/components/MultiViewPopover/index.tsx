@@ -31,7 +31,7 @@ export const MultiViewPopover = ({ isShow, getCurrentSeconds, playerStore }: Mul
   };
 
   return (
-    <PopoverContainer isShow={isShow} className="hogak-popover">
+    <PopoverContainer $isShow={isShow} className="hogak-popover">
       <IconButton onClick={() => setIsShowMultiView(false)} className="back_btn">
         <ArrowLeftIcon style={{ transform: 'scaleX(-1)' }} />
       </IconButton>
@@ -83,7 +83,7 @@ export const MultiViewPopover = ({ isShow, getCurrentSeconds, playerStore }: Mul
   );
 };
 
-const PopoverContainer = styled.div<{ isShow: boolean }>`
+const PopoverContainer = styled.div<{ $isShow: boolean }>`
   position: absolute;
   top: 0;
   right: 0;
@@ -92,7 +92,7 @@ const PopoverContainer = styled.div<{ isShow: boolean }>`
   width: 27%; /* 화면의 1/3 크기 */
   min-width: 18em;
   background-color: rgba(0, 0, 0, 0.86);
-  display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
+  display: ${(props) => (props.$isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
   z-index: 2;
   padding: 1.3em 1.5em;
   flex-direction: column;

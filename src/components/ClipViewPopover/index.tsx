@@ -179,7 +179,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   return (
     <PopoverContainer
-      isShow={isShow}
+      $isShow={isShow}
       className='hogak-popover'
     >
       <TopContainer>
@@ -232,7 +232,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         </FlexCol>
       </MiddleContainer>
 
-      <ClipRangeWrap isFullScreen={isFullScreen}>
+      <ClipRangeWrap $isFullScreen={isFullScreen}>
         {/* <TimeLabelsContainer className='time-labels-container'>
           <TimeLabel className='left'>{formatTime(min)}</TimeLabel>
           <TimeLabel className='center'>{formatTime(played * duration)}</TimeLabel>
@@ -290,8 +290,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   )
 }
 
-const PopoverContainer = styled.div<{ isShow: boolean }>`
-  display: ${(props) => (props.isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
+const PopoverContainer = styled.div<{ $isShow: boolean }>`
+  display: ${(props) => (props.$isShow ? 'flex' : 'none')}; /* 상태에 따라 표시/숨김 */
   position: absolute;
   top: 0;
   bottom: 0;
@@ -461,7 +461,7 @@ const FlexCol = styled.div<{ gap?: number }>`
   }
 `
 
-const ClipRangeWrap = styled.div<{ isFullScreen: boolean }>`
+const ClipRangeWrap = styled.div<{ $isFullScreen: boolean }>`
   background-color: #000;
   width: 100%;
   height: 26%;
@@ -475,8 +475,8 @@ const ClipRangeWrap = styled.div<{ isFullScreen: boolean }>`
 
   /* iOS Safari 전용 스타일 */
   @supports (-webkit-touch-callout: none) {
-    ${({ isFullScreen }) =>
-      isFullScreen &&
+    ${({ $isFullScreen }) =>
+      $isFullScreen &&
       `
         margin-bottom: 29px;
         `}
