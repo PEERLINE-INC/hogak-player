@@ -544,18 +544,18 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           }
         }
 
-        if (props.isAutoplay && !isDisablePlayer) {
-          const playPromise = playerRef.current.play()
-          if (playPromise) {
-            playPromise
-              .then(() => {
-                console.log('url changed')
-              })
-              .catch((error) => {
-                console.error('Play error:', error)
-              })
-          }
-        }
+        // if (props.isAutoplay && !isDisablePlayer) {
+        //   const playPromise = playerRef.current.play()
+        //   if (playPromise) {
+        //     playPromise
+        //       .then(() => {
+        //         console.log('url changed')
+        //       })
+        //       .catch((error) => {
+        //         console.error('Play error:', error)
+        //       })
+        //   }
+        // }
       })
 
       // 오류 뷰 표시 초기화
@@ -678,6 +678,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     setIsLive(props.isLive ?? false)
     console.log('useEffect [isLive]', props.isLive)
   }, [props.isLive])
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    
+    player.autoplay(props.isAutoplay ?? false);
+  }, [props.isAutoplay])
 
   useEffect(() => {
     setIsPanoramaMode(props.isPanorama ?? false)
