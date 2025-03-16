@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.24'
+  const HOGAK_PLAYER_VERSION = '0.7.27'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -950,7 +950,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnCanPlay = () => {
     console.log('handleOnCanPlay (video.js)')
-
+    setErrorMessage('')
+    setIsShowErrorView(false)
     usePlayerStore.getState().setIsSeek(false)
   }
 
