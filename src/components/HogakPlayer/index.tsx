@@ -231,6 +231,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   // Video.js Player 초기화
   useEffect(() => {
     // if (!url) return // URL이 없으면 초기화하지 않음
+    console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart })
 
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js')
@@ -904,7 +905,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
 
       const playedFraction = current / duration
-      console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
+      // console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
       // console.log('played (video.js)', usePlayerStore.getState().played);
 
       setPlayed(playedFraction)
@@ -927,7 +928,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }
 
   const handleOnError = () => {
-    setIsShowErrorView(true)
+    if (errorMessage) {
+      setIsShowErrorView(true)
+    }
     const error = playerRef.current?.error();
     console.error('onError (video.js)', error);
     // @ts-ignore

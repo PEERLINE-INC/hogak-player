@@ -10,6 +10,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc && vite build",
+    "build:umd": "tsc && vite build --config vite.config.umd.ts",
     "lint": "eslint . --ext ts,tsx",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --check .",

@@ -2,8 +2,9 @@ export function isSafari() {
     const userAgent = navigator.userAgent;
     const isSafari =
         /Safari/.test(userAgent) || /Version\/[\d.]+.*Safari/.test(userAgent);
-    const isIos = /iPad|iPhone/.test(userAgent);
+    const isIos = /iPad|iPhone|Macintosh/.test(userAgent);
 
+    // console.log('isSafari', { userAgent, isSafari, isIos })
     return isSafari && isIos;
 };
 

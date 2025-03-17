@@ -391,7 +391,7 @@ const meta = {
     disableMultiView: false,
     backIconType: 'arrowLeft',
     enablePrerollAd: false,
-    prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
+    prerollAdUrl: 'https://hogak.cafe24.com/hogak_1288bf1f03de3f71c7728f81f132c913_HD.mp4',
     enableScoreBoardOverlay: false,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
     offsetStart: 10,
