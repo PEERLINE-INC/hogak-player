@@ -15,9 +15,14 @@ export default defineConfig({
       fileName: () => `hogak-player.umd.js`
     },
     rollupOptions: {
-      // React를 **external 처리하지 않고**, 빌드에 포함
-      external: [],
+      external: ['react', 'react-dom'],
       output: {
+        // 전역 객체 이름(브라우저)
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react-dom/client': 'ReactDOM',
+        },
         inlineDynamicImports: true,
       },
     },
