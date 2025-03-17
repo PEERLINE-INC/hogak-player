@@ -1,13 +1,14 @@
 
 interface HogakPlayerPlayTimeProps {
   seconds: number;
+  testId?: string;
 }
 
 export function PlayTime(props: HogakPlayerPlayTimeProps) {
-  const { seconds } = props;
+  const { seconds, testId } = props;
 
   return (
-    <time dateTime={`P${Math.round(seconds || 0)}S`} style={{ color: 'white', fontSize: '1.4em', fontVariantNumeric: 'tabular-nums' }}>
+    <time dateTime={`P${Math.round(seconds || 0)}S`} style={{ color: 'white', fontSize: '1.4em', fontVariantNumeric: 'tabular-nums' }} data-testid={testId}>
       {format(seconds)}
     </time>
   );

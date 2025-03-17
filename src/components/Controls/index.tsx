@@ -666,7 +666,7 @@ export function Controls(props: ControlsProps) {
                 </LiveContainer>
               ) : (
                 <>
-                  <PlayTime seconds={getCurrentTime()} />
+                  <PlayTime seconds={getCurrentTime()} testId='player-time-display-start' />
                   <span
                     style={{
                       color: 'white',
@@ -678,7 +678,7 @@ export function Controls(props: ControlsProps) {
                     {' '}
                     /{' '}
                   </span>
-                  <PlayTime seconds={duration} />
+                  <PlayTime seconds={duration} testId='player-time-display-end' />
                 </>
               )}
             </FlexRow>

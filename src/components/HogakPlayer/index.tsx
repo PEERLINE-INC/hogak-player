@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.27'
+  const HOGAK_PLAYER_VERSION = '0.7.28'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -280,7 +280,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       })
       console.log('chromecast')
       // @ts-ignore
-      player.chromecast()
+      player?.chromecast()
       player.on('chromecastConnected', () => {
         console.log('chromecastConnected')
       })
@@ -564,6 +564,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           }
         }
 
+        // 길이 갱신
+        handleOnDuration();
+
         if (props.isAutoplay && !isDisablePlayer) {
           const playPromise = playerRef.current.play()
           if (playPromise) {
@@ -805,6 +808,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     setOnClickRightArrowButton(onClickRightArrowButton)
   }, [props.onClickRightArrowButton])
 
+  useEffect(() => {
+    setErrorMessage(props.errorMessage ?? '')
+  }, [props.errorMessage])
+
   /**
    * ----------------------------------------------------------------
    * 5. Video.js 이벤트 핸들러들
@@ -873,18 +880,23 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setPlayed(current / duration)
       setAtLive(atLive)
     } else {
+      const _offsetStart = usePlayerStore.getState().offsetStart
+      const _offsetEnd = usePlayerStore.getState().offsetEnd
+      // const _offsetStart = offsetStart
+      // const _offsetEnd = offsetEnd
+
       if (usePlayerStore.getState().isSeek) {
         // seek 중 time slider update 금지
         return
       }
       // played = (현재시간 / 전체길이)
       let current = playerRef.current.currentTime() ?? 0
-      if (offsetStart > 0) {
-        current = current - offsetStart
+      if (_offsetStart > 0) {
+        current = current - _offsetStart
       }
       let duration = playerRef.current.duration() ?? 1 // 0일 경우 대비
-      if (offsetEnd > 0) {
-        duration = offsetEnd - offsetStart
+      if (_offsetEnd > 0) {
+        duration = _offsetEnd - _offsetStart
         // 오프셋 초과 시, 영상 중단
         if (current > duration) {
           setIsPlay(false)
@@ -892,7 +904,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
 
       const playedFraction = current / duration
-      // console.log('handleOnTimeUpdate (video.js)', playedFraction);
+      console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
       // console.log('played (video.js)', usePlayerStore.getState().played);
 
       setPlayed(playedFraction)
@@ -915,21 +927,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }
 
   const handleOnError = () => {
+    setIsShowErrorView(true)
     const error = playerRef.current?.error();
     console.error('onError (video.js)', error);
-
-    switch (error?.code) {
-      case 4:
-        if (usePlayerStore.getState().isLive) {
-          console.log('라이브 시작 전입니다.')
-          setIsShowErrorView(true)
-          setErrorMessage('라이브 시작 전입니다.')
-        }
-        break;
-      default:
-        break;
-    }
-
     // @ts-ignore
     playerRef.current?.error(null);
   }
@@ -950,7 +950,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnCanPlay = () => {
     console.log('handleOnCanPlay (video.js)')
-    setErrorMessage('')
     setIsShowErrorView(false)
     usePlayerStore.getState().setIsSeek(false)
   }

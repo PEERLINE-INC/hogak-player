@@ -222,6 +222,11 @@ const meta = {
       description: `우측 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickRightArrowButton',
     },
+    errorMessage: {
+      defaultValue: '',
+      description: `표시할 오류 메시지입니다. 메시지가 존재하면, 재생 버튼을 대체하여 오류 메시지를 표시합니다.`,
+      type: 'string',
+    },
   },
   args: {
     title: '',
@@ -389,9 +394,9 @@ const meta = {
     prerollAdUrl: 'https://dev.peerline.net/hogak/thumbnail/hogak_preroll_ad.mp4',
     enableScoreBoardOverlay: false,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
-    offsetStart: 0,
-    offsetEnd: 0,
-    offsetSeek: 30,
+    offsetStart: 10,
+    offsetEnd: 70,
+    offsetSeek: 0,
     eventId: '1000020',
     clipThumbnailApiHost: 'http://hogak-media-service-1061815346.ap-northeast-2.elb.amazonaws.com:7788',
     enableLeftRightArrowButton: false,
@@ -401,6 +406,7 @@ const meta = {
     onClickRightArrowButton: () => {
       console.log('onClickRightArrowButton');
     },
+    errorMessage: '오류가 발생했습니다.',
   },
 } satisfies Meta<typeof HogakPlayer>
 
