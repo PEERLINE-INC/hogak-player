@@ -9,8 +9,8 @@ export default defineConfig({
     outDir: 'umd',
     // 라이브러리 모드지만, UMD + inlineDynamicImports
     lib: {
-      entry: path.resolve(__dirname, 'src/main.ts'),
-      name: 'HogakPlayerGlobal', // 전역에서 window.HogakPlayerGlobal 로 접근
+      entry: path.resolve(__dirname, 'src/main.tsx'),
+      name: 'GlobalHogakPlayer', // 전역에서 window.GlobalHogakPlayer 로 접근
       formats: ['umd'],          // UMD 형식
       fileName: () => `hogak-player.umd.js`
     },
