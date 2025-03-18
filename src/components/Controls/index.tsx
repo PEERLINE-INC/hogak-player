@@ -8,7 +8,8 @@ import PauseIcon from '../../assets/icons/vod_pause.svg?react'
 import VolumeIcon from '../../assets/icons/icon_volume.svg?react'
 import VolumeMuteIcon from '../../assets/icons/icon_volume_mute.svg?react'
 import MultiViewIcon from '../../assets/icons/icon_multiview.svg?react'
-import FullScreenIcon from '../../assets/icons/icon_zoom.svg?react'
+import FullScreenIcon from '../../assets/icons/icon_fullscreen.svg?react'
+import FullScreenExitIcon from '../../assets/icons/icon_fullscreen_exit.svg?react'
 import TagViewIcon from '../../assets/icons/icon_tag_white.svg?react'
 import RedMarkerIcon from '../../assets/icons/mark_red.svg?react'
 import AirPlayIcon from '../../assets/icons/icon_airplay.svg?react'
@@ -427,11 +428,11 @@ export function Controls(props: ControlsProps) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={isTouchDevice ? handleTouchOverlay : undefined}
-      $isOverlayVisible={isOverlayVisible}
+      $isOverlayVisible={isOverlayVisible || isShowTagSaveView}
     >
       <ControlsContainer
         className='controls-wrapper'
-        $isOverlayVisible={isOverlayVisible}
+        $isOverlayVisible={isOverlayVisible || isShowTagSaveView}
       >
         {/* 250306 윤영민 변경 */}
         <TopContainer
@@ -761,7 +762,7 @@ export function Controls(props: ControlsProps) {
                   setIsFullScreen(!isFullScreen)
                 }}
               >
-                <FullScreenIcon />
+                {isFullScreen ? <FullScreenExitIcon /> : <FullScreenIcon />}
               </IconButton>
             </FlexRow>
           </ControlBox>

@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.7.28'
+  const HOGAK_PLAYER_VERSION = '0.8.0'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -230,8 +230,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   // Video.js Player 초기화
   useEffect(() => {
-    // if (!url) return // URL이 없으면 초기화하지 않음
     console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart })
+    // URL이 없으면 초기화하지 않음
+    if (!url) {
+      return;
+    } else {
+      document.getElementById('hogak-player-dummy')?.remove();
+    }
 
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js')
@@ -360,9 +365,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         // @ts-ignore
         const ads = player.ads()
         // 콘텐츠 변경 시 광고 준비 이벤트 트리거
-        // player.on('contentchanged', function() {
-        //   player.trigger('adsready');
-        // });
+        player.on('contentchanged', function() {
+          // @ts-ignore
+          player.ads.skipLinearAdMode()
+        });
 
         player.on('readyforpreroll', function () {
           console.log('readyforpreroll')
@@ -390,7 +396,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             setIsPlayAd(false)
           })
         })
-
         // 광고 준비 이벤트 트리거
         player.trigger('adsready')
       }
@@ -589,6 +594,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       // 영상 소스 변경
       // 배속 1로 설정
       setSpeed(1)
+      playerRef.current.trigger('nopreroll');
       playerRef.current.autoplay(isDisablePlayer ? false : (props.isAutoplay ?? false))
       playerRef.current.src({
         src: url,
@@ -868,8 +874,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }
 
   const handleOnTimeUpdate = () => {
-    if (!playerRef.current) return
     // console.log('handleOnTimeUpdate (video.js)', usePlayerStore.getState().isLive)
+    if (!playerRef.current) return
     if (usePlayerStore.getState().isLive) {
       // @ts-ignore
       const liveTracker = playerRef.current.liveTracker
@@ -955,6 +961,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     console.log('handleOnCanPlay (video.js)')
     setIsShowErrorView(false)
     usePlayerStore.getState().setIsSeek(false)
+    handleOnDuration()
   }
 
   const seekTo = (value: number, type: 'seconds' | 'fraction') => {
@@ -1087,7 +1094,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             ref={videoRef}
             className='hogak-player'
             style={{ zIndex: 1000 }}
-          ></div>
+          >
+            <div id='hogak-player-dummy' className='video-js vjs-fluid vjs_video_3-dimensions vjs-controls-disabled vjs-workinghover vjs-v8 vjs-playing vjs-ad-playing vjs-has-started vjs-user-inactive'></div>
+          </div>
 
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen && (

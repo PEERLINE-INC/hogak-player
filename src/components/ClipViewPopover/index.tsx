@@ -155,6 +155,14 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         }
     }, [played]);
 
+    const handleDragStart = (value: number[]) => {
+        console.log('handleDragStart', value)
+        setIsPlay(false);
+    }
+    const handleDragEnd = (value: number[]) => {
+        console.log('handleDragEnd', value)
+        setIsPlay(true);
+    }
     const handleAfterChange = (value: number[]) => {
         let [start, end] = value;
         if (end - start >= 60) {
@@ -163,7 +171,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         onChangeClipDuration([Math.floor(start), Math.floor(end)]);
         setValues([start, end]);
         seekTo(start, 'seconds');
-        setIsPlay(true);
       };
     const handleCancel = () => {
         setIsShowClipView(false);
@@ -278,6 +285,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                 step={0.1}
                 value={[...values]}
                 onChange={handleAfterChange}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
                 isPlayheadShow={isPlayheadShow}
                 playheadPercent={playheadPercent}
               />

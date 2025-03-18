@@ -7,6 +7,7 @@ interface RangeSliderProps {
   min: number
   max: number
   onChange?: (value: number[]) => void
+  onDragStart?: (value: number[]) => void
   onDragEnd?: (value: number[]) => void
   onChangeEnd?: (value: number[]) => void
   minDistance?: number // 슬라이더 간의 최소 거리
@@ -156,6 +157,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   min,
   max,
   onChange,
+  onDragStart,
   onDragEnd,
   onChangeEnd,
   minDistance = 0,
@@ -178,6 +180,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     setDragging(handle)
     setStartX(clientX)
     setStartPositions([...currentValue])
+    onDragStart?.(currentValue)
   }
 
   const handleMove = (clientX: number) => {
