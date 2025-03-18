@@ -1,3 +1,4 @@
+import { createRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HogakPlayer } from './components/HogakPlayer'
 
@@ -8,8 +9,11 @@ export function renderPlayer(containerId: string, props: any) {
     console.error(`Could not find container with id="${containerId}"`);
     return;
   }
+  const ref = createRef();
   const root = createRoot(container);
-  root.render(<HogakPlayer {...props} />);
+  root.render(<HogakPlayer {...props} ref={ref} />);
+
+  return ref;
 }
 
 
