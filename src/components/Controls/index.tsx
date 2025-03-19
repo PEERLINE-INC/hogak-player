@@ -543,7 +543,7 @@ export function Controls(props: ControlsProps) {
               )}
 
               {/* 광고 중에는 재생/일시정지 버튼 비활성화 */}
-              {!isShowErrorView && (
+              {!isShowErrorView && !isShowTagSaveView && (
                 <IconButton
                   onClick={handleClickPlay}
                   className='play_btn'

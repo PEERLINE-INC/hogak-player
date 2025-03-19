@@ -2,6 +2,8 @@ import styled from "styled-components";
 import CancelIcon from '../../assets/icons/icon_cancel.svg?react';
 import SaveIcon from '../../assets/icons/icon_save.svg?react';
 import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
+import PlayIcon from '../../assets/icons/vod_play.svg?react'
+import PauseIcon from '../../assets/icons/vod_pause.svg?react'
 import { createPlayerStore } from "../../store/playerStore";
 
 interface TagSaveViewPopoverProps {
@@ -20,6 +22,9 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
 
     const playerStore = props.playerStore;
     const isFullScreen = playerStore((state) => state.isFullScreen);
+    const isPlay = playerStore((state) => state.isPlay);
+    const setIsPlay = playerStore((state) => state.setIsPlay);
+
     const setIsShowTagSaveView = playerStore((state) => state.setIsShowTagSaveView);
 
     const handleCancel = () => {
@@ -30,6 +35,10 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
         handleCancel();
         onSave?.();
     };
+    const handleClickPlay = () => {
+        // onPlayCallback?.();
+        setIsPlay(!isPlay)
+      }
 
     return (
         <PopoverContainer $isShow={isShow} className="hogak-popover">
@@ -47,8 +56,24 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
             </TopContainer>
 
             <MiddleContainer>
+                <PlayBtnContainer
+                    className='controls-wrapper'
+                    style={{ width: '100%' }}
+                >
+                    <FlexRow
+                        className='controls-wrapper'
+                        style={{ justifyContent: 'center' }}
+                    >
+                        <IconButton
+                            onClick={handleClickPlay}
+                            className='play_btn'
+                        >
+                            {isPlay ? <PauseIcon /> : <PlayIcon />}
+                        </IconButton>
+                    </FlexRow>
+                </PlayBtnContainer>
                 {/* 250113 간격 수정 및 클래스 추가 */}
-                <FlexCol style={{ paddingRight: '1em', gap: '1.3em' }} className="icon_box">
+                <FlexCol style={{ paddingRight: '1em', gap: '1.3em', zIndex: 1 }} className="icon_box">
                     {isFullScreen && (
                         <>
                             <FlexCol>
@@ -84,7 +109,7 @@ const PopoverContainer = styled.div<{ $isShow: boolean }>`
     flex-direction: column;
     justify-content: space-between;
     z-index: 2;
-    height: 80%;
+    height: 100%;
 `
 const TopContainer = styled.div`
     display: flex;
@@ -145,12 +170,17 @@ const IconButton = styled.div`
         height: auto;
     }
     &.side_icon.side_save svg{
-        width: 1.4em;
+        width: 1.7em;
         height: 1.7em;
     }
     &.side_icon.side_cancel svg {
-        width: 1.3em;
-        height: 1.3em;
+        width: 1.4em;
+        height: 1.4em;
+    }
+
+    &.side_icon.side_save,
+    &.side_icon.side_cancel {
+        padding: 0.2em 0.4em;
     }
     .side_icon_name {
         font-size: 1.1em;
@@ -163,7 +193,39 @@ const IconButton = styled.div`
         height: 100%;
     }
     
-
+    /* 250113 추가 */
+    @media screen and (min-width: 390px) {
+        font-size: 10.8334px;
+    }
+    @media screen and (min-width: 396px) {
+        font-size: 11px;
+    }
+    @media screen and (min-width: 411px) {
+        font-size: 11.4166px;
+    }
+    @media screen and (min-width: 412px) {
+        font-size: 11.4444px;
+    }
+    /* iphone 6 Plus */
+    @media screen and (min-width: 414px) {
+        font-size: 11.5px;
+    }
+    /* iphone 12 Pro Max */
+    @media screen and (min-width: 428px) {
+        font-size: 11.8889px;
+    }
+    @media screen and (min-width: 432px) {
+        font-size: 12px;
+    }
+    @media screen and (min-width: 468px) {
+        font-size: 12.4px;
+    }
+    @media screen and (min-width: 504px) {
+        font-size: 12.6px;
+    }
+    @media screen and (min-width: 540px) {
+        font-size: 12.8px;
+    }
 `
 const FlexRow = styled.div<{ gap?: number }>`
     display: flex;
@@ -206,3 +268,10 @@ const FlexCol = styled.div<{ gap?: number }>`
             @media screen and (min-width: 540px){font-size:12.8px;} 
         }
 `;
+
+const PlayBtnContainer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`

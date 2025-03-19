@@ -1013,7 +1013,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       return playerRef.current?.currentTime() ?? 0
     },
     setClipView: (value: boolean, initialCurrentSeconds?: number) => {
-      if (isDisableClip) return
+      if (isDisableClip || isDisablePlayer) return
       if (value) {
         setIsPlay(false)
         let currentSeconds = playerRef.current?.currentTime() ?? 0
@@ -1031,7 +1031,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
     },
     setClipValues: (values: number[]) => {
-      if (isDisableClip) return
+      if (isDisableClip || isDisablePlayer) return
       if (values.length !== 2 || values[0] >= values[1]) {
         throw new Error('Invalid clip values')
       }
@@ -1043,12 +1043,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
     },
     setTagView: (value: boolean) => {
-      if (isDisableTag) return
+      if (isDisableTag || isDisablePlayer) return
       setIsShowTagView(value)
     },
     seekTo: seekTo,
     setIsViewThumbMarker: (v: boolean) => {
-      if (isDisableTag) return
+      if (isDisableTag || isDisablePlayer) return
       setIsViewThumbMarker(v)
     },
     getIsFullScreen: () => isFullScreen,
