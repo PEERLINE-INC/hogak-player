@@ -38,6 +38,8 @@ import usePinch from '../../hooks/usePinch'
 import useQualityStore from '../../store/qualityStore'
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level'
 import { isSafari, isSupportAirplay } from '../../util/common'
+import axios from 'axios';
+import { Parser } from 'm3u8-parser';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -81,7 +83,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.0'
+  const HOGAK_PLAYER_VERSION = '0.8.1'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -685,6 +687,53 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     }
   }, [enableScoreBoardOverlay, scoreBoardOverlayUrl])
 
+  useEffect(() => {
+    if (!url) return
+    if (!isSafari()) return
+
+    // m3u8 파싱
+    axios.get(url).then((res) => {
+      const m3u8Parser = new Parser();
+      m3u8Parser.push(res.data);
+      m3u8Parser.end();
+      const manifest = m3u8Parser.manifest;
+      const manifestUrl = new URL(url);
+      console.log('manifest', manifest);
+
+      if (!manifest.playlists) return;
+
+      const levels = manifest.playlists.map((playlist: any) => {
+        const pathname = manifestUrl.pathname.split('/');
+        pathname.pop();
+        const playlistUrl = `${manifestUrl.origin}${pathname.join('/')}/${playlist.uri}`;
+        console.log('playlistUrl', playlistUrl);
+
+        return {
+          id: playlist.uri,
+          label: `${playlist.attributes.RESOLUTION.height}p`,
+          width: playlist.attributes.RESOLUTION.width,
+          height: playlist.attributes.RESOLUTION.height,
+          bitrate: playlist.attributes.BANDWIDTH,
+          frameRate: 30,
+          enabled_: false,
+          url: playlistUrl,
+        }
+      });
+
+      levels.forEach((level) => {
+        // zustand 상태에 추가할 때, 중복 height가 있는지 검사 후 추가
+        setQualityLevels((prev: QualityLevel[]) => {
+          // 이미 해당 height가 있으면 그대로 반환(중복 추가 방지)
+          if (prev.some((lvl: QualityLevel) => lvl.height === level.height)) {
+            return prev
+          }
+          // 그렇지 않다면 새 배열로 반환
+          return [...prev, level]
+        })
+      });
+    });
+  }, [url])
+
   /**
    * ----------------------------------------------------------------
    * 4. useEffects: store 업데이트
@@ -1098,6 +1147,18 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             <div id='hogak-player-dummy' className='video-js vjs-fluid vjs_video_3-dimensions vjs-controls-disabled vjs-workinghover vjs-v8 vjs-playing vjs-ad-playing vjs-has-started vjs-user-inactive'></div>
           </div>
 
+          <Controls
+            playerStore={usePlayerStore}
+            playerRef={playerRef}
+            seekTo={seekTo}
+            seekToLive={seekToLive}
+            onBack={onBack}
+            onClickTagButton={onClickTagButton}
+            airplayRef={airplayRef}
+            chromecastRef={chromecastRef}
+            onPlayCallback={onPlayCallback}
+          />
+
           {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
           {isFullScreen && (
             <MultiViewPopover
@@ -1123,17 +1184,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             playerStore={usePlayerStore}
             isShow={isShowTagView}
             onAddTagClick={props.onClickAddTag}
-          />
-          <Controls
-            playerStore={usePlayerStore}
-            playerRef={playerRef}
-            seekTo={seekTo}
-            seekToLive={seekToLive}
-            onBack={onBack}
-            onClickTagButton={onClickTagButton}
-            airplayRef={airplayRef}
-            chromecastRef={chromecastRef}
-            onPlayCallback={onPlayCallback}
           />
           <ClipViewPopover
             playerStore={usePlayerStore}

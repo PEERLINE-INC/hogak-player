@@ -8,6 +8,12 @@ export function isSafari() {
     return isSafari && isIos;
 };
 
+export function isHogakApp() {
+  const userAgent = navigator.userAgent;
+  const isHogakApp = /HOGAK_APP/.test(userAgent);
+  return isHogakApp;
+}
+
 export function isSupportAirplay() {
     // @ts-ignore
     return !!window.WebKitPlaybackTargetAvailabilityEvent;

@@ -73,7 +73,7 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
                     </FlexRow>
                 </PlayBtnContainer>
                 {/* 250113 간격 수정 및 클래스 추가 */}
-                <FlexCol style={{ paddingRight: '1em', gap: '1.3em', zIndex: 1 }} className="icon_box">
+                <FlexCol style={{ paddingRight: '1em', gap: '1.3em', zIndex: 1, pointerEvents: 'auto' }} className="icon_box">
                     {isFullScreen && (
                         <>
                             <FlexCol>
@@ -110,6 +110,7 @@ const PopoverContainer = styled.div<{ $isShow: boolean }>`
     justify-content: space-between;
     z-index: 2;
     height: 100%;
+    pointer-events: none;
 `
 const TopContainer = styled.div`
     display: flex;
@@ -274,4 +275,5 @@ const PlayBtnContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  pointer-events: auto;
 `

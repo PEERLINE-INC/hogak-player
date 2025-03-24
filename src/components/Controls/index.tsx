@@ -107,7 +107,7 @@ export function Controls(props: ControlsProps) {
   // Quality
   const qualityLevels = useQualityStore((state) => state.qualityLevels)
   const currentQuality = useQualityStore((state) => state.currentQuality)
-
+  const setCurrentQuality = useQualityStore((state) => state.setCurrentQuality)
   const getCurrentTime = () => {
     return isSeek ? (duration * timeSliderValue) / 100 : duration * played
   }
@@ -335,6 +335,7 @@ export function Controls(props: ControlsProps) {
   const handleClickClip = () => {
     console.log('handleClickClip')
     if (isDisablePlayer) return
+    if (isShowTagSaveView) return
 
     setIsPlay(false)
     setCurrentSeconds(playerRef.current?.currentTime() ?? 0)
@@ -343,6 +344,7 @@ export function Controls(props: ControlsProps) {
 
   const handleClickTag = () => {
     if (isDisablePlayer) return
+    if (isShowClipView) return
 
     setIsPlay(false)
     if (isFullScreen) {
@@ -370,8 +372,24 @@ export function Controls(props: ControlsProps) {
   const handleChangeQuality = (option: any) => {
     console.log('handleChangeQuality', option)
     if (isSafari()) {
-      return
+      const player = playerRef.current;
+      const qualityLevel = qualityLevels.find((level) => level.height === option.value)
+      console.log('qualityLevel', qualityLevel)
+      if (!qualityLevel || !qualityLevel.url || !player) return;
+
+      const seconds = player.currentTime();
+      setCurrentQuality(option.value)
+
+      player.one('loadedmetadata', () => {
+        player.currentTime(seconds)
+        player.play()
+      });
+
+      player.src(qualityLevel.url);
+
+      return;
     }
+
     const quality = option.value
     // @ts-ignore
     const qualityList = playerRef.current?.qualityLevels()
@@ -402,13 +420,6 @@ export function Controls(props: ControlsProps) {
   const getOptions = () => {
     if (isPanorama) {
       return [{ value: 1080, label: 'PANO' }]
-    }
-    
-    if (isSafari()) {
-      return [
-        { value: 720, label: '720p' },
-        { value: 1080, label: '1080p', tag: 'HD' },
-      ]
     }
 
     return qualityLevels.map((level) => {

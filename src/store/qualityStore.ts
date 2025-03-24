@@ -2,7 +2,7 @@ import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-leve
 import { create } from 'zustand'
 
 interface QualityState {
-  qualityLevels: QualityLevel[]
+  qualityLevels: (QualityLevel & { url?: string })[]
   setQualityLevels: (callback: (prev: QualityLevel[]) => QualityLevel[]) => void
   currentQuality: number | null
   setCurrentQuality: (quality: number) => void
@@ -17,7 +17,7 @@ const useQualityStore = create<QualityState>()((set) => ({
       return { ...state, qualityLevels: newLevels }
     })
   },
-  currentQuality: null,
+  currentQuality: 1080,
   setCurrentQuality: (quality) => {
     set({ currentQuality: quality })
   },
