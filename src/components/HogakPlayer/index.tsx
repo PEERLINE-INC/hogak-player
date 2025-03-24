@@ -83,7 +83,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.1'
+  const HOGAK_PLAYER_VERSION = '0.8.2'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -908,6 +908,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     // 오프셋 초과 시, 영상 중단
     if (!playerRef.current) return
     let current = playerRef.current.currentTime() ?? 0
+    current = current - usePlayerStore.getState().offsetStart
+
     let currentDuration = usePlayerStore.getState().duration
     console.log('handleOnPlay', current, currentDuration)
     if (current > currentDuration) {
