@@ -33,7 +33,7 @@ function calculateClipRange(currentSeconds: number, duration: number) {
     end = duration
   }
 
-  console.log('calculateClipRange', { start, end })
+  // console.log('calculateClipRange', { start, end })
   return { start, end }
 }
 
@@ -78,7 +78,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   const fetchImages = async () => {
     try {
-      console.log('fetch thumbnail images', { clipApiHost, eventId })
+      // console.log('fetch thumbnail images', { clipApiHost, eventId })
 
       if (!clipApiHost || !eventId) {
         console.log('not found clipApiHost or eventId')
@@ -106,7 +106,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     let currentTime = played * duration
 
     const [start, end] = values;
-    console.log('setPlayheadPercent', { currentTime, start, end })
+    // console.log('setPlayheadPercent', { currentTime, start, end })
 
     let fraction = (currentTime - start) / (end - start)
     if (fraction < 0) fraction = 0;
@@ -138,7 +138,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   useEffect(() => {
     if (isLive) return
-    console.log('useEffect', { currentSeconds, duration })
+    // console.log('useEffect', { currentSeconds, duration })
     // currentSeconds 중심으로 3분 범위 설정
     const { start, end } = calculateClipRange(currentSeconds, duration)
     const middleValue = (start + end) / 2
@@ -172,7 +172,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         if (end - start >= 60) {
             end = start + 60;
         }
-        console.log('handleAfterChange', { start, end })
+        // console.log('handleAfterChange', { start, end })
         onChangeClipDuration([Math.floor(start), Math.floor(end)]);
         setValues([start, end]);
         seekTo(start + offsetStart, 'seconds');
