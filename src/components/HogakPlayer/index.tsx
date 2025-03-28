@@ -23,23 +23,21 @@ import { MultiViewPopover } from '../MultiViewPopover'
 import { TagViewPopover } from '../TagViewPopover'
 import { ClipViewPopover } from '../ClipViewPopover'
 
-// import screenfull from 'screenfull';
 import { MultiViewPopoverSmall } from '../MultiViewPopoverSmall'
 
 // ✅ 인터페이스
 import { HogakPlayerProps } from './interfaces'
 
 import Player from 'video.js/dist/types/player'
-import '@theonlyducks/videojs-zoom'
-import '@theonlyducks/videojs-zoom/styles'
 import { TagSaveViewPopover } from '../TagSaveViewPopover'
 import useLiveStore from '../../store/liveStore'
 import usePinch from '../../hooks/usePinch'
 import useQualityStore from '../../store/qualityStore'
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level'
-import { isSafari, isSupportAirplay } from '../../util/common'
+import { isHogakApp, isSafari, isSupportAirplay } from '../../util/common'
 import axios from 'axios';
 import { Parser } from 'm3u8-parser';
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -83,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.2'
+  const HOGAK_PLAYER_VERSION = '0.8.4'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -113,6 +111,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const enableDefaultFullScreen = props.enableDefaultFullscreen ?? true
   const isFullScreen = usePlayerStore((state) => state.isFullScreen)
+  const setIsFullScreen = usePlayerStore((state) => state.setIsFullScreen)
   const setIsShowClipView = usePlayerStore((state) => state.setIsShowClipView)
   const isShowClipView = usePlayerStore((state) => state.isShowClipView)
   const setIsReady = usePlayerStore((state) => state.setIsReady)
@@ -227,8 +226,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   } | null>(null)
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null)
-  const zoomPluginRef = useRef<any>(null)
   const { setScale, setCurrentOffset } = usePinch(playerContainerRef)
+  const fullScreenHandle = useFullScreenHandle();
+  const onFullScreenChange = (currentState: boolean) => {
+    console.log('onFullScreenChange', currentState)
+    setIsFullScreen(currentState)
+  }
 
   // Video.js Player 초기화
   useEffect(() => {
@@ -401,15 +404,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         // 광고 준비 이벤트 트리거
         player.trigger('adsready')
       }
-
-      // @ts-ignore
-      const zoomPlugin = player.zoomPlugin({
-        showZoom: false,
-        showMove: false,
-        showRotate: false,
-        gestureHandler: false,
-      })
-      zoomPluginRef.current = zoomPlugin
 
       // 이벤트 리스너 등록
       player.on('loadedmetadata', () => {
@@ -814,16 +808,17 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     setCurrentOffset(0, 0)
 
     if (!enableDefaultFullScreen) return
+    if (isHogakApp()) return
+    if (!document.fullscreenEnabled) {
+      console.log('fullscreen not supported')
+      return
+    }
 
-    // Video.js 자체 풀스크린 (requestFullscreen / exitFullscreen)
-    // isFullScreen 상태가 바뀌면 직접 제어
-    // if (playerRef.current) {
-    //   if (isFullScreen) {
-    //     playerRef.current.requestFullscreen();
-    //   } else {
-    //     playerRef.current.exitFullscreen();
-    //   }
-    // }
+    if (isFullScreen) {
+      fullScreenHandle.enter()
+    } else {
+      fullScreenHandle.exit()
+    }
   }, [isFullScreen])
 
   useEffect(() => {
@@ -1115,97 +1110,83 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * ----------------------------------------------------------------
    */
   return (
-    <PlayerContainer
-      width={props.width}
-      height={props.height}
-      ref={playerContainerRef}
-    >
-      {/* <input type="number" defaultValue={1} onChange={(e) => {
-        setScale(Number(e.target.value));
-      }} />
-      <button onClick={() => {
-        setScale(1);
-      }}>
-        zoom
-      </button>
-      <input type="number" defaultValue={100} onChange={(e) => {
-        zoomPluginRef.current?.move(Number(e.target.value), Number(e.target.value));
-      }} />
-      <button onClick={() => {
-        zoomPluginRef.current?.move(0, 0);
-      }}>
-        move
-      </button> */}
-      <GlobalStyles />
-      <Container>
-        <PlayerWrapper>
-          {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
-          {/* Video.js가 제어할 video 엘리먼트 */}
-          <div
-            ref={videoRef}
-            className='hogak-player'
-            style={{ zIndex: 1000 }}
-          >
-            <div id='hogak-player-dummy' className='video-js vjs-fluid vjs_video_3-dimensions vjs-controls-disabled vjs-workinghover vjs-v8 vjs-playing vjs-ad-playing vjs-has-started vjs-user-inactive'></div>
-          </div>
+    <FullScreen handle={fullScreenHandle} onChange={onFullScreenChange}>
+      <PlayerContainer
+        width={props.width}
+        height={props.height}
+        ref={playerContainerRef}
+      >
+        <GlobalStyles />
+        <Container>
+          <PlayerWrapper>
+            {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
+            {/* Video.js가 제어할 video 엘리먼트 */}
+            <div
+              ref={videoRef}
+              className='hogak-player'
+              style={{ zIndex: 1000 }}
+            >
+              <div id='hogak-player-dummy' className='video-js vjs-fluid vjs_video_3-dimensions vjs-controls-disabled vjs-workinghover vjs-v8 vjs-playing vjs-ad-playing vjs-has-started vjs-user-inactive'></div>
+            </div>
 
-          <Controls
-            playerStore={usePlayerStore}
-            playerRef={playerRef}
-            seekTo={seekTo}
-            seekToLive={seekToLive}
-            onBack={onBack}
-            onClickTagButton={onClickTagButton}
-            airplayRef={airplayRef}
-            chromecastRef={chromecastRef}
-            onPlayCallback={onPlayCallback}
-          />
+            <Controls
+              playerStore={usePlayerStore}
+              playerRef={playerRef}
+              seekTo={seekTo}
+              seekToLive={seekToLive}
+              onBack={onBack}
+              onClickTagButton={onClickTagButton}
+              airplayRef={airplayRef}
+              chromecastRef={chromecastRef}
+              onPlayCallback={onPlayCallback}
+            />
 
-          {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
-          {isFullScreen && (
-            <MultiViewPopover
+            {/* 250113 풀스크린 true/false 멀티뷰 팝업 추가 */}
+            {isFullScreen && (
+              <MultiViewPopover
+                playerStore={usePlayerStore}
+                isShow={isShowMultiView}
+                getCurrentSeconds={getCurrentSeconds}
+              />
+            )}
+            {!isFullScreen && (
+              <MultiViewPopoverSmall
+                playerStore={usePlayerStore}
+                isShow={isShowMultiView}
+                getCurrentSeconds={getCurrentSeconds}
+              />
+            )}
+            <TagSaveViewPopover
               playerStore={usePlayerStore}
-              isShow={isShowMultiView}
-              getCurrentSeconds={getCurrentSeconds}
+              isShow={isShowTagSaveView}
+              onCancel={onClickTagCancel}
+              onSave={onClickTagSave}
             />
-          )}
-          {!isFullScreen && (
-            <MultiViewPopoverSmall
+            <TagViewPopover
               playerStore={usePlayerStore}
-              isShow={isShowMultiView}
-              getCurrentSeconds={getCurrentSeconds}
+              isShow={isShowTagView}
+              onAddTagClick={props.onClickAddTag}
             />
-          )}
-          <TagSaveViewPopover
-            playerStore={usePlayerStore}
-            isShow={isShowTagSaveView}
-            onCancel={onClickTagCancel}
-            onSave={onClickTagSave}
-          />
-          <TagViewPopover
-            playerStore={usePlayerStore}
-            isShow={isShowTagView}
-            onAddTagClick={props.onClickAddTag}
-          />
-          <ClipViewPopover
-            playerStore={usePlayerStore}
-            seekTo={seekTo}
-            onChangeClipDuration={onChangeClipDuration}
-            isShow={isShowClipView}
-            setValuesRef={setClipValuesRef}
-            onSave={onClickClipSave}
-          />
-          {skipDirection && (
-            <SkipMessage style={{ left: skipDirection === 'left' ? '30%' : '70%', top: '50%' }}>
-              {/* 250113 left 값 수정 */}
-              <span style={{ fontSize: '1.4em' }}>
-                {skipDirection === 'left' ? '-10초' : '+10초'}
-              </span>
-            </SkipMessage>
-          )}
-        </PlayerWrapper>
-      </Container>
-    </PlayerContainer>
+            <ClipViewPopover
+              playerStore={usePlayerStore}
+              seekTo={seekTo}
+              onChangeClipDuration={onChangeClipDuration}
+              isShow={isShowClipView}
+              setValuesRef={setClipValuesRef}
+              onSave={onClickClipSave}
+            />
+            {skipDirection && (
+              <SkipMessage style={{ left: skipDirection === 'left' ? '30%' : '70%', top: '50%' }}>
+                {/* 250113 left 값 수정 */}
+                <span style={{ fontSize: '1.4em' }}>
+                  {skipDirection === 'left' ? '-10초' : '+10초'}
+                </span>
+              </SkipMessage>
+            )}
+          </PlayerWrapper>
+        </Container>
+      </PlayerContainer>
+    </FullScreen>
   )
 })
 
@@ -1264,6 +1245,7 @@ const PlayerContainer = styled.div<{
   }
 
   .hogak-player {
+    overflow: hidden;
     object-fit: cover;
     padding: 0;
     margin: 0;

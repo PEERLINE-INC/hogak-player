@@ -3,7 +3,6 @@ import { vi } from 'vitest'
 vi.mock('videojs-contrib-ads', () => ({ default: vi.fn() }));
 vi.mock('videojs-overlay', () => ({ default: vi.fn() }));
 vi.mock('@silvermine/videojs-chromecast', () => ({ default: vi.fn() }));
-vi.mock('@theonlyducks/videojs-zoom', () => ({ default: vi.fn() }));
 vi.mock('videojs-contrib-quality-levels', () => ({
   on: vi.fn(),
 }));
@@ -50,7 +49,6 @@ vi.mock('video.js', () => {
         length: 1,
         0: { height: 720 },
       })),
-      zoomPlugin: vi.fn(),
       liveTracker: {
         on: vi.fn(),
         seekableEnd: vi.fn(() => 0),

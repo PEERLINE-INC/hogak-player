@@ -186,6 +186,46 @@ export function Controls(props: ControlsProps) {
     hasFirstUserInteraction,
   ])
 
+  // 1) PC 풀스크린 모드일 때, 오버레이 표시 로직
+  useEffect(() => {
+    // 모바일(터치) 환경이면 종료
+    if (isTouchDevice) return;
+    // 풀스크린이 아닌 상태면 종료
+    if (!isFullScreen) return;
+    if (isSeek) return
+    if (isShowSpeedDropdown || isShowQualityDropdown) return
+
+    // 'mousemove' 이벤트 콜백
+    const handleMouseMove = () => {
+      // 1. 마우스를 움직일 때마다 오버레이를 즉시 보여준다
+      setOverlayVisible(true);
+
+      // 2. 기존 타이머가 있으면 초기화
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+
+      // 3. 3초 뒤에 오버레이를 숨기는 타이머 시작
+      hideTimerRef.current = setTimeout(() => {
+        // 혹시 다른 상태(예: 드롭다운 열림 등) 체크 후 숨길지 말지 분기 처리해도 됨
+        setOverlayVisible(false);
+      }, 3000);
+    };
+
+    // 윈도우 전체에서 마우스를 움직일 때마다 콜백 처리
+    window.addEventListener('mousemove', handleMouseMove);
+
+    // 정리(clean up)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
+  }, [isTouchDevice, isFullScreen]);
+
   // 라이브 시간과 현재 시간이 근접할 때 속도를 1로 설정
   useEffect(() => {
     if (atLive) {
@@ -206,14 +246,14 @@ export function Controls(props: ControlsProps) {
   }, [isPlay])
 
   const handleMouseEnter = () => {
-    if (!isTouchDevice) {
+    if (!isTouchDevice && !isFullScreen) {
       setOverlayVisible(true)
       setHasFirstUserInteraction(true);
     }
   }
 
   const handleMouseLeave = () => {
-    if (!isTouchDevice) {
+    if (!isTouchDevice && !isFullScreen) {
       setOverlayVisible(false)
       setHasFirstUserInteraction(true);
     }

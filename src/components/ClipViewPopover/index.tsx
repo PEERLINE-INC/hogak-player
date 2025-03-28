@@ -65,6 +65,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const eventId = useClipStore((state) => state.eventId)
   const clipApiHost = useClipStore((state) => state.clipApiHost)
   const isSeek = playerStore((state) => state.isSeek)
+  const offsetStart = playerStore((state) => state.offsetStart)
 
   const [values, setValues] = useState<number[]>([0, 30])
   const [min, setMin] = useState<number>(0)
@@ -101,9 +102,12 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   useEffect(() => {
     if (!isShow) return
-  
-    const currentTime = played * duration
+    
+    let currentTime = played * duration
+
     const [start, end] = values;
+    console.log('setPlayheadPercent', { currentTime, start, end })
+
     let fraction = (currentTime - start) / (end - start)
     if (fraction < 0) fraction = 0;
     if (fraction > 1) fraction = 1;
@@ -150,7 +154,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
             const clipEndPlayed = end / duration;
             // console.log('played', { played, clipEndPlayed });
             if (played >= clipEndPlayed) {
-                seekTo(start, "seconds");
+                seekTo(start + offsetStart, "seconds");
             }
         }
     }, [played]);
@@ -168,9 +172,10 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
         if (end - start >= 60) {
             end = start + 60;
         }
+        console.log('handleAfterChange', { start, end })
         onChangeClipDuration([Math.floor(start), Math.floor(end)]);
         setValues([start, end]);
-        seekTo(start, 'seconds');
+        seekTo(start + offsetStart, 'seconds');
       };
     const handleCancel = () => {
         setIsShowClipView(false);
