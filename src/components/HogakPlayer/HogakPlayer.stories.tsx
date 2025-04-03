@@ -222,6 +222,10 @@ const meta = {
       description: `우측 버튼 클릭 시 호출되는 콜백입니다.`,
       action: 'onClickRightArrowButton',
     },
+    onClickChromecastButton: {
+      description: `크롬캐스트 버튼 클릭 시 호출되는 콜백입니다.`,
+      action: 'onClickChromecastButton',
+    },
     errorMessage: {
       defaultValue: '',
       description: `표시할 오류 메시지입니다. 메시지가 존재하면, 재생 버튼을 대체하여 오류 메시지를 표시합니다.`,
@@ -406,6 +410,9 @@ const meta = {
     onClickRightArrowButton: () => {
       console.log('onClickRightArrowButton');
     },
+    onClickChromecastButton: () => {
+      console.log('onClickChromecastButton');
+    },
     errorMessage: '오류가 발생했습니다.',
   },
 } satisfies Meta<typeof HogakPlayer>
@@ -425,6 +432,8 @@ export const Basic: Story = {
       setTagView: (value: boolean) => void,
       getIsFullScreen: () => boolean,
       getCurrentStreamingUrl: () => string,
+      getIsShowChromecastButton: () => boolean,
+      setIsShowChromecastButton: (value: boolean) => void,
     } | null>(null);
     const [isShowClipView, setIsShowClipView] = useState(false);
 
@@ -442,6 +451,9 @@ export const Basic: Story = {
         <button onClick={() => playerRef.current?.setTagView(true)}>setTagView(true)</button>
         <button onClick={() => console.log('getIsFullScreen', playerRef.current?.getIsFullScreen())}>getIsFullScreen()</button>
         <button onClick={() => console.log('getCurrentStreamingUrl', playerRef.current?.getCurrentStreamingUrl())}>getCurrentStreamingUrl()</button>
+        <button onClick={() => console.log('getIsShowChromecastButton', playerRef.current?.getIsShowChromecastButton())}>getIsShowChromecastButton()</button>
+        <button onClick={() => playerRef.current?.setIsShowChromecastButton(true)}>setIsShowChromecastButton(true)</button>
+        <button onClick={() => playerRef.current?.setIsShowChromecastButton(false)}>setIsShowChromecastButton(false)</button>
       </div>
     );
   },

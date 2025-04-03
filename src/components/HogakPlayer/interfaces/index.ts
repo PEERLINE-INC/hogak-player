@@ -84,4 +84,7 @@ export type HogakPlayerProps = {
   // 좌우 버튼 클릭 시 이벤트
   onClickLeftArrowButton?: () => void;
   onClickRightArrowButton?: () => void;
+
+  // 크롬캐스트
+  onClickChromecastButton?: () => void;
 }

@@ -91,6 +91,7 @@ export function Controls(props: ControlsProps) {
   const onClickRightArrowButton = playerStore((state) => state.onClickRightArrowButton)
   const isShowChromecastButton = playerStore((state) => state.isShowChromecastButton)
   const isShowErrorView = playerStore((state) => state.isShowErrorView)
+
   // 드래그 중 임시로 써 줄 로컬 state
   const [timeSliderValue, setTimeSliderValue] = useState(played * 100)
   const [isOverlayVisible, setOverlayVisible] = useState(true)

@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.5'
+  const HOGAK_PLAYER_VERSION = '0.8.6'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -149,7 +149,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setOffsetEnd = usePlayerStore((state) => state.setOffsetEnd)
   const offsetSeek = usePlayerStore((state) => state.offsetSeek)
   const setOffsetSeek = usePlayerStore((state) => state.setOffsetSeek)
-
   // 클립 썸네일
   const setEventId = useClipStore((state) => state.setEventId)
   const setClipApiHost = useClipStore((state) => state.setClipApiHost)
@@ -168,6 +167,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setOnClickRightArrowButton = usePlayerStore((state) => state.setOnClickRightArrowButton)
 
   // chromecast 버튼
+  const isShowChromecastButton = usePlayerStore((state) => state.isShowChromecastButton)
   const setIsShowChromecastButton = usePlayerStore((state) => state.setIsShowChromecastButton)
 
   // 리셋
@@ -193,6 +193,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const onPlayCallback = props.onPlay ?? (() => {})
   const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => {})
   const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {})
+  const onClickChromecastButton = props.onClickChromecastButton ?? (() => {})
 
   // useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
   //   removeOnUnmount: false,
@@ -310,6 +311,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       chromecastRef.current = {
         start: () => {
           console.log('chromecastRef')
+          onClickChromecastButton?.();
           player.trigger('chromecastRequested')
         },
       }
@@ -1100,6 +1102,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     getIsFullScreen: () => isFullScreen,
     getCurrentStreamingUrl: () => {
       return url ?? ''
+    },
+    getIsShowChromecastButton: () => isShowChromecastButton,
+    setIsShowChromecastButton: (v: boolean) => {
+      if (isDisablePlayer) return
+      setIsShowChromecastButton(v)
     },
   }))
 

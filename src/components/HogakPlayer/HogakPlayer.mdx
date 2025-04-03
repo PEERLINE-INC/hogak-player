@@ -169,5 +169,42 @@ const playerRef = useRef<{ seekTo: (value: number, type: "seconds" | "fraction")
   };
 ```
 
+### `setIsShowChromecastButton(value: boolean)`
+
+크롬캐스트 버튼의 표시 여부를 설정합니다.
+
+#### 예시 코드
+```tsx  
+import React, { useRef } from 'react';
+import { HogakPlayer } from './HogakPlayer';
+
+const playerRef = useRef<{ setIsShowChromecastButton: (value: boolean) => void } | null>(null); 
+
+  const handleOnSetIsShowChromecastButton = () => {
+    if (playerRef.current) {
+      playerRef.current.setIsShowChromecastButton(true);
+    }
+  };
+```
+
+### `getIsShowChromecastButton()`
+
+크롬캐스트 버튼의 표시 여부를 반환합니다.
+
+#### 예시 코드
+```tsx
+import React, { useRef } from 'react';
+import { HogakPlayer } from './HogakPlayer';
+
+const playerRef = useRef<{ getIsShowChromecastButton: () => boolean } | null>(null);
+
+  const handleOnGetIsShowChromecastButton = () => {
+    if (playerRef.current) {
+      const isShowChromecastButton = playerRef.current.getIsShowChromecastButton();
+      console.log('isShowChromecastButton', isShowChromecastButton);
+    }
+  };
+```
+
 ## Props 
 <Controls />
