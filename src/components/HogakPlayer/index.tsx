@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.6'
+  const HOGAK_PLAYER_VERSION = '0.8.8'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -176,6 +176,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const resetTagStore = useTagStore((state) => state.resetTagStore)
   const resetClipStore = useClipStore((state) => state.resetClipViewStore)
   const resetLiveStore = useLiveStore((state) => state.resetLiveStore)
+  const resetAdStore = useAdStore((state) => state.resetAdStore)
 
   // 에러 처리
   const isShowErrorView = usePlayerStore((state) => state.isShowErrorView)
@@ -291,6 +292,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         },
       })
       console.log('chromecast')
+
+      console.log('chromecastRef.current', chromecastRef.current)
+
       // @ts-ignore
       player?.chromecast()
       player.on('chromecastConnected', () => {
@@ -616,6 +620,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       resetTagStore()
       resetClipStore()
       resetLiveStore()
+      resetAdStore()
     }
   }, [playerRef])
 

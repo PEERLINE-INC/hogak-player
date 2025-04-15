@@ -8,6 +8,12 @@ export function isSafari() {
     return isSafari && isIos;
 };
 
+export function isIos() {
+  const userAgent = navigator.userAgent;
+  const isIos = /iPad|iPhone|Macintosh/.test(userAgent);
+  return isIos;
+}
+
 export function isHogakApp() {
   const userAgent = navigator.userAgent;
   const isHogakApp = /HOGAK_APP/.test(userAgent);

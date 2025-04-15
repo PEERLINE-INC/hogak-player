@@ -113,6 +113,22 @@ export function Controls(props: ControlsProps) {
     return isSeek ? (duration * timeSliderValue) / 100 : duration * played
   }
 
+  const isSafariBrowser = isSafari();
+  const isIos = (function () {
+    var iosQuirkPresent = function () {
+        var audio = new Audio();
+
+        audio.volume = 0.5;
+        return audio.volume === 1;   // volume cannot be changed from "1" on iOS 12 and below
+    };
+
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    var isAppleDevice = navigator.userAgent.includes('Macintosh');
+    var isTouchScreen = navigator.maxTouchPoints >= 1;   // true for iOS 13 (and hopefully beyond)
+
+    return isIOS || (isAppleDevice && (isTouchScreen || iosQuirkPresent()));
+  })();
+
   useEffect(() => {
     const checkPointerType = () => {
       if (window.matchMedia('(pointer: coarse)').matches) {
@@ -412,7 +428,7 @@ export function Controls(props: ControlsProps) {
 
   const handleChangeQuality = (option: any) => {
     console.log('handleChangeQuality', option)
-    if (isSafari()) {
+    if (isSafariBrowser) {
       const player = playerRef.current;
       const qualityLevel = qualityLevels.find((level) => level.height === option.value)
       console.log('qualityLevel', qualityLevel)
@@ -785,7 +801,7 @@ export function Controls(props: ControlsProps) {
                   >
                     {isMute ? <VolumeMuteIcon /> : <VolumeIcon />}
                   </IconButton>
-                  <Slider.Root
+                  {!isIos && <Slider.Root
                     className='SliderRoot'
                     value={[volume]}
                     min={0}
@@ -800,7 +816,7 @@ export function Controls(props: ControlsProps) {
                       className='SliderThumb'
                       aria-label='Volume'
                     />
-                  </Slider.Root>
+                  </Slider.Root>}
                 </VolumeControlWrap>
               </FlexRow>
               {/* 241224 PIP 버튼 주석

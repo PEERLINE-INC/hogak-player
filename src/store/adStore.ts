@@ -7,6 +7,7 @@ interface AdState {
   setEnablePrerollAd: (enablePrerollAd: boolean) => void;
   prerollAdUrl: string;
   setPrerollAdUrl: (prerollAdUrl: string) => void;
+  resetAdStore: () => void;
 }
 
 const useAdStore = create<AdState>()(
@@ -17,6 +18,11 @@ const useAdStore = create<AdState>()(
     setEnablePrerollAd: (enablePrerollAd: boolean) => set({ enablePrerollAd }),
     prerollAdUrl: '',
     setPrerollAdUrl: (prerollAdUrl: string) => set({ prerollAdUrl }),
+    resetAdStore: () => set({
+      isPlayAd: false,
+      enablePrerollAd: false,
+      prerollAdUrl: '',
+    }),
   })
 )
 

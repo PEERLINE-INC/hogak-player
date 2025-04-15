@@ -1,6 +1,6 @@
 {
   "name": "@peerline/hogak-player",
-  "version": "0.8.6",
+  "version": "0.8.8",
   "description": "hogak player",
   "type": "module",
   "keywords": [
@@ -21,7 +21,8 @@
     "build-storybook": "storybook build",
     "test": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "prepublishOnly": "vitest run && npm run build"
+    "prepublishOnly": "vitest run && npm run build",
+    "postinstall": "patch-package"
   },
   "module": "./dist/main.js",
   "exports": "./dist/main.js",
@@ -80,6 +81,7 @@
     "@sentry/vite-plugin": "^3.2.2",
     "@silvermine/videojs-chromecast": "^1.5.0",
     "axios": "^1.7.9",
+    "patch-package": "^8.0.0",
     "react-full-screen": "^1.1.1",
     "react-player": "^2.16.0",
     "react-slider": "^2.0.6",
