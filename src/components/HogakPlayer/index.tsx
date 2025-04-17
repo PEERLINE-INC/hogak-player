@@ -81,7 +81,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.8'
+  const HOGAK_PLAYER_VERSION = '0.8.9'
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -130,6 +130,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const isDisableTag = usePlayerStore((state) => state.isDisableTag)
   const setIsDisableTag = usePlayerStore((state) => state.setIsDisableTag)
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView)
+  const isPlayAd = useAdStore((state) => state.isPlayAd)
   const setIsPlayAd = useAdStore((state) => state.setIsPlayAd)
   const enablePrerollAd = useAdStore((state) => state.enablePrerollAd)
   const setEnablePrerollAd = useAdStore((state) => state.setEnablePrerollAd)
@@ -377,6 +378,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         const ads = player.ads()
         // 콘텐츠 변경 시 광고 준비 이벤트 트리거
         player.on('contentchanged', function() {
+          console.log('!! enablePrerollAd contentchanged !!', { isPlayAd })
+
           // @ts-ignore
           player.ads.skipLinearAdMode()
         });
@@ -396,7 +399,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           player.one('adplaying', function () {
             console.log('adplaying')
             player.trigger('ads-ad-started')
-            setIsPlayAd(true)
           })
 
           // 광고 종료 시 컨텐츠 재개
@@ -405,6 +407,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             // @ts-ignore
             player.ads.endLinearAdMode()
             setIsPlayAd(false)
+            
+            player.one('canplay', () => {
+              console.log('!! canplay adended !!', { offsetSeek, offsetStart })
+              if (offsetSeek > 0) {
+                player.currentTime(offsetSeek)
+              } else if (offsetStart > 0) {
+                player.currentTime(offsetStart)
+              }
+            })
           })
         })
         // 광고 준비 이벤트 트리거
@@ -791,6 +802,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }, [props.backIconType])
 
   useEffect(() => {
+    if (props.enablePrerollAd) {
+      setIsPlayAd(true)
+    }
     setEnablePrerollAd(props.enablePrerollAd ?? false)
   }, [props.enablePrerollAd])
 
@@ -893,11 +907,14 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     console.log('offsetStart', offsetStart)
     if (!playerRef.current) return
 
-    if (offsetSeek > 0) {
-      playerRef.current.currentTime(offsetSeek)
-      setOffsetSeek(0)
-    } else if (offsetStart > 0) {
-      playerRef.current.currentTime(offsetStart)
+    if (!isPlayAd) {
+      if (offsetSeek > 0) {
+        console.log('handleOnReady', {offsetSeek, isPlayAd})
+        playerRef.current.currentTime(offsetSeek)
+        setOffsetSeek(0)
+      } else if (offsetStart > 0) {
+        playerRef.current.currentTime(offsetStart)
+      }
     }
 
     setIsReady(true)
