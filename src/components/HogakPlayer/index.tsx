@@ -1,7 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 // import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
-import 'videojs-contrib-ads'
 import 'videojs-overlay'
 import 'video.js/dist/video-js.css'
 // @ts-ignore
@@ -83,6 +82,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    */
   const HOGAK_PLAYER_VERSION = '0.8.9'
 
+  const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
+  const prerollPlayedRef = useRef(false);
+
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
   const setUrl = usePlayerStore((state) => state.setUrl)
@@ -100,7 +102,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setPlayed = usePlayerStore((state) => state.setPlayed)
   const volume = usePlayerStore((state) => state.volume)
   const isMute = usePlayerStore((state) => state.isMute)
-
+  const setIsMute = usePlayerStore((state) => state.setIsMute)
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView)
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources)
 
@@ -235,10 +237,68 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     console.log('onFullScreenChange', currentState)
     setIsFullScreen(currentState)
   }
+  // 오버레이 표시 여부 (autoplay 일 때만 true)
+  const [showUnmuteOverlay, setShowUnmuteOverlay] = useState<boolean>(props.isAutoplay ?? false);
+  // 오버레이 클릭 시 음소거 해제
+  const handleUnmute = () => {
+    if (playerRef.current) {
+      playerRef.current.muted(false);
+      playerRef.current.play()?.catch(() => {});
+    }
+    setIsMute(false);
+    setShowUnmuteOverlay(false);
+  };
+
+  // 음소거 해제 시 오버레이 제거
+  useEffect(() => {
+    const p = playerRef.current;
+    if (!p) return;
+    const volHandler = () => {
+      if (!p.muted()) setShowUnmuteOverlay(false);
+    };
+    p.on('volumechange', volHandler);
+    return () => { p.off('volumechange', volHandler); };
+  }, [playerRef.current]);
+
+  // Preroll 광고 재생
+  useEffect(() => {
+    // 조건: 플레이어가 있고, 광고 설정이 켜져 있고, 아직 안 틀었고, URL 있음
+    if (!vjPlayer || !enablePrerollAd || prerollPlayedRef.current || !prerollAdUrl) return;
+  
+    prerollPlayedRef.current = true;
+  
+    /* ---- 광고 재생 ---- */
+    vjPlayer.src({ src: prerollAdUrl, type: 'video/mp4' });
+  
+    vjPlayer.one('loadedmetadata', () => {
+      console.log('prerollAd loadedmetadata')
+      vjPlayer?.play()?.catch(() => {});
+    });
+  
+    const resume = (e: any) => {
+      console.log('resumeContent', { event: e })
+      vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
+      vjPlayer.one('loadedmetadata', () => {
+        // 오프셋 복원
+        if (offsetSeek) vjPlayer.currentTime(offsetSeek);
+        else if (offsetStart) vjPlayer.currentTime(offsetStart);
+        setIsPlayAd(false);
+      });
+    };
+  
+    vjPlayer.one('ended', resume);
+    vjPlayer.one('error', resume);
+  }, [
+    vjPlayer,             // player 인스턴스
+    enablePrerollAd,      // 광고 ON/OFF
+    prerollAdUrl,         // 광고 URL
+    offsetSeek,
+    offsetStart,
+  ]);
 
   // Video.js Player 초기화
   useEffect(() => {
-    console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart })
+    console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, enablePrerollAd })
     // URL이 없으면 초기화하지 않음
     if (!url) {
       return;
@@ -259,7 +319,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         liveTracker: true,
         autoplay: isDisablePlayer ? false : (props.isAutoplay ?? false),
         poster: props.thumbnailUrl,
-        muted: false,
+        muted: props.isAutoplay ? true : false,
+        // muted: false,
         enableSmoothSeeking: true,
         suppressNotSupportedError: true,
         playsinline: true,
@@ -322,7 +383,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
 
       playerRef.current = player
-
+      setVjPlayer(player)
       // TEST
       // @ts-ignore
       console.log('isSafari', isSafari())
@@ -371,56 +432,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           return [...prev, newLevel]
         })
       })
-
-      // 광고 활성화 로직
-      if (enablePrerollAd) {
-        // @ts-ignore
-        const ads = player.ads()
-        // 콘텐츠 변경 시 광고 준비 이벤트 트리거
-        player.on('contentchanged', function() {
-          console.log('!! enablePrerollAd contentchanged !!', { isPlayAd })
-
-          // @ts-ignore
-          player.ads.skipLinearAdMode()
-        });
-
-        player.on('readyforpreroll', function () {
-          console.log('readyforpreroll')
-          console.log('prerollAdUrl', prerollAdUrl)
-          if (!prerollAdUrl || !enablePrerollAd) return
-
-          // @ts-ignore
-          // 광고 모드 시작
-          player.ads.startLinearAdMode()
-          // 광고 영상으로 변경
-          player.src(prerollAdUrl)
-
-          // 로딩 스피너 제거를 위한 광고 시작 이벤트
-          player.one('adplaying', function () {
-            console.log('adplaying')
-            player.trigger('ads-ad-started')
-          })
-
-          // 광고 종료 시 컨텐츠 재개
-          player.one('adended', function () {
-            console.log('adended')
-            // @ts-ignore
-            player.ads.endLinearAdMode()
-            setIsPlayAd(false)
-            
-            player.one('canplay', () => {
-              console.log('!! canplay adended !!', { offsetSeek, offsetStart })
-              if (offsetSeek > 0) {
-                player.currentTime(offsetSeek)
-              } else if (offsetStart > 0) {
-                player.currentTime(offsetStart)
-              }
-            })
-          })
-        })
-        // 광고 준비 이벤트 트리거
-        player.trigger('adsready')
-      }
 
       // 이벤트 리스너 등록
       player.on('loadedmetadata', () => {
@@ -614,7 +625,19 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         type: 'application/x-mpegurl',
       })
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart]) // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, props.enablePrerollAd]) // url, isLive 변경될 때만 실행
+
+  // usePreroll({
+  //   url: url,
+  //   playerRef: playerRef,
+  //   adUrl: prerollAdUrl,
+  //   enable: enablePrerollAd,
+  //   afterAdSeek: offsetSeek > 0 ? offsetSeek : offsetStart,
+  //   onDone: () => {
+  //     console.log('Preroll Ad onDone')
+  //     setIsPlayAd(false);
+  //   },
+  // });
 
   useEffect(() => {
     const player = playerRef.current
@@ -1148,6 +1171,19 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         <GlobalStyles />
         <Container>
           <PlayerWrapper>
+            {showUnmuteOverlay && (
+              <div
+                onClick={handleUnmute}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 9999,
+                }}
+              />
+            )}
             {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
             {/* Video.js가 제어할 video 엘리먼트 */}
             <div

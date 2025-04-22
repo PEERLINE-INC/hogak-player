@@ -28,3 +28,4 @@ storybook-static
 *.tgz
 # Sentry Config File
 .env.sentry-build-plugin
+ad.mp4
