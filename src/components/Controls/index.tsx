@@ -84,8 +84,6 @@ export function Controls(props: ControlsProps) {
   const isLive = playerStore((state) => state.isLive)
   const isPlayAd = useAdStore((state) => state.isPlayAd)
   const atLive = useLiveStore((state) => state.atLive)
-  const isMute = playerStore((state) => state.isMute)
-  const setIsMute = playerStore((state) => state.setIsMute)
   const enableLeftRightArrowButton = playerStore((state) => state.enableLeftRightArrowButton)
   const onClickLeftArrowButton = playerStore((state) => state.onClickLeftArrowButton)
   const onClickRightArrowButton = playerStore((state) => state.onClickRightArrowButton)
@@ -100,6 +98,7 @@ export function Controls(props: ControlsProps) {
   const [isShowSpeedDropdown, setIsShowSpeedDropdown] = useState(false)
   const [isShowQualityDropdown, setIsShowQualityDropdown] = useState(false)
   const [hasFirstUserInteraction, setHasFirstUserInteraction] = useState(false)
+  const [isMute, setIsMute] = useState(false)
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const setSkipDirection = playerStore((state) => state.setSkipDirection)
   // 자동 숨김 타이머를 제어하기 위한 ref
@@ -113,6 +112,14 @@ export function Controls(props: ControlsProps) {
     return isSeek ? (duration * timeSliderValue) / 100 : duration * played
   }
 
+  const handleMute = () => {
+    if (!playerRef.current) return;
+    const player = playerRef.current;
+    const currentMuted = player.muted() ?? false;
+
+    player.muted(!currentMuted);
+    setIsMute(!currentMuted);
+  }
   const isSafariBrowser = isSafari();
   const isIos = (function () {
     var iosQuirkPresent = function () {
@@ -797,7 +804,7 @@ export function Controls(props: ControlsProps) {
                 <VolumeControlWrap>
                   <IconButton
                     className='volume_control_btn'
-                    onClick={() => setIsMute(!isMute)}
+                    onClick={handleMute}
                   >
                     {isMute ? <VolumeMuteIcon /> : <VolumeIcon />}
                   </IconButton>

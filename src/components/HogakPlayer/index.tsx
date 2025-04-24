@@ -80,7 +80,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.9'
+  const HOGAK_PLAYER_VERSION = '0.8.11'
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
@@ -101,8 +101,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setDuration = usePlayerStore((state) => state.setDuration)
   const setPlayed = usePlayerStore((state) => state.setPlayed)
   const volume = usePlayerStore((state) => state.volume)
-  const isMute = usePlayerStore((state) => state.isMute)
-  const setIsMute = usePlayerStore((state) => state.setIsMute)
   const isShowMultiView = usePlayerStore((state) => state.isShowMultiView)
   const setMultiViewSources = useMultiViewStore((state) => state.setMultiViewSources)
 
@@ -199,6 +197,25 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {})
   const onClickChromecastButton = props.onClickChromecastButton ?? (() => {})
 
+  // 유틸 함수
+  const playVideo = (player: Player, isFail: boolean = false) => {
+    console.log('playVideo', player, isFail)
+    if (!player) return;
+
+    // 재생 시도
+    const playPromise = player.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise
+        .then(() => {
+          setShowUnmuteOverlay(true);
+        })
+        .catch((error) => {
+          console.log('playVideo error', error);
+          setIsPlay(false);
+        });
+    }
+  }
+
   // useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
   //   removeOnUnmount: false,
   //   id: 'cast_sender',
@@ -241,11 +258,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const [showUnmuteOverlay, setShowUnmuteOverlay] = useState<boolean>(props.isAutoplay ?? false);
   // 오버레이 클릭 시 음소거 해제
   const handleUnmute = () => {
-    if (playerRef.current) {
-      playerRef.current.muted(false);
-      playerRef.current.play()?.catch(() => {});
-    }
-    setIsMute(false);
+    if (!playerRef.current) return;
+    playerRef.current.muted(false);
     setShowUnmuteOverlay(false);
   };
 
@@ -264,19 +278,31 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   useEffect(() => {
     // 조건: 플레이어가 있고, 광고 설정이 켜져 있고, 아직 안 틀었고, URL 있음
     if (!vjPlayer || !enablePrerollAd || prerollPlayedRef.current || !prerollAdUrl) return;
-  
     prerollPlayedRef.current = true;
+    const FAILSAFE_MS = 3000;
+    let playGuardId: number;
   
     /* ---- 광고 재생 ---- */
     vjPlayer.src({ src: prerollAdUrl, type: 'video/mp4' });
-  
+    playGuardId = window.setTimeout(() => resume('timeout'), FAILSAFE_MS);
+    
+    vjPlayer.one('playing', () => {
+      console.log('prerollAd playing')
+      vjPlayer.trigger('prerollAdStarted');
+      window.clearTimeout(playGuardId);
+    });
     vjPlayer.one('loadedmetadata', () => {
       console.log('prerollAd loadedmetadata')
-      vjPlayer?.play()?.catch(() => {});
+      playVideo(vjPlayer);
     });
+
+    const cleanup = () => {
+      window.clearTimeout(playGuardId);
+    };
   
     const resume = (e: any) => {
       console.log('resumeContent', { event: e })
+      cleanup();
       vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
       vjPlayer.one('loadedmetadata', () => {
         // 오프셋 복원
@@ -574,16 +600,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           playerRef.current.currentTime(pendingSeek)
           // 자동 재생이 아니면, 재생
           if (!props.isAutoplay) {
-            const playPromise = playerRef.current.play()
-            if (playPromise) {
-              playPromise
-                .then(() => {
-                  console.log('pendingSeek')
-                })
-                .catch((error) => {
-                  console.error('Play error:', error)
-                })
-            }
+            playVideo(playerRef.current);
           }
         } else {
           // 오프셋이 있으면
@@ -598,16 +615,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         handleOnDuration();
 
         if (props.isAutoplay && !isDisablePlayer) {
-          const playPromise = playerRef.current.play()
-          if (playPromise) {
-            playPromise
-              .then(() => {
-                console.log('url changed')
-              })
-              .catch((error) => {
-                console.error('Play error:', error)
-              })
-          }
+          playVideo(playerRef.current);
         }
       })
 
@@ -667,9 +675,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     if (!playerRef.current) return
     console.log('useEffect [isPlay]', isPlay)
     if (isPlay) {
-      playerRef.current.play()?.catch((error) => {
-        console.error('Error playing video :', error)
-      })
+      playVideo(playerRef.current);
     } else {
       playerRef.current.pause()
     }
@@ -679,11 +685,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     if (!playerRef.current) return
     playerRef.current.volume(volume)
   }, [volume])
-
-  useEffect(() => {
-    if (!playerRef.current) return
-    playerRef.current.muted(isMute)
-  }, [isMute])
 
   // Video.js는 기본적으로 PIP를 직접 지원하지 않으므로,
   // 필요하다면 별도 플러그인을 사용하거나 브라우저 Picture-in-Picture API를 래핑해야 함.
@@ -1173,6 +1174,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           <PlayerWrapper>
             {showUnmuteOverlay && (
               <div
+                className='hogak-interaction-overlay'
                 onClick={handleUnmute}
                 style={{
                   position: 'absolute',
