@@ -245,11 +245,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
       </MiddleContainer>
 
       <ClipRangeWrap $isFullScreen={isFullScreen}>
-        {/* <TimeLabelsContainer className='time-labels-container'>
-          <TimeLabel className='left'>{formatTime(min)}</TimeLabel>
-          <TimeLabel className='center'>{formatTime(played * duration)}</TimeLabel>
-          <TimeLabel className='right'>{formatTime(max)}</TimeLabel>
-        </TimeLabelsContainer> */}
         <ClipRangeWrapper>
           {/* 241227 추가 */}
           <ThumbnailTrack>
@@ -262,26 +257,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
             {/* 241227 구조변경 */}
             <SliderWrap>
-              {/* <ReactSlider
-
-                                className="hogak-clip-slider"
-                                thumbClassName="clip-thumb"
-                                trackClassName="clip-track"
-                                snapDragDisabled={true}
-                                min={min}
-                                max={max}
-                                step={0.1}
-                                value={values}
-                                ariaLabel={['클립 시작', '클립 종료']}
-                                ariaValuetext={state => `${formatTime(state.valueNow)}`}
-                                renderThumb={(props) => <ClipThumb {...props}></ClipThumb>}
-                                pearling
-                                minDistance={10}
-                                // onChange={handleOnChange}
-                                onAfterChange={handleAfterChange}
-                                onBeforeChange={handleBeforeChange}
-
-                                /> */}
               <RangeSlider
                 min={min}
                 max={max}
