@@ -80,7 +80,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.11'
+  const HOGAK_PLAYER_VERSION = '0.8.13'
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
@@ -206,11 +206,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     const playPromise = player.play();
     if (playPromise && typeof playPromise.then === 'function') {
       playPromise
-        .then(() => {
-          setShowUnmuteOverlay(true);
-        })
         .catch((error) => {
           console.log('playVideo error', error);
+          if (error instanceof DOMException && error.name === 'NotAllowedError') {
+            console.log('muted fallback');
+            setShowUnmuteOverlay(true);
+            player.muted(true);
+            setIsPlay(true);
+          }
+
           setIsPlay(false);
         });
     }
@@ -345,7 +349,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         liveTracker: true,
         autoplay: isDisablePlayer ? false : (props.isAutoplay ?? false),
         poster: props.thumbnailUrl,
-        muted: props.isAutoplay ? true : false,
+        muted: false,
         // muted: false,
         enableSmoothSeeking: true,
         suppressNotSupportedError: true,
@@ -648,13 +652,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   // });
 
   useEffect(() => {
-    const player = playerRef.current
-
     return () => {
       console.log('unmount player')
-      if (player && !player.isDisposed()) {
-        player.dispose()
-        playerRef.current = null
+      if (playerRef.current && !playerRef.current.isDisposed()) {
+        playerRef.current.pause();
+        playerRef.current.dispose();
+        playerRef.current = null;
       }
       // Unmount 시 상태 초기화
       resetPlayerStore()
@@ -664,7 +667,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       resetLiveStore()
       resetAdStore()
     }
-  }, [playerRef])
+  }, [])
 
   /**
    * ----------------------------------------------------------------
