@@ -394,7 +394,7 @@ const meta = {
     disableTag: false,
     disableMultiView: false,
     backIconType: 'arrowLeft',
-    enablePrerollAd: false,
+    enablePrerollAd: true,
     prerollAdUrl: 'http://127.0.0.1:8080/ad.mp4',
     enableScoreBoardOverlay: false,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',

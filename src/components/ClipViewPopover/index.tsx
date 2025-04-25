@@ -79,6 +79,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const fetchImages = async () => {
     try {
       // console.log('fetch thumbnail images', { clipApiHost, eventId })
+      const _offsetStart = playerStore.getState().offsetStart
 
       if (!clipApiHost || !eventId) {
         console.log('not found clipApiHost or eventId')
@@ -87,8 +88,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
       const url = `${clipApiHost.endsWith('/') ? clipApiHost.slice(0, -1) : clipApiHost}/media/thumbnail/list`
       const response = await axios.post<ClipThumbnailApiResponse>(url, {
         eventId,
-        start: min,
-        end: max,
+        start: min + _offsetStart,
+        end: max + _offsetStart,
       })
       const thumbnailList = response.data.thumbnailList
 
@@ -102,7 +103,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
   useEffect(() => {
     if (!isShow) return
-    
+
     let currentTime = played * duration
 
     const [start, end] = values;
@@ -114,9 +115,9 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
 
     // 오차 보정
     const percent = fraction * 100 - 4 * fraction;
-  
+
     setPlayheadPercent(percent)
-  }, [played, duration, min, max, values, isShow]);  
+  }, [played, duration, min, max, values, isShow]);
 
   useEffect(() => {
     setIsPlayheadShow(!isSeek && isPlay);
@@ -131,7 +132,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     if (setValuesRef) {
       setValuesRef.current = (newValues: number[]) => {
         setValues(newValues)
-        onChangeClipDuration([Math.floor(newValues[0]), Math.floor(newValues[1])])
+        onChangeClipDuration([Math.floor(newValues[0]) + offsetStart, Math.floor(newValues[1]) + offsetStart])
       }
     }
   }, [setValuesRef, onChangeClipDuration])
@@ -148,46 +149,46 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     setValues([middleValue - 30, middleValue + 30])
   }, [currentSeconds])
 
-    useEffect(() => {
-        if (isShow) {
-            const [start, end] = values;
-            const clipEndPlayed = end / duration;
-            // console.log('played', { played, clipEndPlayed });
-            if (played >= clipEndPlayed) {
-                seekTo(start + offsetStart, "seconds");
-            }
-        }
-    }, [played]);
+  useEffect(() => {
+    if (isShow) {
+      const [start, end] = values;
+      const clipEndPlayed = end / duration;
+      // console.log('played', { played, clipEndPlayed });
+      if (played >= clipEndPlayed) {
+        seekTo(start + offsetStart, "seconds");
+      }
+    }
+  }, [played]);
 
-    const handleDragStart = (value: number[]) => {
-        console.log('handleDragStart', value)
-        setIsPlay(false);
+  const handleDragStart = (value: number[]) => {
+    console.log('handleDragStart', value)
+    setIsPlay(false);
+  }
+  const handleDragEnd = (value: number[]) => {
+    console.log('handleDragEnd', value)
+    setIsPlay(true);
+  }
+  const handleAfterChange = (value: number[]) => {
+    let [start, end] = value;
+    if (end - start >= 60) {
+      end = start + 60;
     }
-    const handleDragEnd = (value: number[]) => {
-        console.log('handleDragEnd', value)
-        setIsPlay(true);
+    // console.log('handleAfterChange', { start, end })
+    onChangeClipDuration([Math.floor(start) + offsetStart, Math.floor(end) + offsetStart]);
+    setValues([start, end]);
+    seekTo(start + offsetStart, 'seconds');
+  };
+  const handleCancel = () => {
+    setIsShowClipView(false);
+    if (!isPlay) {
+      setIsPlay(true);
     }
-    const handleAfterChange = (value: number[]) => {
-        let [start, end] = value;
-        if (end - start >= 60) {
-            end = start + 60;
-        }
-        // console.log('handleAfterChange', { start, end })
-        onChangeClipDuration([Math.floor(start), Math.floor(end)]);
-        setValues([start, end]);
-        seekTo(start + offsetStart, 'seconds');
-      };
-    const handleCancel = () => {
-        setIsShowClipView(false);
-        if (!isPlay) {
-            setIsPlay(true);
-        }
-    };
-    const handleSave = () => {
-        handleCancel();
-        onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
-        onSave?.();
-    };
+  };
+  const handleSave = () => {
+    handleCancel();
+    onChangeClipDuration([Math.floor(values[0]) + offsetStart, Math.floor(values[1]) + offsetStart]);
+    onSave?.();
+  };
 
   return (
     <PopoverContainer
@@ -465,8 +466,8 @@ const ClipRangeWrap = styled.div<{ $isFullScreen: boolean }>`
   /* iOS Safari 전용 스타일 */
   @supports (-webkit-touch-callout: none) {
     ${({ $isFullScreen }) =>
-      $isFullScreen &&
-      `
+    $isFullScreen &&
+    `
         margin-bottom: 29px;
         `}
   }
