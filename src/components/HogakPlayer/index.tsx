@@ -80,7 +80,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.8.15'
+  const HOGAK_PLAYER_VERSION = '0.8.16'
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
@@ -201,6 +201,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const playVideo = (player: Player, isFail: boolean = false) => {
     console.log('playVideo', player, isFail)
     if (!player) return;
+    if (isDisablePlayer) return;
 
     // 재생 시도
     const playPromise = player.play();
