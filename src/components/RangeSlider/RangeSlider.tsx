@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { formatTime } from '../../util/common'
+import i18next from '../../locales/i18n';
 
 interface RangeSliderProps {
   value: number[]
@@ -364,7 +365,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
         <CenterLabel>
           <span style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '0 5px', whiteSpace: 'nowrap' }}>
-            {`${Math.min(Math.round(currentValue[1] - currentValue[0]), 60)} 초`}
+            {`${i18next.t('clip.seconds', {sec: Math.min(Math.round(currentValue[1] - currentValue[0]), 60)})}`}
           </span>
         </CenterLabel>
       </Area>

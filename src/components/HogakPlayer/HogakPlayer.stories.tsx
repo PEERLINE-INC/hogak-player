@@ -235,7 +235,7 @@ const meta = {
   args: {
     title: '',
     isLive: false,
-    disablePlayer: true,
+    disablePlayer: false,
     url: 'https://dnw98ykn7b9iq.cloudfront.net/yst/6808e479b27c92687adacfdf/cloud_hls/0_hd_hls.m3u8',
     // url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     thumbnailUrl: 'https://picsum.photos/seed/picsum/400/300',
