@@ -1,4 +1,14 @@
 {
+    "button": {
+        "save": "저장",
+        "cancel": "취소",
+        "clip": "클립",
+        "tag": "태그"
+    },
+    "message": {
+        "playing_small": "재생중",
+        "playing_big": "재생중입니다"
+    },
     "clip": {
         "seconds": "{{sec}} 초"
     }

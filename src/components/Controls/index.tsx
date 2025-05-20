@@ -29,6 +29,7 @@ import useLiveStore from '../../store/liveStore'
 import useAdStore from '../../store/adStore'
 import useQualityStore from '../../store/qualityStore'
 import { isSafari, isSupportAirplay } from '../../util/common'
+import i18next from '../../locales/i18n';
 
 interface ControlsProps {
   playerStore: ReturnType<typeof createPlayerStore>
@@ -665,7 +666,7 @@ export function Controls(props: ControlsProps) {
                       onClick={handleClickClip}
                     >
                       <ClipIcon />
-                      <p className='side_icon_name'>클립</p>
+                      <p className='side_icon_name'>{i18next.t('button.clip')}</p>
                     </IconButton>
                   </FlexCol>
                 )}
@@ -676,7 +677,7 @@ export function Controls(props: ControlsProps) {
                       onClick={handleClickTag}
                     >
                       <TagViewIcon />
-                      <p className='side_icon_name'>태그</p>
+                      <p className='side_icon_name'>{i18next.t('button.tag')}</p>
                     </IconButton>
                   </FlexCol>
                 )}

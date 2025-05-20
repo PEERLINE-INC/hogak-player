@@ -5,6 +5,7 @@ import { createPlayerStore } from "../../store/playerStore";
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
 import { MultiViewSource } from "../HogakPlayer/interfaces";
+import i18next from "i18next";
 
 interface MultiViewPopoverProps {
   playerStore: ReturnType<typeof createPlayerStore>;
@@ -78,7 +79,7 @@ export const MultiViewPopoverSmall = ({ isShow, getCurrentSeconds, playerStore }
                   <IconButton className="playing_icon">
                     <PlayingIcon></PlayingIcon>
                   </IconButton>
-                  재생중
+                  {i18next.t('message.playing_small')}
                 </div>
               )}
             </div>

@@ -8,6 +8,7 @@ import './styles.css'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { RangeSlider } from '../RangeSlider/RangeSlider'
+import i18next from '../../locales/i18n';
 
 interface ClipViewPopoverProps {
   playerStore: ReturnType<typeof createPlayerStore>
@@ -228,7 +229,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                   onClick={handleSave}
                 >
                   <SaveIcon />
-                  <p className='side_icon_name'>저장</p>
+                  <p className='side_icon_name'>{i18next.t('button.save')}</p>
                 </IconButton>
               </FlexCol>
               <FlexCol>
@@ -237,7 +238,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
                   onClick={handleCancel}
                 >
                   <CancelIcon />
-                  <p className='side_icon_name'>취소</p>
+                  <p className='side_icon_name'>{i18next.t('button.cancel')}</p>
                 </IconButton>
               </FlexCol>
             </>

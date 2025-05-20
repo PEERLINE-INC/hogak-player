@@ -1,4 +1,14 @@
 {
+    "button": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "clip": "Clip",
+        "tag": "Tag"
+    },
+    "message": {
+        "playing_small": "Playing",
+        "playing_big": "Playing"
+    },
     "clip": {
         "seconds": "{{sec}} Seconds"
     }

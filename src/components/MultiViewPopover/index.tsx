@@ -4,6 +4,7 @@ import { createPlayerStore } from "../../store/playerStore";
 import styled from 'styled-components';
 import useMultiViewStore from "../../store/multiViewStore";
 import { MultiViewSource } from "../HogakPlayer/interfaces";
+import i18next from "i18next";
 
 interface MultiViewPopoverProps {
   playerStore: ReturnType<typeof createPlayerStore>;
@@ -62,7 +63,7 @@ export const MultiViewPopover = ({ isShow, getCurrentSeconds, playerStore }: Mul
                     fontSize: '1em', /* 241224 수정 */
                   }}
                 >
-                  재생중입니다
+                  {i18next.t('message.playing_big')}
                 </div>
               )}
             </div>
