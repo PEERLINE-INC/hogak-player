@@ -5,6 +5,7 @@ import ArrowLeftIcon from "../../assets/icons/icon_arrow_left_white.svg?react";
 import PlayIcon from '../../assets/icons/vod_play.svg?react'
 import PauseIcon from '../../assets/icons/vod_pause.svg?react'
 import { createPlayerStore } from "../../store/playerStore";
+import i18next from "i18next";
 
 interface TagSaveViewPopoverProps {
     playerStore: ReturnType<typeof createPlayerStore>;
@@ -79,13 +80,13 @@ export const TagSaveViewPopover = (props: TagSaveViewPopoverProps) => {
                             <FlexCol>
                                 <IconButton className='side_icon side_save' onClick={handleSave}>
                                     <SaveIcon />
-                                    <p className='side_icon_name'>저장</p>
+                                    <p className='side_icon_name'>{i18next.t('button.save')}</p>
                                 </IconButton>
                             </FlexCol>
                             <FlexCol>
                                 <IconButton className='side_icon side_cancel' onClick={handleCancel}>
                                     <CancelIcon />
-                                    <p className='side_icon_name'>취소</p>
+                                    <p className='side_icon_name'>{i18next.t('button.cancel')}</p>
                                 </IconButton>
                             </FlexCol>
                         </>
