@@ -86,7 +86,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.9.1'
+  const HOGAK_PLAYER_VERSION = '0.9.2'
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
