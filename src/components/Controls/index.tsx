@@ -510,10 +510,12 @@ export function Controls(props: ControlsProps) {
       onMouseLeave={handleMouseLeave}
       onClick={isTouchDevice ? handleTouchOverlay : undefined}
       $isOverlayVisible={isOverlayVisible || isShowTagSaveView}
+      $isPlayAd={isPlayAd}
     >
       <ControlsContainer
         className='controls-wrapper'
         $isOverlayVisible={isOverlayVisible || isShowTagSaveView}
+        $isPlayAd={false}
       >
         {/* 250306 윤영민 변경 */}
         <TopContainer
@@ -853,7 +855,7 @@ export function Controls(props: ControlsProps) {
   )
 }
 
-const ControlsWrapper = styled.div<{ $isOverlayVisible: boolean }>`
+const ControlsWrapper = styled.div<{ $isOverlayVisible: boolean, $isPlayAd: boolean }>`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -861,23 +863,23 @@ const ControlsWrapper = styled.div<{ $isOverlayVisible: boolean }>`
   right: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 1; 
   display: flex;
   flex-direction: column;
   /* justify-content: space-between; */
-  background-color: ${({ $isOverlayVisible }) =>
-    $isOverlayVisible ? 'rgba(0, 0, 0, 0.6)' : 'transparent'};
+  background-color: ${({ $isOverlayVisible, $isPlayAd }) =>
+    $isOverlayVisible ? `${ $isPlayAd ? 'transparent': 'rgba(0, 0, 0, 0.6)' }` : 'transparent'};
   transition: background-color 0.3s ease;
 `
 
-const ControlsContainer = styled.div<{ $isOverlayVisible: boolean }>`
+const ControlsContainer = styled.div<{ $isOverlayVisible: boolean, $isPlayAd: boolean }>`
   display: grid;
   grid-template-rows: auto 1fr auto;
   /* 부모(ControlsWrapper)의 높이를 전부 차지 */
   flex: 1;
   height: 100%;
 
-  opacity: ${({ $isOverlayVisible }) => ($isOverlayVisible ? 1 : 0)};
+  opacity: ${({ $isOverlayVisible, $isPlayAd }) => ($isOverlayVisible ? ($isPlayAd ? 0 : 1) : 0)};
   transition: opacity 0.3s ease;
   pointer-events: ${({ $isOverlayVisible }) => ($isOverlayVisible ? 'auto' : 'none')};
 `

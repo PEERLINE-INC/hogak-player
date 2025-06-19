@@ -1,8 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-// import { useScript } from 'usehooks-ts';
+import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
 import 'videojs-overlay'
 import 'video.js/dist/video-js.css'
+// ad
+import 'videojs-contrib-ads';
+import './ima.css';
+import 'videojs-ima';
+
 // @ts-ignore
 import chromecast from '@silvermine/videojs-chromecast'
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css'
@@ -80,7 +85,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.9.0'
+  const HOGAK_PLAYER_VERSION = '0.9.1'
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
@@ -132,10 +137,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setIsDisableMultiView = usePlayerStore((state) => state.setIsDisableMultiView)
   const isPlayAd = useAdStore((state) => state.isPlayAd)
   const setIsPlayAd = useAdStore((state) => state.setIsPlayAd)
-  const enablePrerollAd = useAdStore((state) => state.enablePrerollAd)
-  const setEnablePrerollAd = useAdStore((state) => state.setEnablePrerollAd)
+  const prerollAdType = useAdStore((state) => state.prerollAdType);
+  const setPrerollAdType = useAdStore((state) => state.setPrerollAdType);
   const prerollAdUrl = useAdStore((state) => state.prerollAdUrl)
   const setPrerollAdUrl = useAdStore((state) => state.setPrerollAdUrl)
+  const prerollAdSkipSeconds = useAdStore((state) => state.prerollAdSkipSeconds);
+  const setPrerollAdSkipSeconds = useAdStore((state) => state.setPrerollAdSkipSeconds);
   const enableScoreBoardOverlay = usePlayerStore((state) => state.enableScoreBoardOverlay)
   const setEnableScoreBoardOverlay = usePlayerStore((state) => state.setEnableScoreBoardOverlay)
   const scoreBoardOverlayUrl = usePlayerStore((state) => state.scoreBoardOverlayUrl)
@@ -226,6 +233,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   //   id: 'cast_sender',
   // });
 
+  useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
+    removeOnUnmount: false,
+    id: 'ima-sdk',
+  });
+
   // useEffect(() => {
   //   const script = document.createElement("script");
   //   script.src = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
@@ -282,7 +294,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   // Preroll 광고 재생
   useEffect(() => {
     // 조건: 플레이어가 있고, 광고 설정이 켜져 있고, 아직 안 틀었고, URL 있음
-    if (!vjPlayer || !enablePrerollAd || prerollPlayedRef.current || !prerollAdUrl) return;
+    if (!vjPlayer || prerollAdType !== 'URL' || prerollPlayedRef.current || !prerollAdUrl) return;
     prerollPlayedRef.current = true;
     const FAILSAFE_MS = 3000;
     let playGuardId: number;
@@ -321,7 +333,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     vjPlayer.one('error', resume);
   }, [
     vjPlayer,             // player 인스턴스
-    enablePrerollAd,      // 광고 ON/OFF
+    prerollAdType,      // 광고 ON/OFF
     prerollAdUrl,         // 광고 URL
     offsetSeek,
     offsetStart,
@@ -329,7 +341,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   // Video.js Player 초기화
   useEffect(() => {
-    console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, enablePrerollAd })
+    console.log('HogakPlayer Init', { url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, isAutoplay: props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, prerollAdType })
     // URL이 없으면 초기화하지 않음
     if (!url) {
       return;
@@ -411,6 +423,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           onClickChromecastButton?.();
           player.trigger('chromecastRequested')
         },
+      }
+      
+      if (prerollAdType === 'IMA') {
+        // @ts-ignore
+        player.ima({
+          adTagUrl: prerollAdUrl,
+        });
       }
 
       playerRef.current = player
@@ -638,7 +657,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         type: 'application/x-mpegurl',
       })
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, props.enablePrerollAd]) // url, isLive 변경될 때만 실행
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, props.prerollAdType]) // url, isLive 변경될 때만 실행
 
   // usePreroll({
   //   url: url,
@@ -830,15 +849,19 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   }, [props.backIconType])
 
   useEffect(() => {
-    if (props.enablePrerollAd) {
+    if (props.prerollAdType === 'URL') {
       setIsPlayAd(true)
     }
-    setEnablePrerollAd(props.enablePrerollAd ?? false)
-  }, [props.enablePrerollAd])
+    setPrerollAdType(props.prerollAdType ?? null)
+  }, [props.prerollAdType])
 
   useEffect(() => {
     setPrerollAdUrl(props.prerollAdUrl ?? '')
   }, [props.prerollAdUrl])
+
+  useEffect(() => {
+    setPrerollAdSkipSeconds(props.prerollAdSkipSeconds ?? 0)
+  }, [props.prerollAdSkipSeconds])
 
   useEffect(() => {
     setEnableScoreBoardOverlay(props.enableScoreBoardOverlay ?? false)
@@ -946,7 +969,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     }
 
     setIsReady(true)
-    playVideo(playerRef.current)
+    if (prerollAdType === null) {
+      playVideo(playerRef.current)
+    }
   }
 
   const handleOnPlay = () => {

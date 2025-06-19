@@ -169,15 +169,20 @@ const meta = {
       description: `재생 시 호출되는 콜백입니다. false를 반환하면 재생이 중단됩니다.`,
       action: 'onPlay',
     },
-    enablePrerollAd: {
-      defaultValue: false,
-      description: `프리롤 광고 기능을 사용할지 여부입니다.`,
-      type: 'boolean',
+    prerollAdType: {
+      defaultValue: null,
+      description: `프리롤 광고 타입입니다. (IMA: 구글, URL: 일반 영상, null: 광고 없음)`,
+      type: 'string',
     },
     prerollAdUrl: {
       defaultValue: '',
       description: `프리롤 광고 영상의 URL입니다.`,
       type: 'string',
+    },
+    prerollAdSkipSeconds: {
+      defaultValue: '',
+      description: `프리롤 광고 영상의 스킵 시간(초)을 설정합니다. (IMA는 제외, 0이면 스킵 없음)`,
+      type: 'number',
     },
     isAutoplay: {
       defaultValue: false,
@@ -394,8 +399,10 @@ const meta = {
     disableTag: false,
     disableMultiView: false,
     backIconType: 'arrowLeft',
-    enablePrerollAd: false,
-    prerollAdUrl: 'http://127.0.0.1:8080/ad.mp4',
+    prerollAdType: 'IMA',
+    prerollAdUrl: 'https://pubads.g.doubleclick.net/gampad/ads?iu=/36656269,23303377946/hogaklive_222_PHVIDEOPLAYAD_etc&description_url=[placeholder]&tfcd=0&npa=0&sz=320x240%7C400x300%7C426x240%7C480x360%7C640x360%7C640x480%7C854x480%7C960x720%7C1280x720%7C1440x1080%7C1920x1080&gdfp_req=1&unviewed_position_start=1&output=vast&env=vp&impl=s&correlator=',
+    // prerollAdUrl: 'http://127.0.0.1:8080/ad.mp4',
+    prerollAdSkipSeconds: 5,
     enableScoreBoardOverlay: false,
     scoreBoardOverlayUrl: 'https://scorebug.peerline.net:24200/output/v5VaeOG',
     offsetStart: 12600,

@@ -1,6 +1,6 @@
 {
   "name": "@peerline/hogak-player",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "hogak player",
   "type": "module",
   "keywords": [
@@ -93,6 +93,7 @@
     "video.js": "^8.21.0",
     "videojs-contrib-ads": "^7.5.2",
     "videojs-contrib-quality-levels": "^4.1.0",
+    "videojs-ima": "^2.4.0",
     "videojs-overlay": "^4.0.0",
     "zustand": "^5.0.1"
   }

@@ -31,6 +31,8 @@ export type OnClickAddTagEventObject = {
   seconds: number;
 }
 
+export type PrerollAdType = 'IMA' | 'URL' | undefined | null;
+
 export type HogakPlayerProps = {
   title?: string;
   isPlay?: boolean;
@@ -63,8 +65,9 @@ export type HogakPlayerProps = {
   disableMultiView?: boolean;
   disablePlayer?: boolean;
 
-  enablePrerollAd?: boolean;
+  prerollAdType?: PrerollAdType;
   prerollAdUrl?: string;
+  prerollAdSkipSeconds?: number;
 
   // 오버레이
   enableScoreBoardOverlay?: boolean;
