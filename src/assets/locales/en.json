@@ -3,7 +3,9 @@
         "save": "Save",
         "cancel": "Cancel",
         "clip": "Clip",
-        "tag": "Tag"
+        "tag": "Tag",
+        "skip_ad": "Skip Ad",
+        "skip_ad_in": "Skip Ad in {{count}}"
     },
     "message": {
         "playing_small": "Playing",

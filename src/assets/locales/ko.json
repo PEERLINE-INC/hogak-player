@@ -3,7 +3,9 @@
         "save": "저장",
         "cancel": "취소",
         "clip": "클립",
-        "tag": "태그"
+        "tag": "태그",
+        "skip_ad": "광고 건너뛰기",
+        "skip_ad_in": "{{count}}초 후 건너뛰기"
     },
     "message": {
         "playing_small": "재생중",

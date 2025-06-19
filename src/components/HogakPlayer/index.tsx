@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { useScript } from 'usehooks-ts';
+// import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
 import 'videojs-overlay'
 import 'video.js/dist/video-js.css'
@@ -42,6 +42,7 @@ import { isHogakApp, isSafari, isSupportAirplay } from '../../util/common'
 import axios from 'axios';
 import { Parser } from 'm3u8-parser';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { SkipAdButton } from '../SkipAdButton';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -233,10 +234,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   //   id: 'cast_sender',
   // });
 
-  useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
-    removeOnUnmount: false,
-    id: 'ima-sdk',
-  });
+  // useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
+  //   removeOnUnmount: false,
+  //   id: 'ima-sdk',
+  // });
 
   // useEffect(() => {
   //   const script = document.createElement("script");
@@ -265,6 +266,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   } | null>(null)
   // ClipViewPopover와 연동하는 ref
   const setClipValuesRef = useRef<((values: number[]) => void) | null>(null)
+  const adSkipRef = useRef<((e: unknown) => void) | null>(null);
   const { setScale, setCurrentOffset } = usePinch(playerContainerRef)
   const fullScreenHandle = useFullScreenHandle();
   const onFullScreenChange = (currentState: boolean) => {
@@ -312,25 +314,45 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       console.log('prerollAd loadedmetadata')
       playVideo(vjPlayer);
     });
+    vjPlayer.on('timeupdate', () => {
+      console.log('prerollAd timeupdate');
+      // played = (현재시간 / 전체길이)
+      let current = vjPlayer.currentTime() ?? 0
+      let duration = vjPlayer.duration() ?? 1 // 0일 경우 대비
+
+      const playedFraction = current / duration
+      // console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
+      // console.log('played (video.js)', usePlayerStore.getState().played);
+
+      setDuration(duration)
+      setPlayed(playedFraction)
+    })
 
     const cleanup = () => {
       window.clearTimeout(playGuardId);
+      vjPlayer.off('timeupdate');
+      vjPlayer.on('timeupdate', handleOnTimeUpdate)
     };
   
-    const resume = (e: any) => {
+    const resume = (e: unknown) => {
       console.log('resumeContent', { event: e })
       cleanup();
-      vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
       vjPlayer.one('loadedmetadata', () => {
         // 오프셋 복원
         if (offsetSeek) vjPlayer.currentTime(offsetSeek);
         else if (offsetStart) vjPlayer.currentTime(offsetStart);
         setIsPlayAd(false);
       });
+      vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
     };
+    adSkipRef.current = resume;
   
     vjPlayer.one('ended', resume);
     vjPlayer.one('error', resume);
+
+    return () => {
+      adSkipRef.current = null;
+    };
   }, [
     vjPlayer,             // player 인스턴스
     prerollAdType,      // 광고 ON/OFF
@@ -1221,6 +1243,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
               />
             )}
             {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
+            { prerollAdType === 'URL' && isPlayAd && prerollAdSkipSeconds !== 0 && 
+              <SkipAdButton
+                playerStore={usePlayerStore}
+                skipAfter={prerollAdSkipSeconds} 
+                onClick={() => adSkipRef.current?.('userSkip')}
+              /> 
+            }
             {/* Video.js가 제어할 video 엘리먼트 */}
             <div
               ref={videoRef}
