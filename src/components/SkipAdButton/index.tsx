@@ -1,5 +1,4 @@
 import i18next from 'i18next';
-import { useEffect } from 'react';
 import styled from 'styled-components';
 import { createPlayerStore } from '../../store/playerStore';
 
