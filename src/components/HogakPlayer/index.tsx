@@ -454,16 +454,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       if (prerollAdType === 'IMA') {
         setShowUnmuteOverlay(true);
         player.muted(true);
-
-        player.on('ads-manager', function(response: any) {
-          const adsManager = response.adsManager;
-          console.log('ads-manager', adsManager);
-
-          adsManagerRef.current = adsManager;
-        })
         // @ts-ignore
         player.ima({
           adTagUrl: prerollAdUrl,
+        });
+
+        player.one('loadedmetadata', () => {
+          // 오프셋 복원
+          if (offsetSeek) player.currentTime(offsetSeek);
+          else if (offsetStart) player.currentTime(offsetStart);
+          setIsPlayAd(false);
         });
       }
 
