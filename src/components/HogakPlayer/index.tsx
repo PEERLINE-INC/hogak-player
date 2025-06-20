@@ -38,11 +38,12 @@ import useLiveStore from '../../store/liveStore'
 import usePinch from '../../hooks/usePinch'
 import useQualityStore from '../../store/qualityStore'
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level'
-import { isHogakApp, isSafari, isSupportAirplay } from '../../util/common'
+import { hasAudio, isHogakApp, isSafari, isSupportAirplay } from '../../util/common'
 import axios from 'axios';
 import { Parser } from 'm3u8-parser';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { SkipAdButton } from '../SkipAdButton';
+import { useHotkeys } from 'react-hotkeys-hook';
 // import logo from '../../assets/icons/ci_skylife_logo.png';
 
 const GlobalStyles = createGlobalStyle`
@@ -86,10 +87,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
    * 1. 기존 store / props 로직 그대로 가져오기
    * ----------------------------------------------------------------
    */
-  const HOGAK_PLAYER_VERSION = '0.9.2'
+  const HOGAK_PLAYER_VERSION = import.meta.env.APP_VERSION;
 
   const [vjPlayer, setVjPlayer] = useState<Player | null>(null);
   const prerollPlayedRef = useRef(false);
+  const adsManagerRef = useRef<any | null>(null);
 
   const [usePlayerStore] = useState(() => createPlayerStore());
   const url = usePlayerStore((state) => state.url)
@@ -123,6 +125,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setIsReady = usePlayerStore((state) => state.setIsReady)
   const setBackIconType = usePlayerStore((state) => state.setBackIconType)
   const skipDirection = usePlayerStore((state) => state.skipDirection)
+  const setSkipDirection = usePlayerStore((state) => state.setSkipDirection)
   const setIsViewThumbMarker = usePlayerStore((state) => state.setIsViewThumbMarker)
 
   const setCurrentSeconds = useClipStore((state) => state.setCurrentSeconds)
@@ -279,6 +282,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const handleUnmute = () => {
     if (!playerRef.current) return;
     playerRef.current.muted(false);
+    adsManagerRef.current?.setVolume?.(1.0);
     setShowUnmuteOverlay(false);
   };
 
@@ -315,7 +319,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       playVideo(vjPlayer);
     });
     vjPlayer.on('timeupdate', () => {
-      console.log('prerollAd timeupdate');
+      // console.log('prerollAd timeupdate');
       // played = (현재시간 / 전체길이)
       let current = vjPlayer.currentTime() ?? 0
       let duration = vjPlayer.duration() ?? 1 // 0일 경우 대비
@@ -448,6 +452,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
       
       if (prerollAdType === 'IMA') {
+        setShowUnmuteOverlay(true);
+        player.muted(true);
+
+        player.on('ads-manager', function(response: any) {
+          const adsManager = response.adsManager;
+          console.log('ads-manager', adsManager);
+
+          adsManagerRef.current = adsManager;
+        })
         // @ts-ignore
         player.ima({
           adTagUrl: prerollAdUrl,
@@ -957,6 +970,38 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     setErrorMessage(props.errorMessage ?? '')
   }, [props.errorMessage])
 
+  // 단축키
+  useHotkeys('space', () => {
+    if (isPlayAd || isDisablePlayer) return;
+
+    setIsPlay(!isPlay);
+  });
+  // 단축키
+  useHotkeys('arrowleft', () => {
+    if (isPlayAd || isDisablePlayer || !playerRef.current) return;
+
+    const currentTime = playerRef.current.currentTime() ?? 0;
+    seekTo(currentTime - 10, 'seconds');
+    setSkipDirection('left');
+  });
+  // 단축키
+  useHotkeys('arrowright', () => {
+    if (isPlayAd || isDisablePlayer || !playerRef.current) return;
+
+    const currentTime = playerRef.current.currentTime() ?? 0;
+    seekTo(currentTime + 10, 'seconds');
+    setSkipDirection('right');
+  });
+
+  // 0.6초 뒤에 스킵 메시지 숨기기
+  useEffect(() => {
+    if (!skipDirection) return;
+
+    setTimeout(() => {
+      setSkipDirection(null)
+    }, 600)
+  }, [skipDirection]);
+
   /**
    * ----------------------------------------------------------------
    * 5. Video.js 이벤트 핸들러들
@@ -1002,6 +1047,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
     // 오프셋 초과 시, 영상 중단
     if (!playerRef.current) return
+
     let current = playerRef.current.currentTime() ?? 0
     current = current - usePlayerStore.getState().offsetStart
 
@@ -1210,6 +1256,12 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       if (isDisablePlayer) return
       setIsShowChromecastButton(v)
     },
+    getIsAudio: () => {
+      if (!playerRef.current) {
+        throw new Error('Player가 아직 초기화되지 않았습니다.');
+      }
+      return hasAudio(playerRef.current);
+    }
   }))
 
   /**

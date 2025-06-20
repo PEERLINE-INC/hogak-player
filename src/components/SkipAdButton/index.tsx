@@ -47,7 +47,7 @@ export const SkipAdButton = (props: Props) => {
   
   return (
     <SkipAd type="button" onClick={secondsLeft <= 0 ? onClick : () => {}}>
-      {secondsLeft > 0 ? i18next.t('button.skip_ad_in', { count: secondsLeft }) : i18next.t('button.skip_ad')}
+      {secondsLeft > 0 && skipAfter >= secondsLeft ? i18next.t('button.skip_ad_in', { count: secondsLeft }) : i18next.t('button.skip_ad')}
       {/* ▶▍ icon: right-pointing triangle + vertical bar */}
       <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
         <polygon points="0,0 0,12 7,6" />       {/* triangle */}

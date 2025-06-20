@@ -325,11 +325,6 @@ export function Controls(props: ControlsProps) {
         }
       }
 
-      // 0.6초 뒤에 스킵 메시지 숨기기
-      setTimeout(() => {
-        setSkipDirection(null)
-      }, 600)
-
       // 마지막 탭 시간 초기화
       setLastTapTime(null)
     } else {
@@ -565,7 +560,7 @@ export function Controls(props: ControlsProps) {
             {!isFullScreen && !isDisableTag && (
               <IconButton
                 className='tag_btn'
-                onClick={handleClickTag}
+                onClick={!isPlayAd ? handleClickTag : () => {}}
               >
                 <TagViewIcon />
               </IconButton>
@@ -589,7 +584,8 @@ export function Controls(props: ControlsProps) {
             {multiViewSources.length && !isDisableMultiView && (
               <IconButton
                 onClick={() => {
-                  if (isDisablePlayer) return
+                  if (isDisablePlayer) return;
+                  if (isPlayAd) return;
                   setIsShowMultiView(true)
                 }}
                 className='multiview_btn'

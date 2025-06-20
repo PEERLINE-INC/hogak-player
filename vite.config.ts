@@ -25,6 +25,9 @@ export default defineConfig({
       project: "javascript-react"
     })
   ],
+  define: {
+    'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version),
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.tsx'),

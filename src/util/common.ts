@@ -1,3 +1,5 @@
+import Player from "video.js/dist/types/player";
+
 export function isSafari() {
     const userAgent = navigator.userAgent;
     const isSafari =
@@ -45,3 +47,26 @@ export function formatTime(seconds: number) {
     return ('0' + string).slice(-2);
   }
   
+
+export function hasAudio(player: Player): boolean {
+  // 1.  Video.js’ own wrapper (works for HLS/DASH where audio is signalled separately)
+  // @ts-ignore
+  const vjsTracks = player.audioTracks?.();
+  if (vjsTracks && vjsTracks.length > 0) return true;
+
+  // 2.  Fall back to the native <video> element
+  const el = player.tech({ IWillNotUseThisInPlugins: true }).el() as HTMLVideoElement;
+
+  //    Firefox exposes a boolean
+  if (typeof (el as any).mozHasAudio !== 'undefined') {
+    return (el as any).mozHasAudio;
+  }
+
+  //    Chrome/Safari expose the decoded-byte counter
+  if (typeof (el as any).webkitAudioDecodedByteCount !== 'undefined') {
+    return (el as any).webkitAudioDecodedByteCount > 0;
+  }
+
+  // Couldn’t find evidence of audio
+  return false;
+}
