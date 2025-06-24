@@ -66,7 +66,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const eventId = useClipStore((state) => state.eventId)
   const clipApiHost = useClipStore((state) => state.clipApiHost)
   const isSeek = playerStore((state) => state.isSeek)
-  const offsetStart = playerStore((state) => state.offsetStart)
 
   const [values, setValues] = useState<number[]>([0, 30])
   const [min, setMin] = useState<number>(0)
@@ -80,7 +79,6 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const fetchImages = async () => {
     try {
       // console.log('fetch thumbnail images', { clipApiHost, eventId })
-      const _offsetStart = playerStore.getState().offsetStart
 
       if (!clipApiHost || !eventId) {
         console.log('not found clipApiHost or eventId')
@@ -89,8 +87,8 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
       const url = `${clipApiHost.endsWith('/') ? clipApiHost.slice(0, -1) : clipApiHost}/media/thumbnail/list`
       const response = await axios.post<ClipThumbnailApiResponse>(url, {
         eventId,
-        start: min + _offsetStart,
-        end: max + _offsetStart,
+        start: min,
+        end: max,
       })
       const thumbnailList = response.data.thumbnailList
 
@@ -133,7 +131,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
     if (setValuesRef) {
       setValuesRef.current = (newValues: number[]) => {
         setValues(newValues)
-        onChangeClipDuration([Math.floor(newValues[0]) + offsetStart, Math.floor(newValues[1]) + offsetStart])
+        onChangeClipDuration([Math.floor(newValues[0]), Math.floor(newValues[1])])
       }
     }
   }, [setValuesRef, onChangeClipDuration])
@@ -156,7 +154,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
       const clipEndPlayed = end / duration;
       // console.log('played', { played, clipEndPlayed });
       if (played >= clipEndPlayed) {
-        seekTo(start + offsetStart, "seconds");
+        seekTo(start, "seconds");
       }
     }
   }, [played]);
@@ -172,12 +170,12 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   const handleAfterChange = (value: number[]) => {
     let [start, end] = value;
     if (end - start >= 60) {
-      end = start + 60;
+      end = start + 60; 
     }
     // console.log('handleAfterChange', { start, end })
-    onChangeClipDuration([Math.floor(start) + offsetStart, Math.floor(end) + offsetStart]);
+    onChangeClipDuration([Math.floor(start), Math.floor(end)]);
     setValues([start, end]);
-    seekTo(start + offsetStart, 'seconds');
+    seekTo(start, 'seconds');
   };
   const handleCancel = () => {
     setIsShowClipView(false);
@@ -187,7 +185,7 @@ export const ClipViewPopover = (props: ClipViewPopoverProps) => {
   };
   const handleSave = () => {
     handleCancel();
-    onChangeClipDuration([Math.floor(values[0]) + offsetStart, Math.floor(values[1]) + offsetStart]);
+    onChangeClipDuration([Math.floor(values[0]), Math.floor(values[1])]);
     onSave?.();
   };
 
