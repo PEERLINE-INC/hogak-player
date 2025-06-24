@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-// import { useScript } from 'usehooks-ts';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
 import 'videojs-overlay'
 import 'video.js/dist/video-js.css'
@@ -237,10 +237,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   //   id: 'cast_sender',
   // });
 
-  // useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
-  //   removeOnUnmount: false,
-  //   id: 'ima-sdk',
-  // });
+  useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
+    removeOnUnmount: false,
+    id: 'ima-sdk',
+  });
 
   // useEffect(() => {
   //   const script = document.createElement("script");
@@ -422,6 +422,23 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           },
         },
       })
+      // // 기존 메서드 보존
+      // const _ct = player.currentTime.bind(player);
+      // const _dur = player.duration.bind(player);
+    
+      // // 메서드 조작
+      // player.currentTime = function(t?: number): number | undefined {
+      //   if (t === undefined) {
+      //     return _ct() ?? 0 - offsetStart;
+      //   }
+      //   return _ct(t + offsetStart);
+      // };
+      // player.duration = function(): number | undefined {
+      //   if (offsetEnd > 0) {
+      //     return offsetEnd - offsetStart;
+      //   }
+      //   return _dur();
+      // };
       console.log('chromecast')
 
       console.log('chromecastRef.current', chromecastRef.current)
@@ -452,6 +469,35 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
       
       if (prerollAdType === 'IMA') {
+        player.on('ads-manager', (e: any) => {
+          // @ts-ignore
+          adsManagerRef.current = e.adsManager as google.ima.AdsManager;
+          // console.log('adsManagerRef.current', e.adsManager);
+          // @ts-ignore
+          const ev = google.ima.AdEvent.Type;
+          console.log('ev', ev);
+          [ev.SKIPPED, ev.CLICK].forEach((t) =>
+            adsManagerRef.current!.addEventListener(t, () => {
+              if (player.muted()) {
+                player.muted(false);
+                adsManagerRef.current!.setVolume(1);
+                setShowUnmuteOverlay(false);
+              }
+            }),
+          );
+
+          [ev.SKIPPED, ev.COMPLETE].forEach((t) =>
+            adsManagerRef.current!.addEventListener(t, () => {
+              console.log('complete');
+              if (offsetSeek) {
+                player.currentTime(offsetSeek);
+              } else if (offsetStart) {
+                player.currentTime(offsetStart);
+              }
+            }),
+          );
+        });
+
         setShowUnmuteOverlay(true);
         player.muted(true);
         // @ts-ignore
@@ -460,6 +506,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         });
 
         player.one('loadedmetadata', () => {
+          console.log('ima loadedmetadata', { offsetSeek, offsetStart });
           // 오프셋 복원
           if (offsetSeek) player.currentTime(offsetSeek);
           else if (offsetStart) player.currentTime(offsetStart);
@@ -1103,7 +1150,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
 
       const playedFraction = current / duration
-      // console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
+      console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration, offsetStart: _offsetStart, offsetEnd: _offsetEnd })
       // console.log('played (video.js)', usePlayerStore.getState().played);
 
       setPlayed(playedFraction)
@@ -1156,9 +1203,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     handleOnDuration()
   }
 
-  const seekTo = (value: number, type: 'seconds' | 'fraction') => {
+  const seekTo = useCallback((value: number, type: 'seconds' | 'fraction') => {
     if (!playerRef.current) return
-
+    console.log('seekTo', { value, type, offsetStart, duration, time: duration * value + offsetStart })
+    
     // fraction일 경우 전체 길이에 비례해 계산
     if (type === 'fraction') {
       if (value < 0 || value > 1) {
@@ -1180,7 +1228,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
       playerRef.current.currentTime(value)
     }
-  }
+  }, [duration, offsetStart])
 
   const getCurrentSeconds = () => {
     return playerRef.current?.currentTime() ?? 0
@@ -1285,12 +1333,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
                 className='hogak-interaction-overlay'
                 onClick={handleUnmute}
                 style={{
+                  pointerEvents: isPlayAd ? 'none' : 'auto',
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  zIndex: 9999,
+                  zIndex: 1000,
                 }}
               />
             )}
@@ -1299,7 +1348,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
               <SkipAdButton
                 playerStore={usePlayerStore}
                 skipAfter={prerollAdSkipSeconds} 
-                onClick={() => adSkipRef.current?.('userSkip')}
+                onClick={() => {
+                  if (playerRef.current?.muted()) {
+                    playerRef.current?.muted(false);
+                    setShowUnmuteOverlay(false);
+                  }
+                  adSkipRef.current?.('userSkip')
+                }}
               /> 
             }
             {/* Video.js가 제어할 video 엘리먼트 */}

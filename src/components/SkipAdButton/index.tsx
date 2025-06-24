@@ -7,7 +7,7 @@ const SkipAd = styled.button`
   position: absolute;
   top: 75%;
   right: 16px;
-  z-index: 100;
+  z-index: 1001;
 
   display: inline-flex;
   align-items: center;
