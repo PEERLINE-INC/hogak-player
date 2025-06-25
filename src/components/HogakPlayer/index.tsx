@@ -1,7 +1,9 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { useScript } from 'usehooks-ts';
+// import { useScript } from 'usehooks-ts';
 import videojs from 'video.js'
 import 'videojs-overlay'
+// @ts-ignore
+import videoJsOffset from 'videojs-offset'
 import 'video.js/dist/video-js.css'
 // ad
 import 'videojs-contrib-ads';
@@ -237,10 +239,10 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   //   id: 'cast_sender',
   // });
 
-  useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
-    removeOnUnmount: false,
-    id: 'ima-sdk',
-  });
+  // useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
+  //   removeOnUnmount: false,
+  //   id: 'ima-sdk',
+  // });
 
   // useEffect(() => {
   //   const script = document.createElement("script");
@@ -343,6 +345,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       cleanup();
       vjPlayer.one('loadedmetadata', () => {
         setIsPlayAd(false);
+        seekTo(offsetSeek, 'seconds');
+      });
+      // @ts-ignore
+      vjPlayer.offset({
+        start: offsetStart,
+        end: offsetEnd,
+        restart_beginning: false,
       });
       vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
     };
@@ -374,29 +383,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       const videoElement = document.createElement('video-js')
       videoRef.current?.appendChild(videoElement)
 
-      // 플러그인 선언
       chromecast(videojs)
-
-      const _protoCT   = Player.prototype.currentTime;
-      const _protoDur  = Player.prototype.duration;
-    
-      // 메서드 조작
-      Player.prototype.currentTime = function(t?: number): number | undefined {
-        // 시간 가져오기
-        if (t === undefined) {
-          return _protoCT() ?? 0 - offsetStart;
-        }
-
-        // 시간 설정하기
-        return _protoCT(t + offsetStart);
-      };
-      Player.prototype.duration = function(): number | undefined {
-        if (offsetEnd > 0) {
-          return offsetEnd - offsetStart;
-        }
-        return _protoDur();
-      };
-
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
         techOrder: ['chromecast', 'html5'],
@@ -437,9 +424,27 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           },
         },
       })
-      // 기존 메서드 보존
-      // const _ct = player.currentTime.bind(player);
-      // const _dur = player.duration.bind(player);
+      
+      // 플러그인 선언
+      videojs.registerPlugin('offset', videoJsOffset);
+      if (offsetStart > 0 || offsetEnd > 0) {
+        // IMA 광고가 아니면 오프셋은 광고 이후 적용해야 함
+        if (prerollAdType === 'URL') {
+          // @ts-ignore
+          player.offset({
+            start: 0,
+            end: 0,
+            restart_beginning: true,
+          });
+        } else {
+          // @ts-ignore
+          player.offset({
+            start: offsetStart,
+            end: offsetEnd,
+            restart_beginning: false,
+          });
+        }
+      }
 
       console.log('chromecast')
 
@@ -477,7 +482,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           // console.log('adsManagerRef.current', e.adsManager);
           // @ts-ignore
           const ev = google.ima.AdEvent.Type;
-          console.log('ev', ev);
+          // console.log('ev', ev);
           [ev.SKIPPED, ev.CLICK].forEach((t) =>
             adsManagerRef.current!.addEventListener(t, () => {
               if (player.muted()) {
@@ -1112,7 +1117,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       }
 
       const playedFraction = current / duration
-      console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
+      // console.log('handleOnTimeUpdate (video.js)', { playedFraction, current, duration })
       // console.log('played (video.js)', usePlayerStore.getState().played);
 
       setPlayed(playedFraction)
