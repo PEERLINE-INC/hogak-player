@@ -345,7 +345,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       cleanup();
       vjPlayer.one('loadedmetadata', () => {
         setIsPlayAd(false);
-        seekTo(offsetSeek, 'seconds');
+        if (isLive) {
+          seekToLive();
+        } else {
+          seekTo(offsetSeek, 'seconds');
+        }
       });
       // @ts-ignore
       vjPlayer.offset({
