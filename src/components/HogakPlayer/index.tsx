@@ -1,7 +1,8 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-// import { useScript } from 'usehooks-ts';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import videojs from 'video.js'
 import 'videojs-overlay'
+// @ts-ignore
+import videoJsOffset from 'videojs-offset'
 import 'video.js/dist/video-js.css'
 // ad
 import 'videojs-contrib-ads';
@@ -197,16 +198,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setErrorMessage = usePlayerStore((state) => state.setErrorMessage)
 
   // 외부에서 주어지는 콜백들
-  const onBack = props.onBack ?? (() => {})
-  const onClickTagButton = props.onClickTagButton ?? (() => {})
-  const onChangeClipDuration = props.onChangeClipDuration ?? (() => {})
-  const onClickClipSave = props.onClickClipSave ?? (() => {})
-  const onClickTagSave = props.onClickTagSave ?? (() => {})
-  const onClickTagCancel = props.onClickTagCancel ?? (() => {})
-  const onPlayCallback = props.onPlay ?? (() => {})
-  const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => {})
-  const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => {})
-  const onClickChromecastButton = props.onClickChromecastButton ?? (() => {})
+  const onBack = props.onBack ?? (() => { })
+  const onClickTagButton = props.onClickTagButton ?? (() => { })
+  const onChangeClipDuration = props.onChangeClipDuration ?? (() => { })
+  const onClickClipSave = props.onClickClipSave ?? (() => { })
+  const onClickTagSave = props.onClickTagSave ?? (() => { })
+  const onClickTagCancel = props.onClickTagCancel ?? (() => { })
+  const onPlayCallback = props.onPlay ?? (() => { })
+  const onClickLeftArrowButton = props.onClickLeftArrowButton ?? (() => { })
+  const onClickRightArrowButton = props.onClickRightArrowButton ?? (() => { })
+  const onClickChromecastButton = props.onClickChromecastButton ?? (() => { })
 
   // 유틸 함수
   const playVideo = (player: Player, isFail: boolean = false) => {
@@ -231,27 +232,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         });
     }
   }
-
-  // useScript(`https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1`, {
-  //   removeOnUnmount: false,
-  //   id: 'cast_sender',
-  // });
-
-  // useScript(`//imasdk.googleapis.com/js/sdkloader/ima3.js`, {
-  //   removeOnUnmount: false,
-  //   id: 'ima-sdk',
-  // });
-
-  // useEffect(() => {
-  //   const script = document.createElement("script");
-  //   script.src = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
-  //   script.async = true;
-  //   document.body.appendChild(script);
-
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   };
-  // }, []);
 
   /**
    * ----------------------------------------------------------------
@@ -304,11 +284,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     prerollPlayedRef.current = true;
     const FAILSAFE_MS = 3000;
     let playGuardId: number;
-  
+
     /* ---- 광고 재생 ---- */
     vjPlayer.src({ src: prerollAdUrl, type: 'video/mp4' });
     playGuardId = window.setTimeout(() => resume('timeout'), FAILSAFE_MS);
-    
+
     vjPlayer.one('playing', () => {
       console.log('prerollAd playing')
       vjPlayer.trigger('prerollAdStarted');
@@ -337,20 +317,28 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       vjPlayer.off('timeupdate');
       vjPlayer.on('timeupdate', handleOnTimeUpdate)
     };
-  
+
     const resume = (e: unknown) => {
       console.log('resumeContent', { event: e })
       cleanup();
       vjPlayer.one('loadedmetadata', () => {
-        // 오프셋 복원
-        if (offsetSeek) vjPlayer.currentTime(offsetSeek);
-        else if (offsetStart) vjPlayer.currentTime(offsetStart);
         setIsPlayAd(false);
+        if (isLive) {
+          seekToLive();
+        } else {
+          seekTo(offsetSeek, 'seconds');
+        }
+      });
+      // @ts-ignore
+      vjPlayer.offset({
+        start: offsetStart,
+        end: offsetEnd,
+        restart_beginning: false,
       });
       vjPlayer.src({ src: url, type: 'application/x-mpegurl' });
     };
     adSkipRef.current = resume;
-  
+
     vjPlayer.one('ended', resume);
     vjPlayer.one('error', resume);
 
@@ -361,8 +349,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     vjPlayer,             // player 인스턴스
     prerollAdType,      // 광고 ON/OFF
     prerollAdUrl,         // 광고 URL
-    offsetSeek,
-    offsetStart,
   ]);
 
   // Video.js Player 초기화
@@ -379,9 +365,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       const videoElement = document.createElement('video-js')
       videoRef.current?.appendChild(videoElement)
 
-      // 플러그인 선언
       chromecast(videojs)
-
       // Video.js 인스턴스 생성
       const player = videojs(videoElement, {
         techOrder: ['chromecast', 'html5'],
@@ -422,6 +406,28 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           },
         },
       })
+
+      // 플러그인 선언
+      videojs.registerPlugin('offset', videoJsOffset);
+      if (offsetStart > 0 || offsetEnd > 0) {
+        // IMA 광고가 아니면 오프셋은 광고 이후 적용해야 함
+        if (prerollAdType === 'URL') {
+          // @ts-ignore
+          player.offset({
+            start: 0,
+            end: 0,
+            restart_beginning: true,
+          });
+        } else {
+          // @ts-ignore
+          player.offset({
+            start: offsetStart,
+            end: offsetEnd,
+            restart_beginning: false,
+          });
+        }
+      }
+
       console.log('chromecast')
 
       console.log('chromecastRef.current', chromecastRef.current)
@@ -450,19 +456,70 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
           player.trigger('chromecastRequested')
         },
       }
-      
+
       if (prerollAdType === 'IMA') {
+        // @ts-ignore
+        const liveTracker = player.liveTracker;
+
+        player.on('adend', () => {
+          console.log('adend')
+        });
+        player.on('ads-manager', (e: any) => {
+          // @ts-ignore
+          adsManagerRef.current = e.adsManager as google.ima.AdsManager;
+          // console.log('adsManagerRef.current', e.adsManager);
+          // @ts-ignore
+          const ev = google.ima.AdEvent.Type;
+          // console.log('ev', ev);
+          [ev.SKIPPED, ev.CLICK].forEach((t) =>
+            adsManagerRef.current!.addEventListener(t, () => {
+              if (player.muted()) {
+                player.muted(false);
+                adsManagerRef.current!.setVolume(1);
+                setShowUnmuteOverlay(false);
+              }
+            }),
+          );
+
+          [ev.SKIPPED, ev.COMPLETE].forEach((t) =>
+            adsManagerRef.current!.addEventListener(t, () => {
+              console.log('IMA 광고 완료');
+              // IMA 광고 완료 후 라이브 스트림으로 복귀
+              if (isLive) {
+                // console.log('IMA 광고 완료 후 라이브 스트림으로 복귀', player.currentSrc())
+                // 광고 완료 후 무한로딩 되는 현상 수정을 위한 임시 처리
+                setIsPlay(false);
+                setTimeout(() => {
+                  setIsPlay(true);
+                }, 200);
+
+                // 광고 완료 후 라이브 끝으로 이동하지 않는 현상 수정을 위한 임시 처리
+                const seekToLiveTimer = setInterval(() => {
+                  const isBehindLiveEdge = liveTracker.behindLiveEdge();
+                  // console.log('isBehindLiveEdge', isBehindLiveEdge);
+                  if (isBehindLiveEdge === false) {
+                    clearInterval(seekToLiveTimer);
+                  } else {
+                    seekToLive();
+                  }
+                }, 500);
+              }
+            }),
+          );
+        });
+
         setShowUnmuteOverlay(true);
         player.muted(true);
         // @ts-ignore
         player.ima({
           adTagUrl: prerollAdUrl,
+          contribAdsSettings: {
+            liveCuePoints: true,
+          }
         });
 
         player.one('loadedmetadata', () => {
-          // 오프셋 복원
-          if (offsetSeek) player.currentTime(offsetSeek);
-          else if (offsetStart) player.currentTime(offsetStart);
+          console.log('ima loadedmetadata', { offsetSeek, offsetStart });
           setIsPlayAd(false);
         });
       }
@@ -530,7 +587,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('error', handleOnError)
       player.on('waiting', handleOnWaiting)
       player.on('canplay', handleOnCanPlay)
-      
+
       // @ts-ignore
       player.liveTracker.on('seekableendchange', handleOnSeekableEndChange)
       // @ts-ignore
@@ -662,12 +719,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
             playVideo(playerRef.current);
           }
         } else {
-          // 오프셋이 있으면
-          if (offsetSeek > 0) {
-            playerRef.current.currentTime(offsetSeek)
-          } else if (offsetStart > 0) {
-            playerRef.current.currentTime(offsetStart)
-          }
+          playerRef.current.currentTime(0);
         }
 
         // 길이 갱신
@@ -692,19 +744,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         type: 'application/x-mpegurl',
       })
     }
-  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, props.prerollAdType]) // url, isLive 변경될 때만 실행
-
-  // usePreroll({
-  //   url: url,
-  //   playerRef: playerRef,
-  //   adUrl: prerollAdUrl,
-  //   enable: enablePrerollAd,
-  //   afterAdSeek: offsetSeek > 0 ? offsetSeek : offsetStart,
-  //   onDone: () => {
-  //     console.log('Preroll Ad onDone')
-  //     setIsPlayAd(false);
-  //   },
-  // });
+  }, [url, isLive, enableScoreBoardOverlay, scoreBoardOverlayUrl, props.isAutoplay, isDisablePlayer, offsetSeek, offsetStart, offsetEnd, props.prerollAdType]) // url, isLive 변경될 때만 실행
 
   useEffect(() => {
     return () => {
@@ -1022,16 +1062,13 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
 
   const handleOnReady = () => {
     console.log('onReady (video.js)')
-    console.log('offsetStart', offsetStart)
     if (!playerRef.current) return
 
     if (!isPlayAd) {
       if (offsetSeek > 0) {
-        console.log('handleOnReady', {offsetSeek, isPlayAd})
+        console.log('handleOnReady', { offsetSeek, isPlayAd })
         playerRef.current.currentTime(offsetSeek)
         setOffsetSeek(0)
-      } else if (offsetStart > 0) {
-        playerRef.current.currentTime(offsetStart)
       }
     }
 
@@ -1049,7 +1086,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     if (!playerRef.current) return
 
     let current = playerRef.current.currentTime() ?? 0
-    current = current - usePlayerStore.getState().offsetStart
 
     let currentDuration = usePlayerStore.getState().duration
     console.log('handleOnPlay', current, currentDuration)
@@ -1079,27 +1115,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       setPlayed(current / duration)
       setAtLive(atLive)
     } else {
-      const _offsetStart = usePlayerStore.getState().offsetStart
-      const _offsetEnd = usePlayerStore.getState().offsetEnd
-      // const _offsetStart = offsetStart
-      // const _offsetEnd = offsetEnd
-
       if (usePlayerStore.getState().isSeek) {
         // seek 중 time slider update 금지
         return
       }
       // played = (현재시간 / 전체길이)
       let current = playerRef.current.currentTime() ?? 0
-      if (_offsetStart > 0) {
-        current = current - _offsetStart
-      }
       let duration = playerRef.current.duration() ?? 1 // 0일 경우 대비
-      if (_offsetEnd > 0) {
-        duration = _offsetEnd - _offsetStart
-        // 오프셋 초과 시, 영상 중단
-        if (current > duration) {
-          setIsPlay(false)
-        }
+      // 재생시간 초과 시, 영상 중단
+      if (current > duration) {
+        setIsPlay(false)
       }
 
       const playedFraction = current / duration
@@ -1118,9 +1143,6 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const handleOnDuration = () => {
     if (!playerRef.current) return
     let duration = playerRef.current.duration() || 0
-    if (offsetEnd > 0) {
-      duration = offsetEnd - offsetStart
-    }
     console.log('onDuration (video.js)', duration)
     setDuration(duration)
   }
@@ -1156,8 +1178,9 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     handleOnDuration()
   }
 
-  const seekTo = (value: number, type: 'seconds' | 'fraction') => {
+  const seekTo = useCallback((value: number, type: 'seconds' | 'fraction') => {
     if (!playerRef.current) return
+    console.log('seekTo', { value, type, duration, time: duration * value })
 
     // fraction일 경우 전체 길이에 비례해 계산
     if (type === 'fraction') {
@@ -1165,22 +1188,15 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
         throw new Error('Invalid seek value')
       }
       let time = duration * value
-      if (offsetStart > 0) {
-        time = time + offsetStart
-      }
       playerRef.current.currentTime(time)
     } else {
       // seconds
-      if (value > duration + offsetStart) {
-        value = duration + offsetStart
-      } else {
-        if (offsetStart > 0 && offsetStart > value) {
-          value = offsetStart
-        }
+      if (value > duration) {
+        value = duration
       }
       playerRef.current.currentTime(value)
     }
-  }
+  }, [duration])
 
   const getCurrentSeconds = () => {
     return playerRef.current?.currentTime() ?? 0
@@ -1209,12 +1225,8 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       if (value) {
         setIsPlay(false)
         let currentSeconds = playerRef.current?.currentTime() ?? 0
-        const offsetStart = usePlayerStore.getState().offsetStart
         if (initialCurrentSeconds) {
           currentSeconds = initialCurrentSeconds
-        }
-        if (offsetStart > 0) {
-          currentSeconds = currentSeconds - offsetStart
         }
         setCurrentSeconds(currentSeconds)
         setIsShowClipView(true)
@@ -1285,22 +1297,29 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
                 className='hogak-interaction-overlay'
                 onClick={handleUnmute}
                 style={{
+                  pointerEvents: isPlayAd ? 'none' : 'auto',
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  zIndex: 9999,
+                  zIndex: 1000,
                 }}
               />
             )}
             {isShowErrorView && <ErrorDisplay className='hogak-player-error-message'>{errorMessage}</ErrorDisplay>}
-            { prerollAdType === 'URL' && isPlayAd && prerollAdSkipSeconds !== 0 && 
+            {prerollAdType === 'URL' && isPlayAd && prerollAdSkipSeconds !== 0 &&
               <SkipAdButton
                 playerStore={usePlayerStore}
-                skipAfter={prerollAdSkipSeconds} 
-                onClick={() => adSkipRef.current?.('userSkip')}
-              /> 
+                skipAfter={prerollAdSkipSeconds}
+                onClick={() => {
+                  if (playerRef.current?.muted()) {
+                    playerRef.current?.muted(false);
+                    setShowUnmuteOverlay(false);
+                  }
+                  adSkipRef.current?.('userSkip')
+                }}
+              />
             }
             {/* Video.js가 제어할 video 엘리먼트 */}
             <div

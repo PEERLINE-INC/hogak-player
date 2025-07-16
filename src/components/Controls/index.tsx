@@ -399,10 +399,6 @@ export function Controls(props: ControlsProps) {
 
     setIsPlay(false)
     let currentSeconds = playerRef.current?.currentTime() ?? 0
-    const offsetStart = playerStore.getState().offsetStart
-    if (offsetStart > 0) {
-      currentSeconds = currentSeconds - offsetStart
-    }
     setCurrentSeconds(currentSeconds)
     setIsShowClipView(true)
   }
