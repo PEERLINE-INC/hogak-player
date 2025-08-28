@@ -1,6 +1,6 @@
 {
   "name": "@peerline/hogak-player",
-  "version": "0.9.6",
+  "version": "0.9.6-beta.1",
   "description": "hogak player",
   "type": "module",
   "keywords": [

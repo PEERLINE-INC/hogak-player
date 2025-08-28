@@ -54,8 +54,8 @@ export function Controls(props: ControlsProps) {
   const url = playerStore((state) => state.url)
   const title = playerStore((state) => state.title)
   const isDisablePlayer = playerStore((state) => state.isDisablePlayer)
-  //const pip = usePlayerStore((state) => state.pip); 241224 PIP 버튼 주석
-  // const setPip = usePlayerStore((state) => state.setPip) 241224 PIP 버튼 주석;
+  const pip = playerStore((state) => state.pip)
+  const setPip = playerStore((state) => state.setPip)
   const isPlay = playerStore((state) => state.isPlay)
   const setIsPlay = playerStore((state) => state.setIsPlay)
   const isSeek = playerStore((state) => state.isSeek)
@@ -826,10 +826,17 @@ export function Controls(props: ControlsProps) {
                   </Slider.Root>}
                 </VolumeControlWrap>
               </FlexRow>
-              {/* 241224 PIP 버튼 주석
-              {ReactPlayer.canEnablePIP(url) &&
-                <button onClick={() => setPip(!pip)}>{pip ? 'PIP OFF' : 'PIP ON'}</button>
-              } */}
+              {document.pictureInPictureEnabled && (
+                <PipButton
+                  className='pip_btn'
+                  onClick={() => {
+                    if (isDisablePlayer) return
+                    setPip(!pip)
+                  }}
+                >
+                  {pip ? 'PIP OFF' : 'PIP ON'}
+                </PipButton>
+              )}
               <IconButton
                 className='full_screen_btn'
                 onClick={() => {
@@ -1220,5 +1227,20 @@ const LiveContainer = styled.div<{ $isAtLive: boolean }>`
     color: white;
     font-size: 1.4em;
     padding-right: 0.5em;
+  }
+`
+
+const PipButton = styled(IconButton)`
+  &.pip_btn {
+    color: white;
+    font-size: 1.2em;
+    padding: 0.5em;
+    border-radius: 0.3em;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
   }
 `
