@@ -104,6 +104,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
   const setIsDisablePlayer = usePlayerStore((state) => state.setIsDisablePlayer)
 
   const pip = usePlayerStore((state) => state.pip)
+  const setPip = usePlayerStore((state) => state.setPip)
   const isPlay = usePlayerStore((state) => state.isPlay)
   const setIsPlay = usePlayerStore((state) => state.setIsPlay)
   const duration = usePlayerStore((state) => state.duration)
@@ -588,6 +589,17 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       player.on('waiting', handleOnWaiting)
       player.on('canplay', handleOnCanPlay)
 
+      // PIP 상태 변경 감지
+      player.on('enterpictureinpicture', () => {
+        console.log('PIP 진입')
+        setPip(true)
+      })
+      
+      player.on('leavepictureinpicture', () => {
+        console.log('PIP 종료')
+        setPip(false)
+      })
+
       // @ts-ignore
       player.liveTracker.on('seekableendchange', handleOnSeekableEndChange)
       // @ts-ignore
@@ -784,12 +796,26 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     playerRef.current.volume(volume)
   }, [volume])
 
-  // Video.js는 기본적으로 PIP를 직접 지원하지 않으므로,
-  // 필요하다면 별도 플러그인을 사용하거나 브라우저 Picture-in-Picture API를 래핑해야 함.
+  // PIP 기능 구현
   useEffect(() => {
+    if (!playerRef.current) return
+    
     if (pip) {
-      // pip 활성화 로직(별도 구현 필요)
-      console.log('[Video.js] PIP requested - 별도 구현 필요')
+      // PIP 활성화
+      const videoElement = playerRef.current.el().querySelector('video')
+      if (videoElement && document.pictureInPictureEnabled) {
+        videoElement.requestPictureInPicture().catch((error) => {
+          console.error('PIP 활성화 실패:', error)
+          setPip(false)
+        })
+      }
+    } else {
+      // PIP 비활성화
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture().catch((error) => {
+          console.error('PIP 비활성화 실패:', error)
+        })
+      }
     }
   }, [pip])
 
