@@ -862,6 +862,7 @@ const ControlsWrapper = styled.div<{ $isOverlayVisible: boolean, $isPlayAd: bool
   background-color: ${({ $isOverlayVisible, $isPlayAd }) =>
     $isOverlayVisible ? `${ $isPlayAd ? 'transparent': 'rgba(0, 0, 0, 0.6)' }` : 'transparent'};
   transition: background-color 0.3s ease;
+  user-select: none;
 `
 
 const ControlsContainer = styled.div<{ $isOverlayVisible: boolean, $isPlayAd: boolean }>`

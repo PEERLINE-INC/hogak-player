@@ -582,6 +582,7 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       })
       player.on('ready', handleOnReady)
       player.on('play', handleOnPlay)
+      player.on('pause', handleOnPause)
       player.on('timeupdate', handleOnTimeUpdate)
       player.on('ended', handleOnEnded)
       player.on('error', handleOnError)
@@ -1101,6 +1102,11 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
     }
   }
 
+  const handleOnPause = () => {
+    console.log('onPause (video.js)')
+    setIsPlay(false)
+  }
+
   const handleOnTimeUpdate = () => {
     // console.log('handleOnTimeUpdate (video.js)', usePlayerStore.getState().isLive)
     if (!playerRef.current) return
@@ -1112,8 +1118,16 @@ export const HogakPlayer = forwardRef(function HogakPlayer(props: HogakPlayerPro
       const atLive = liveTracker.atLiveEdge()
       // console.log('handleOnTimeUpdate (video.js)', current, duration, atLive)
       setDuration(duration)
-      setPlayed(current / duration)
       setAtLive(atLive)
+
+      // 라이브 엣지에 있을 때는 계산 오차와 관계없이 슬라이더를 항상 끝(100%)으로 보이도록 강제
+      if (atLive) {
+        setPlayed(1)
+      } else {
+        // duration 이 0 이면 NaN 방지
+        const safeDuration = duration || 1
+        setPlayed(current / safeDuration)
+      }
     } else {
       if (usePlayerStore.getState().isSeek) {
         // seek 중 time slider update 금지
